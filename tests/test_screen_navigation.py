@@ -30,7 +30,7 @@ def test_chat_navigator_clicks_next_chat_when_confident():
     assert mouse.clicked == ClickPoint(x=60, y=65)
 
 
-def test_chat_navigator_does_not_guess_when_active_chat_is_unknown():
+def test_chat_navigator_starts_from_edge_when_active_chat_is_unknown():
     mouse = FakeMouse()
     navigator = ChatNavigator(mouse=mouse, min_confidence=0.8)
     items = [
@@ -38,14 +38,12 @@ def test_chat_navigator_does_not_guess_when_active_chat_is_unknown():
         ChatItem(index=1, bounds=(10, 50, 110, 80), is_active=False, confidence=0.95),
     ]
 
-    result = navigator.navigate(items, "chat_next")
+    first_result = navigator.navigate(items, "chat_next")
+    second_result = navigator.navigate(items, "chat_next")
 
-    assert result == ChatNavigationResult(
-        clicked=False,
-        fallback_action=None,
-        reason="no_active_chat",
-    )
-    assert mouse.clicked is None
+    assert first_result == ChatNavigationResult(clicked=True, fallback_action=None, reason="clicked")
+    assert second_result == ChatNavigationResult(clicked=True, fallback_action=None, reason="clicked")
+    assert mouse.clicked == ClickPoint(x=60, y=65)
 
 
 def test_chat_navigator_uses_memory_when_active_chat_becomes_unknown():
