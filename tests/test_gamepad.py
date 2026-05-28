@@ -58,3 +58,22 @@ def test_dpad_hat_repeats_scroll_actions_while_held():
     assert resolver.update((0, 1), now=0.08) == "scroll_up"
     assert resolver.update((0, 0), now=0.09) is None
     assert resolver.update((0, -1), now=0.2) == "scroll_down"
+
+
+def test_dpad_hat_emits_focus_actions_for_left_and_right():
+    resolver = HatActionResolver(
+        HatBinding(
+            hat=0,
+            cooldown_seconds=0.08,
+            left_action="focus_chat_list",
+            right_action="focus_message_pane",
+            up_action="scroll_up",
+            down_action="scroll_down",
+            repeat=True,
+        )
+    )
+
+    assert resolver.update((-1, 0), now=0.0) == "focus_chat_list"
+    assert resolver.update((-1, 0), now=0.03) is None
+    assert resolver.update((0, 0), now=0.09) is None
+    assert resolver.update((1, 0), now=0.2) == "focus_message_pane"

@@ -9,6 +9,8 @@ from .actions import validate_action_name
 class KeyboardAction:
     keys: tuple[str, ...] = ()
     scroll_clicks: int = 0
+    mouse_target: str | None = None
+    click: bool = False
 
 
 class KeyboardActionPlanner:
@@ -30,11 +32,18 @@ class KeyboardActionPlanner:
         "scroll_down": -3,
         "scroll_up": 3,
     }
+    _MOUSE_TARGET_BY_ACTION = {
+        "focus_chat_list": ("chat_list", False),
+        "focus_message_pane": ("message_pane", True),
+    }
 
     def plan(self, action_name: str) -> KeyboardAction:
         validate_action_name(action_name)
         if action_name in self._SCROLL_CLICKS_BY_ACTION:
             return KeyboardAction(scroll_clicks=self._SCROLL_CLICKS_BY_ACTION[action_name])
+        if action_name in self._MOUSE_TARGET_BY_ACTION:
+            mouse_target, click = self._MOUSE_TARGET_BY_ACTION[action_name]
+            return KeyboardAction(mouse_target=mouse_target, click=click)
         try:
             return KeyboardAction(keys=self._KEYS_BY_ACTION[action_name])
         except KeyError as exc:

@@ -16,6 +16,8 @@ ACTION_NAMES = frozenset(
         "cursor_left",
         "cursor_right",
         "cursor_up",
+        "focus_chat_list",
+        "focus_message_pane",
         "scroll_down",
         "scroll_up",
         "ctrl_tab",

@@ -30,3 +30,17 @@ def test_scroll_actions_map_to_mouse_wheel_clicks():
     assert planner.plan("scroll_up").scroll_clicks > 0
     assert planner.plan("scroll_down").keys == ()
     assert planner.plan("scroll_down").scroll_clicks < 0
+
+
+def test_focus_actions_map_to_mouse_targets():
+    planner = KeyboardActionPlanner()
+
+    chat_list = planner.plan("focus_chat_list")
+    message_pane = planner.plan("focus_message_pane")
+
+    assert chat_list.keys == ()
+    assert chat_list.mouse_target == "chat_list"
+    assert chat_list.click is False
+    assert message_pane.keys == ()
+    assert message_pane.mouse_target == "message_pane"
+    assert message_pane.click is True
