@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+build/
+dist/
+*.egg-info/
+
+# Local runtime state
+logs/
+recordings/
+transcripts/
+*.wav
+*.mp3
+*.flac
+*.ogg
+*.tmp.wav
+
+# Private configs and secrets
+.env
+.env.*
+!.env.example
+config/local/
+config/*.local.*
+replacements.json
+*.token
+*token*.json
+*credentials*.json
+auth.json
+
+# Local project management notes
+docs/prompts/
+docs/github-first-public-repo.md
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Generated packages
+*.zip
+*.msi
+*.exe
