@@ -35,15 +35,15 @@ Questions, bug reports, and feature ideas should go through GitHub issues.
   - `F9`: dictate and paste into the active window.
   - `F8`: dictate to clipboard only.
 - Xbox-compatible controller controls:
-  - `A`: dictate and paste.
+  - `A`: focus the message input, dictate, and paste.
   - `X`: dictate to clipboard.
   - `B`: Backspace; hold to repeat.
   - `LT`: Space.
   - `RT`: Enter.
   - Left stick up/down: move to previous/next chat.
   - Right stick left/right/up/down: move the text cursor.
-  - D-pad left/right: choose whether D-pad scrolling targets the chat list or
-    the message pane.
+  - D-pad left/right: move the mouse to the chat list or message pane so D-pad
+    scrolling targets the intended area.
   - D-pad up/down: scroll the selected chat area.
 - Local text cleanup:
   - replacement dictionary;

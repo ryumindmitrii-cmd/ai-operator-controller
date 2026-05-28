@@ -70,11 +70,13 @@ copy_text
 Controller, keyboard, and voice command inputs should map into this action
 model. Output backends then execute actions against the active desktop window.
 
-High-level actions such as `chat_next`, `chat_previous`, `cursor_left`,
-`focus_message_pane`, and `scroll_down` should stay separate from low-level
-keyboard chords, mouse moves, clicks, or mouse wheel events. App profiles can
-choose how to execute those semantic actions for Codex, ChatGPT, Cursor,
-browsers, and editors without changing the controller mapping.
+High-level actions such as `dictate_paste`, `chat_next`, `chat_previous`,
+`cursor_left`, `focus_message_pane`, and `scroll_down` should stay separate from
+low-level keyboard chords, mouse moves, clicks, or mouse wheel events. App
+profiles can choose how to execute those semantic actions for Codex, ChatGPT,
+Cursor, browsers, and editors without changing the controller mapping. A Codex
+profile may focus the message input before recording for `dictate_paste`, then
+paste into that focused input after transcription.
 
 ## Screen-Aware Chat Navigation
 
