@@ -42,6 +42,7 @@ Questions, bug reports, and feature ideas should go through GitHub issues.
   - `RT`: Enter.
   - Left stick up/down: move to previous/next chat.
   - Right stick left/right/up/down: move the text cursor.
+  - D-pad up/down: scroll the active chat.
 - Local text cleanup:
   - replacement dictionary;
   - filler phrase filter;

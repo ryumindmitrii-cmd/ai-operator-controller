@@ -23,15 +23,18 @@ def test_public_codex_profile_uses_only_known_actions():
         "cursor_left",
         "cursor_right",
         "cursor_up",
+        "scroll_down",
+        "scroll_up",
     }.issubset(actions)
     assert actions <= ACTION_NAMES
 
 
-def test_public_codex_profile_maps_sticks_to_chat_and_cursor_actions():
+def test_public_codex_profile_maps_controller_to_chat_cursor_and_scroll_actions():
     profile = json.loads(Path("config/examples/profile.codex.windows.json").read_text())
 
     axes = profile["gamepad"]["axes"]
     buttons = profile["gamepad"]["buttons"]
+    hats = profile["gamepad"]["hats"]
 
     assert buttons["b"]["repeat"] is True
     assert buttons["b"]["cooldown_seconds"] == 0.1
@@ -42,6 +45,9 @@ def test_public_codex_profile_maps_sticks_to_chat_and_cursor_actions():
     assert axes["right_stick_x"]["positive_action"] == "cursor_right"
     assert axes["right_stick_y"]["negative_action"] == "cursor_up"
     assert axes["right_stick_y"]["positive_action"] == "cursor_down"
+    assert hats["dpad"]["up_action"] == "scroll_up"
+    assert hats["dpad"]["down_action"] == "scroll_down"
+    assert hats["dpad"]["repeat"] is True
 
 
 def test_validate_action_name_rejects_unknown_actions():

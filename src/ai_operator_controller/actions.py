@@ -16,6 +16,8 @@ ACTION_NAMES = frozenset(
         "cursor_left",
         "cursor_right",
         "cursor_up",
+        "scroll_down",
+        "scroll_up",
         "ctrl_tab",
         "ctrl_shift_tab",
         "paste_clipboard",
@@ -23,7 +25,17 @@ ACTION_NAMES = frozenset(
     }
 )
 
-ACTION_KEYS = frozenset({"action", "positive_action", "negative_action"})
+ACTION_KEYS = frozenset(
+    {
+        "action",
+        "down_action",
+        "left_action",
+        "negative_action",
+        "positive_action",
+        "right_action",
+        "up_action",
+    }
+)
 
 
 def validate_action_name(action_name: str) -> str:

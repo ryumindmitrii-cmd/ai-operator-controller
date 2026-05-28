@@ -59,6 +59,15 @@
         "negative_action": "cursor_up",
         "positive_action": "cursor_down"
       }
+    },
+    "hats": {
+      "dpad": {
+        "hat": 0,
+        "cooldown_seconds": 0.08,
+        "repeat": true,
+        "up_action": "scroll_up",
+        "down_action": "scroll_down"
+      }
     }
   },
   "paste": {

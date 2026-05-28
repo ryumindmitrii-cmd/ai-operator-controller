@@ -1,4 +1,9 @@
-from ai_operator_controller.gamepad import AxisBinding, AxisActionResolver
+from ai_operator_controller.gamepad import (
+    AxisBinding,
+    AxisActionResolver,
+    HatBinding,
+    HatActionResolver,
+)
 
 
 def test_chat_axis_emits_once_per_flick_until_released():
@@ -35,3 +40,21 @@ def test_cursor_axis_repeats_while_held_after_cooldown():
     assert resolver.update(0.7, now=0.0) == "cursor_right"
     assert resolver.update(0.7, now=0.03) is None
     assert resolver.update(0.7, now=0.08) == "cursor_right"
+
+
+def test_dpad_hat_repeats_scroll_actions_while_held():
+    resolver = HatActionResolver(
+        HatBinding(
+            hat=0,
+            cooldown_seconds=0.08,
+            up_action="scroll_up",
+            down_action="scroll_down",
+            repeat=True,
+        )
+    )
+
+    assert resolver.update((0, 1), now=0.0) == "scroll_up"
+    assert resolver.update((0, 1), now=0.03) is None
+    assert resolver.update((0, 1), now=0.08) == "scroll_up"
+    assert resolver.update((0, 0), now=0.09) is None
+    assert resolver.update((0, -1), now=0.2) == "scroll_down"

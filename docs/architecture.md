@@ -26,7 +26,7 @@ Command Layer
 Output Layer
   - clipboard write
   - SendInput paste
-  - Enter / Backspace / cursor keys / chat navigation actions
+  - Enter / Backspace / cursor keys / mouse wheel / chat navigation actions
   - optional screen-aware chat selection
   - logs and tray status
 ```
@@ -57,6 +57,8 @@ cursor_left
 cursor_right
 cursor_up
 cursor_down
+scroll_up
+scroll_down
 ctrl_tab
 ctrl_shift_tab
 paste_clipboard
@@ -66,10 +68,10 @@ copy_text
 Controller, keyboard, and voice command inputs should map into this action
 model. Output backends then execute actions against the active desktop window.
 
-High-level actions such as `chat_next`, `chat_previous`, and `cursor_left`
-should stay separate from low-level keyboard chords such as `Ctrl+Tab`. App
-profiles can choose how to execute those semantic actions for Codex, ChatGPT,
-Cursor, browsers, and editors without changing the controller mapping.
+High-level actions such as `chat_next`, `chat_previous`, `cursor_left`, and
+`scroll_down` should stay separate from low-level keyboard chords or mouse wheel
+events. App profiles can choose how to execute those semantic actions for Codex,
+ChatGPT, Cursor, browsers, and editors without changing the controller mapping.
 
 ## Screen-Aware Chat Navigation
 

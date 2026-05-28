@@ -21,3 +21,12 @@ def test_chat_actions_have_keyboard_fallbacks():
 
     assert planner.plan("chat_previous").keys == ("ctrl", "shift", "tab")
     assert planner.plan("chat_next").keys == ("ctrl", "tab")
+
+
+def test_scroll_actions_map_to_mouse_wheel_clicks():
+    planner = KeyboardActionPlanner()
+
+    assert planner.plan("scroll_up").keys == ()
+    assert planner.plan("scroll_up").scroll_clicks > 0
+    assert planner.plan("scroll_down").keys == ()
+    assert planner.plan("scroll_down").scroll_clicks < 0

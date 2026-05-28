@@ -7,7 +7,8 @@ from .actions import validate_action_name
 
 @dataclass(frozen=True)
 class KeyboardAction:
-    keys: tuple[str, ...]
+    keys: tuple[str, ...] = ()
+    scroll_clicks: int = 0
 
 
 class KeyboardActionPlanner:
@@ -25,9 +26,15 @@ class KeyboardActionPlanner:
         "space": ("space",),
         "paste_clipboard": ("ctrl", "v"),
     }
+    _SCROLL_CLICKS_BY_ACTION = {
+        "scroll_down": -3,
+        "scroll_up": 3,
+    }
 
     def plan(self, action_name: str) -> KeyboardAction:
         validate_action_name(action_name)
+        if action_name in self._SCROLL_CLICKS_BY_ACTION:
+            return KeyboardAction(scroll_clicks=self._SCROLL_CLICKS_BY_ACTION[action_name])
         try:
             return KeyboardAction(keys=self._KEYS_BY_ACTION[action_name])
         except KeyError as exc:

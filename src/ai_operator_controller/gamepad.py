@@ -6,6 +6,8 @@ from typing import Literal
 from .actions import validate_action_name
 
 AxisDirection = Literal["negative", "positive"]
+HatDirection = Literal["left", "right", "up", "down"]
+HatValue = tuple[int, int]
 
 
 @dataclass(frozen=True)
@@ -66,6 +68,88 @@ class AxisActionResolver:
         return self.binding.positive_action
 
     def _can_emit(self, direction: AxisDirection, now: float) -> bool:
+        if self._active_direction != direction:
+            return self._cooldown_elapsed(now)
+        return self.binding.repeat and self._cooldown_elapsed(now)
+
+    def _cooldown_elapsed(self, now: float) -> bool:
+        if self._last_action_at is None:
+            return True
+        return now - self._last_action_at >= self.binding.cooldown_seconds
+
+
+@dataclass(frozen=True)
+class HatBinding:
+    hat: int
+    cooldown_seconds: float
+    left_action: str | None = None
+    right_action: str | None = None
+    up_action: str | None = None
+    down_action: str | None = None
+    repeat: bool = False
+
+    def __post_init__(self) -> None:
+        if self.hat < 0:
+            raise ValueError("hat index must be non-negative")
+        if self.cooldown_seconds < 0:
+            raise ValueError("hat cooldown must be non-negative")
+
+        for action in (
+            self.left_action,
+            self.right_action,
+            self.up_action,
+            self.down_action,
+        ):
+            if action is not None:
+                validate_action_name(action)
+
+
+class HatActionResolver:
+    def __init__(self, binding: HatBinding) -> None:
+        self.binding = binding
+        self._active_direction: HatDirection | None = None
+        self._last_action_at: float | None = None
+
+    def update(self, value: HatValue, *, now: float) -> str | None:
+        direction = self._direction_for_value(value)
+        if direction is None:
+            self._active_direction = None
+            return None
+
+        action = self._action_for_direction(direction)
+        if action is None:
+            self._active_direction = direction
+            return None
+
+        if not self._can_emit(direction, now):
+            return None
+
+        self._active_direction = direction
+        self._last_action_at = now
+        return action
+
+    def _direction_for_value(self, value: HatValue) -> HatDirection | None:
+        x, y = value
+        if y > 0:
+            return "up"
+        if y < 0:
+            return "down"
+        if x < 0:
+            return "left"
+        if x > 0:
+            return "right"
+        return None
+
+    def _action_for_direction(self, direction: HatDirection) -> str | None:
+        if direction == "left":
+            return self.binding.left_action
+        if direction == "right":
+            return self.binding.right_action
+        if direction == "up":
+            return self.binding.up_action
+        return self.binding.down_action
+
+    def _can_emit(self, direction: HatDirection, now: float) -> bool:
         if self._active_direction != direction:
             return self._cooldown_elapsed(now)
         return self.binding.repeat and self._cooldown_elapsed(now)
