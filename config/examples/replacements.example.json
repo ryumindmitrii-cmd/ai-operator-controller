@@ -1,0 +1,18 @@
+{
+  "description": "Safe public example. Do not commit personal replacements.",
+  "replace_phrases": {
+    "new line": "\n",
+    "semicolon": ";",
+    "colon": ":"
+  },
+  "trash_phrases": [
+    "um",
+    "uh",
+    "you know"
+  ],
+  "send_commands": [
+    "send",
+    "send message"
+  ]
+}
+
