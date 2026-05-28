@@ -54,7 +54,13 @@ class ChatNavigator:
             return self._fallback(action_name, "no_chat_items")
 
         ordered_items = sorted(items, key=lambda item: item.index)
-        active_position = self._active_position(ordered_items, action_name)
+        active_position = self._active_position(ordered_items)
+        if active_position is None:
+            return ChatNavigationResult(
+                clicked=False,
+                fallback_action=None,
+                reason="no_active_chat",
+            )
         target_position = active_position + (1 if action_name == "chat_next" else -1)
         if target_position < 0 or target_position >= len(ordered_items):
             return self._fallback(action_name, "edge_of_list")
@@ -71,14 +77,14 @@ class ChatNavigator:
         self._screen_nav_index = target_position
         return ChatNavigationResult(clicked=True, fallback_action=None, reason="clicked")
 
-    def _active_position(self, items: list[ChatItem], action_name: str) -> int:
+    def _active_position(self, items: list[ChatItem]) -> int | None:
         for position, item in enumerate(items):
             if item.is_active:
                 self._screen_nav_index = position
                 return position
         if self._screen_nav_index is not None and self._screen_nav_index < len(items):
             return self._screen_nav_index
-        return -1 if action_name == "chat_next" else len(items)
+        return None
 
     def _fallback(self, action_name: str, reason: str) -> ChatNavigationResult:
         return ChatNavigationResult(clicked=False, fallback_action=action_name, reason=reason)
@@ -129,7 +135,7 @@ class PywinautoCodexChatReader:
 
         if width < 80 or height < 16 or height > 110:
             return None
-        if int(rectangle.bottom) <= window_top or int(rectangle.top) >= window_bottom:
+        if int(rectangle.top) < window_top + 70 or int(rectangle.bottom) > window_bottom - 70:
             return None
         center_x = int((rectangle.left + rectangle.right) / 2)
         if center_x > window_left + int(window_width * 0.45):

@@ -30,7 +30,7 @@ def test_chat_navigator_clicks_next_chat_when_confident():
     assert mouse.clicked == ClickPoint(x=60, y=65)
 
 
-def test_chat_navigator_starts_from_edge_when_active_chat_is_unknown():
+def test_chat_navigator_does_not_guess_when_active_chat_is_unknown():
     mouse = FakeMouse()
     navigator = ChatNavigator(mouse=mouse, min_confidence=0.8)
     items = [
@@ -38,26 +38,34 @@ def test_chat_navigator_starts_from_edge_when_active_chat_is_unknown():
         ChatItem(index=1, bounds=(10, 50, 110, 80), is_active=False, confidence=0.95),
     ]
 
-    first_result = navigator.navigate(items, "chat_next")
-    second_result = navigator.navigate(items, "chat_next")
+    result = navigator.navigate(items, "chat_next")
+
+    assert result == ChatNavigationResult(
+        clicked=False,
+        fallback_action=None,
+        reason="no_active_chat",
+    )
+    assert mouse.clicked is None
+
+
+def test_chat_navigator_uses_memory_when_active_chat_becomes_unknown():
+    mouse = FakeMouse()
+    navigator = ChatNavigator(mouse=mouse, min_confidence=0.8)
+    active_items = [
+        ChatItem(index=0, bounds=(10, 10, 110, 40), is_active=True, confidence=0.95),
+        ChatItem(index=1, bounds=(10, 50, 110, 80), is_active=False, confidence=0.95),
+    ]
+    inactive_items = [
+        ChatItem(index=0, bounds=(10, 10, 110, 40), is_active=False, confidence=0.95),
+        ChatItem(index=1, bounds=(10, 50, 110, 80), is_active=False, confidence=0.95),
+    ]
+
+    first_result = navigator.navigate(active_items, "chat_next")
+    second_result = navigator.navigate(inactive_items, "chat_previous")
 
     assert first_result == ChatNavigationResult(clicked=True, fallback_action=None, reason="clicked")
     assert second_result == ChatNavigationResult(clicked=True, fallback_action=None, reason="clicked")
-    assert mouse.clicked == ClickPoint(x=60, y=65)
-
-
-def test_chat_navigator_can_start_from_bottom_when_active_chat_is_unknown():
-    mouse = FakeMouse()
-    navigator = ChatNavigator(mouse=mouse, min_confidence=0.8)
-    items = [
-        ChatItem(index=0, bounds=(10, 10, 110, 40), is_active=False, confidence=0.95),
-        ChatItem(index=1, bounds=(10, 50, 110, 80), is_active=False, confidence=0.95),
-    ]
-
-    result = navigator.navigate(items, "chat_previous")
-
-    assert result == ChatNavigationResult(clicked=True, fallback_action=None, reason="clicked")
-    assert mouse.clicked == ClickPoint(x=60, y=65)
+    assert mouse.clicked == ClickPoint(x=60, y=25)
 
 
 def test_chat_navigator_falls_back_when_confidence_is_low():
