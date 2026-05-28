@@ -35,7 +35,7 @@ Questions, bug reports, and feature ideas should go through GitHub issues.
   - `F9`: dictate and paste into the active window.
   - `F8`: dictate to clipboard only.
 - Xbox-compatible controller controls:
-  - `A`: dictate and paste.
+  - `A`: focus near the lower-center message input, dictate, and paste.
   - `X`: dictate to clipboard.
   - `B`: Backspace; hold to repeat.
   - `LT`: Space.

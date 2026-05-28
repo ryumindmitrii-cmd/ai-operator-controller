@@ -9,7 +9,16 @@
     "enabled": true,
     "index": 0,
     "buttons": {
-      "a": { "button": 0, "action": "dictate_paste" },
+      "a": {
+        "button": 0,
+        "action": "dictate_paste",
+        "focus_before_action": {
+          "target": "message_input",
+          "strategy": "lower_center_click",
+          "x_ratio": 0.5,
+          "bottom_offset_pixels": 160
+        }
+      },
       "b": {
         "button": 1,
         "action": "backspace",

@@ -38,6 +38,13 @@ def test_public_codex_profile_maps_controller_to_chat_cursor_and_scroll_actions(
     buttons = profile["gamepad"]["buttons"]
     hats = profile["gamepad"]["hats"]
 
+    assert buttons["a"]["action"] == "dictate_paste"
+    assert buttons["a"]["focus_before_action"] == {
+        "target": "message_input",
+        "strategy": "lower_center_click",
+        "x_ratio": 0.5,
+        "bottom_offset_pixels": 160,
+    }
     assert buttons["b"]["repeat"] is True
     assert buttons["b"]["cooldown_seconds"] == 0.1
     assert axes["lt"]["action"] == "space"

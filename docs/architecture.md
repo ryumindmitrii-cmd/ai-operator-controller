@@ -74,9 +74,9 @@ High-level actions such as `dictate_paste`, `chat_next`, `chat_previous`,
 `cursor_left`, `focus_message_pane`, and `scroll_down` should stay separate from
 low-level keyboard chords, mouse moves, clicks, or mouse wheel events. App
 profiles can choose how to execute those semantic actions for Codex, ChatGPT,
-Cursor, browsers, and editors without changing the controller mapping. Focus
-actions should avoid stealing focus from the active text input unless the backend
-can identify the intended input field reliably.
+Cursor, browsers, and editors without changing the controller mapping. A Codex
+profile may use a configurable lower-center click target before recording when a
+native text-input control cannot be detected reliably.
 
 ## Screen-Aware Chat Navigation
 
