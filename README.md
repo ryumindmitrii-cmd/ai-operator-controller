@@ -11,11 +11,16 @@ controller mappings, text cleanup, and application-specific command profiles.
 
 ## Status
 
-Early project scaffold.
+Early public developer preview.
 
 The working private prototype currently lives outside this repository. This repo
 is the clean public home where the prototype will be migrated after privacy,
 configuration, packaging, and licensing cleanup.
+
+The current public build is useful for inspecting the project direction, running
+the CLI scaffold, validating text cleanup and controller mapping logic, and
+reviewing the safe Codex profile. It is not yet a one-command end-user app or a
+Windows installer.
 
 Questions, bug reports, and feature ideas should go through GitHub issues.
 
@@ -35,7 +40,8 @@ Questions, bug reports, and feature ideas should go through GitHub issues.
   - `F9`: dictate and paste into the active window.
   - `F8`: dictate to clipboard only.
 - Xbox-compatible controller controls:
-  - `A`: focus near the lower-center message input, dictate, and paste.
+  - `A`: focus near the lower-center message input, move the caret to the end,
+    dictate, and paste.
   - `X`: dictate to clipboard.
   - `B`: Backspace; hold to repeat.
   - `LT`: Space.
@@ -77,11 +83,18 @@ Questions, bug reports, and feature ideas should go through GitHub issues.
 ## Development Setup
 
 ```powershell
+git clone https://github.com/ryumindmitrii-cmd/ai-operator-controller.git
+cd ai-operator-controller
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install --upgrade pip
 .\.venv\Scripts\python.exe -m pip install -e ".[dev]"
 .\.venv\Scripts\python.exe -m ai_operator_controller --help
+.\.venv\Scripts\python.exe -m ai_operator_controller doctor
+.\.venv\Scripts\python.exe -m pytest
 ```
+
+For a more detailed Windows setup and current capability notes, see
+`docs/windows-quickstart.md`.
 
 ## Security Checks
 

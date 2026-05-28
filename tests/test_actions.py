@@ -43,7 +43,8 @@ def test_public_codex_profile_maps_controller_to_chat_cursor_and_scroll_actions(
         "target": "message_input",
         "strategy": "lower_center_click",
         "x_ratio": 0.5,
-        "bottom_offset_pixels": 155,
+        "bottom_offset_pixels": 100,
+        "move_caret_to_end": True,
     }
     assert buttons["b"]["repeat"] is True
     assert buttons["b"]["cooldown_seconds"] == 0.1
