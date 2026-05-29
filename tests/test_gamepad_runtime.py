@@ -42,7 +42,7 @@ def test_runtime_hat_emits_scroll_action_and_dry_run_output():
 
     assert result is not None
     assert result.action_name == "scroll_down"
-    assert [event.describe() for event in result.output_events] == ["scroll: -2"]
+    assert [event.describe() for event in result.output_events] == ["scroll: -1"]
 
 
 def test_runtime_hat_emits_focus_action_and_dry_run_output():

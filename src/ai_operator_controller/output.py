@@ -30,8 +30,8 @@ class KeyboardActionPlanner:
         "paste_clipboard": ("ctrl", "v"),
     }
     _SCROLL_CLICKS_BY_ACTION = {
-        "scroll_down": -2,
-        "scroll_up": 2,
+        "scroll_down": -1,
+        "scroll_up": 1,
     }
     _MOUSE_TARGET_BY_ACTION = {
         "focus_chat_list": ("chat_list", False),
