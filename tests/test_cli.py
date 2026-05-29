@@ -191,6 +191,27 @@ def test_simulate_gamepad_button_reports_future_dictation_action(capsys):
     assert "Output: unsupported" in output
 
 
+def test_simulate_gamepad_bumper_button_prints_mouse_click(capsys):
+    assert (
+        main(
+            [
+                "simulate-gamepad",
+                "--profile",
+                "config/examples/profile.codex.windows.json",
+                "--button",
+                "rb",
+                "down",
+            ]
+        )
+        == 0
+    )
+
+    output = capsys.readouterr().out
+    assert "Input: button rb down" in output
+    assert "Action: mouse_right_click" in output
+    assert "click_mouse: right" in output
+
+
 def test_simulate_gamepad_hat_prints_dry_run_event(capsys):
     assert (
         main(

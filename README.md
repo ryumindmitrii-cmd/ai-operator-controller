@@ -44,6 +44,8 @@ Questions, bug reports, and feature ideas should go through GitHub issues.
     dictate, and paste.
   - `X`: dictate to clipboard.
   - `B`: Backspace; hold to repeat.
+  - `LB`: Left mouse click.
+  - `RB`: Right mouse click.
   - `LT`: Space.
   - `RT`: Enter.
   - Left stick up/down: move to previous/next chat.

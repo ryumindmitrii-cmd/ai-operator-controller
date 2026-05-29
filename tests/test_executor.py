@@ -36,6 +36,15 @@ def test_executor_sends_focus_actions_to_backend():
     ]
 
 
+def test_executor_sends_mouse_click_actions_to_backend():
+    backend = DryRunOutputBackend()
+    executor = ActionExecutor(backend)
+
+    executor.execute("mouse_right_click")
+
+    assert backend.events == [OutputEvent(kind="click_mouse", mouse_button="right")]
+
+
 def test_executor_rejects_actions_without_output_plan():
     backend = DryRunOutputBackend()
     executor = ActionExecutor(backend)

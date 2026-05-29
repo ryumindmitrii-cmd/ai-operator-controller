@@ -7,7 +7,14 @@ from .output import KeyboardAction, KeyboardActionPlanner
 
 
 TextOutputTarget = Literal["paste", "clipboard"]
-OutputEventKind = Literal["press_keys", "scroll", "focus_mouse_target", "write_text"]
+MouseButton = Literal["left", "right"]
+OutputEventKind = Literal[
+    "press_keys",
+    "scroll",
+    "focus_mouse_target",
+    "click_mouse",
+    "write_text",
+]
 
 
 @dataclass(frozen=True)
@@ -16,6 +23,7 @@ class OutputEvent:
     keys: tuple[str, ...] = ()
     scroll_clicks: int = 0
     mouse_target: str | None = None
+    mouse_button: MouseButton | None = None
     click: bool = False
     text_target: TextOutputTarget | None = None
     text_length: int = 0
@@ -28,6 +36,8 @@ class OutputEvent:
         if self.kind == "write_text":
             target = self.text_target or ""
             return f"write_text: {target} length={self.text_length}"
+        if self.kind == "click_mouse":
+            return f"click_mouse: {self.mouse_button or ''}"
         target = self.mouse_target or ""
         return f"focus_mouse_target: {target} click={self.click}"
 
@@ -40,6 +50,9 @@ class OutputBackend(Protocol):
         pass
 
     def focus_mouse_target(self, target: str, *, click: bool) -> None:
+        pass
+
+    def click_mouse(self, button: MouseButton) -> None:
         pass
 
     def write_text(self, text: str, *, target: TextOutputTarget) -> None:
@@ -60,6 +73,9 @@ class DryRunOutputBackend:
         self.events.append(
             OutputEvent(kind="focus_mouse_target", mouse_target=target, click=click)
         )
+
+    def click_mouse(self, button: MouseButton) -> None:
+        self.events.append(OutputEvent(kind="click_mouse", mouse_button=button))
 
     def write_text(self, text: str, *, target: TextOutputTarget) -> None:
         self.events.append(
@@ -86,6 +102,9 @@ class ActionExecutor:
             return action
         if action.mouse_target is not None:
             self.backend.focus_mouse_target(action.mouse_target, click=action.click)
+            return action
+        if action.mouse_button is not None:
+            self.backend.click_mouse(action.mouse_button)
             return action
         raise ValueError(f"Action has no output effect: {action_name}")
 

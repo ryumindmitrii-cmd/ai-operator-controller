@@ -26,6 +26,8 @@
         "repeat": true,
         "cooldown_seconds": 0.1
       },
+      "lb": { "button": 4, "action": "mouse_left_click" },
+      "rb": { "button": 5, "action": "mouse_right_click" },
       "x": { "button": 2, "action": "dictate_clipboard" }
     },
     "axes": {

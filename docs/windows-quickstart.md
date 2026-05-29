@@ -102,6 +102,8 @@ The default Codex example profile uses these high-frequency controls:
   start paste-mode dictation.
 - `X`: clipboard-only dictation.
 - `B`: Backspace with hold-to-repeat.
+- `LB`: left mouse click.
+- `RB`: right mouse click.
 - `LT`: Space.
 - `RT`: Enter.
 - Left stick up/down: previous or next chat.

@@ -10,6 +10,7 @@ class KeyboardAction:
     keys: tuple[str, ...] = ()
     scroll_clicks: int = 0
     mouse_target: str | None = None
+    mouse_button: str | None = None
     click: bool = False
 
 
@@ -36,6 +37,10 @@ class KeyboardActionPlanner:
         "focus_chat_list": ("chat_list", False),
         "focus_message_pane": ("message_pane", True),
     }
+    _MOUSE_BUTTON_BY_ACTION = {
+        "mouse_left_click": "left",
+        "mouse_right_click": "right",
+    }
 
     def plan(self, action_name: str) -> KeyboardAction:
         validate_action_name(action_name)
@@ -44,6 +49,8 @@ class KeyboardActionPlanner:
         if action_name in self._MOUSE_TARGET_BY_ACTION:
             mouse_target, click = self._MOUSE_TARGET_BY_ACTION[action_name]
             return KeyboardAction(mouse_target=mouse_target, click=click)
+        if action_name in self._MOUSE_BUTTON_BY_ACTION:
+            return KeyboardAction(mouse_button=self._MOUSE_BUTTON_BY_ACTION[action_name])
         try:
             return KeyboardAction(keys=self._KEYS_BY_ACTION[action_name])
         except KeyError as exc:

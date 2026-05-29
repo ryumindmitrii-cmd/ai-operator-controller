@@ -44,3 +44,15 @@ def test_focus_actions_map_to_mouse_targets():
     assert message_pane.keys == ()
     assert message_pane.mouse_target == "message_pane"
     assert message_pane.click is True
+
+
+def test_mouse_click_actions_map_to_mouse_buttons():
+    planner = KeyboardActionPlanner()
+
+    left_click = planner.plan("mouse_left_click")
+    right_click = planner.plan("mouse_right_click")
+
+    assert left_click.keys == ()
+    assert left_click.mouse_button == "left"
+    assert right_click.keys == ()
+    assert right_click.mouse_button == "right"

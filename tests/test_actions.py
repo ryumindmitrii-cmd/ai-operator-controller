@@ -25,6 +25,8 @@ def test_public_codex_profile_uses_only_known_actions():
         "cursor_up",
         "focus_chat_list",
         "focus_message_pane",
+        "mouse_left_click",
+        "mouse_right_click",
         "scroll_down",
         "scroll_up",
     }.issubset(actions)
@@ -48,6 +50,10 @@ def test_public_codex_profile_maps_controller_to_chat_cursor_and_scroll_actions(
     }
     assert buttons["b"]["repeat"] is True
     assert buttons["b"]["cooldown_seconds"] == 0.1
+    assert buttons["lb"]["button"] == 4
+    assert buttons["lb"]["action"] == "mouse_left_click"
+    assert buttons["rb"]["button"] == 5
+    assert buttons["rb"]["action"] == "mouse_right_click"
     assert axes["lt"]["action"] == "space"
     assert axes["left_stick_y"]["negative_action"] == "chat_previous"
     assert axes["left_stick_y"]["positive_action"] == "chat_next"

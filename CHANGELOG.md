@@ -13,3 +13,4 @@
 - Added `clean-text` CLI support for public replacement-rule testing.
 - Added `dictate-once` preview runtime from transcript text to dry-run output.
 - Added `listen-gamepad --dry-run` for physical controller mapping checks.
+- Added LB/RB mappings for left and right mouse clicks.

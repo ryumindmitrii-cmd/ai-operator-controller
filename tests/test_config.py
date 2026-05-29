@@ -21,7 +21,7 @@ def test_public_codex_profile_loads_and_validates():
     assert result.profile_name == "codex_windows_default"
     assert "dictate_paste" in result.actions
     assert "cursor_left" in result.actions
-    assert result.button_count == 3
+    assert result.button_count == 5
     assert result.axis_count == 5
     assert result.hat_count == 1
 

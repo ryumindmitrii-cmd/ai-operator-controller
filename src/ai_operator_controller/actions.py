@@ -18,6 +18,8 @@ ACTION_NAMES = frozenset(
         "cursor_up",
         "focus_chat_list",
         "focus_message_pane",
+        "mouse_left_click",
+        "mouse_right_click",
         "scroll_down",
         "scroll_up",
         "ctrl_tab",

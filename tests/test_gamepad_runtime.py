@@ -13,7 +13,7 @@ PROFILE_PATH = Path("config/examples/profile.codex.windows.json")
 def test_profile_builds_gamepad_bindings():
     bindings = bindings_from_profile(load_profile(PROFILE_PATH))
 
-    assert sorted(bindings.buttons) == ["a", "b", "x"]
+    assert sorted(bindings.buttons) == ["a", "b", "lb", "rb", "x"]
     assert sorted(bindings.axes) == [
         "left_stick_y",
         "lt",
@@ -70,6 +70,20 @@ def test_runtime_button_repeats_when_held_after_cooldown():
     assert blocked is None
     assert repeated is not None
     assert repeated.action_name == "backspace"
+
+
+def test_runtime_bumper_buttons_emit_mouse_clicks():
+    runtime = GamepadActionRuntime(bindings_from_profile(load_profile(PROFILE_PATH)))
+
+    left = runtime.update_button("lb", True, now=0.0)
+    right = runtime.update_button("rb", True, now=0.0)
+
+    assert left is not None
+    assert left.action_name == "mouse_left_click"
+    assert [event.describe() for event in left.output_events] == ["click_mouse: left"]
+    assert right is not None
+    assert right.action_name == "mouse_right_click"
+    assert [event.describe() for event in right.output_events] == ["click_mouse: right"]
 
 
 def test_runtime_reports_future_dictation_action_without_output_effect():
