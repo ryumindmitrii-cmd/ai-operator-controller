@@ -92,6 +92,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m ai_operator_controller doctor
 .\.venv\Scripts\python.exe -m ai_operator_controller doctor --profile config\examples\profile.codex.windows.json
 .\.venv\Scripts\python.exe -m ai_operator_controller plan-action cursor_left
+.\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --axis right_stick_x 0.8
 .\.venv\Scripts\python.exe -m pytest
 ```
 
@@ -105,6 +106,10 @@ focus targets, and obvious private/local markers.
 The `plan-action` command runs the output layer in dry-run mode. It shows which
 keyboard, mouse, or scroll operation would run without sending real desktop
 input.
+
+The `simulate-gamepad` command runs the public Codex controller profile through
+the same dry-run output layer. It is intended for mapping tests and does not read
+from a physical controller yet.
 
 ## Security Checks
 

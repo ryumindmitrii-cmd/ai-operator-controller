@@ -31,6 +31,8 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m ai_operator_controller doctor --profile config\examples\profile.codex.windows.json
 .\.venv\Scripts\python.exe -m ai_operator_controller plan-action cursor_left
 .\.venv\Scripts\python.exe -m ai_operator_controller plan-action focus_message_pane
+.\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --axis right_stick_x 0.8
+.\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --hat dpad 0 -1
 .\.venv\Scripts\python.exe -m pytest
 .\.venv\Scripts\python.exe -m ruff check src tests
 ```
@@ -42,6 +44,8 @@ Expected result:
   focus targets, and private/local marker checks are valid.
 - `plan-action` prints dry-run output events without sending real keyboard,
   mouse, or scroll input.
+- `simulate-gamepad` resolves profile-based controller inputs into actions and
+  dry-run output events.
 - Tests pass.
 - Ruff reports no lint issues.
 
@@ -52,6 +56,8 @@ Expected result:
 - Profile loading and validation through `ai_operator_controller doctor
   --profile`.
 - Dry-run output planning through `ai_operator_controller plan-action`.
+- Profile-driven gamepad simulation through `ai_operator_controller
+  simulate-gamepad`.
 - Text cleanup and replacement-rule tests.
 - Controller mapping logic for sticks, buttons, D-pad scrolling, and semantic
   actions.
@@ -91,6 +97,20 @@ The `A` focus target is intentionally configurable:
   "move_caret_to_end": true
 }
 ```
+
+## Simulate Gamepad Inputs
+
+These commands exercise the public profile without reading a physical controller
+or sending real desktop input:
+
+```powershell
+.\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --axis right_stick_x 0.8
+.\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --button b down
+.\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --hat dpad 0 -1
+```
+
+Dictation actions such as `A` are reported as future runtime actions in this
+preview. They do not start recording yet.
 
 ## Privacy Rule
 

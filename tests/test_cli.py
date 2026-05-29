@@ -48,3 +48,85 @@ def test_plan_action_command_reports_unsupported_actions(capsys):
     captured = capsys.readouterr()
     assert "Action planning failed" in captured.err
     assert "dictate_paste" in captured.err
+
+
+def test_simulate_gamepad_axis_prints_dry_run_event(capsys):
+    assert (
+        main(
+            [
+                "simulate-gamepad",
+                "--profile",
+                "config/examples/profile.codex.windows.json",
+                "--axis",
+                "right_stick_x",
+                "0.8",
+            ]
+        )
+        == 0
+    )
+
+    output = capsys.readouterr().out
+    assert "Input: axis right_stick_x 0.8" in output
+    assert "Action: cursor_right" in output
+    assert "press_keys: right" in output
+
+
+def test_simulate_gamepad_button_reports_future_dictation_action(capsys):
+    assert (
+        main(
+            [
+                "simulate-gamepad",
+                "--profile",
+                "config/examples/profile.codex.windows.json",
+                "--button",
+                "a",
+                "down",
+            ]
+        )
+        == 0
+    )
+
+    output = capsys.readouterr().out
+    assert "Action: dictate_paste" in output
+    assert "Output: unsupported" in output
+
+
+def test_simulate_gamepad_hat_prints_dry_run_event(capsys):
+    assert (
+        main(
+            [
+                "simulate-gamepad",
+                "--profile",
+                "config/examples/profile.codex.windows.json",
+                "--hat",
+                "dpad",
+                "0",
+                "-1",
+            ]
+        )
+        == 0
+    )
+
+    output = capsys.readouterr().out
+    assert "Input: hat dpad 0 -1" in output
+    assert "Action: scroll_down" in output
+    assert "scroll: -3" in output
+
+
+def test_simulate_gamepad_reports_unknown_input_name(capsys):
+    assert (
+        main(
+            [
+                "simulate-gamepad",
+                "--profile",
+                "config/examples/profile.codex.windows.json",
+                "--axis",
+                "missing_axis",
+                "0.8",
+            ]
+        )
+        == 2
+    )
+
+    captured = capsys.readouterr()
+    assert "unknown gamepad axis: missing_axis" in captured.err

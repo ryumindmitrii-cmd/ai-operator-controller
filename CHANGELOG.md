@@ -9,3 +9,4 @@
 - Added GitHub CI for compile, lint, and test checks.
 - Added profile loading and validation to the `doctor --profile` command.
 - Added a dry-run action executor and `plan-action` CLI command.
+- Added profile-driven gamepad simulation for buttons, axes, and D-pad hats.
