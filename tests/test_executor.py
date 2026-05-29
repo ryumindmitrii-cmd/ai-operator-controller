@@ -22,7 +22,7 @@ def test_executor_sends_scroll_actions_to_backend():
 
     executor.execute("scroll_down")
 
-    assert backend.events == [OutputEvent(kind="scroll", scroll_clicks=-1)]
+    assert backend.events == [OutputEvent(kind="scroll", scroll_clicks=-0.5)]
 
 
 def test_executor_sends_focus_actions_to_backend():

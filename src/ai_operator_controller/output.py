@@ -8,7 +8,7 @@ from .actions import validate_action_name
 @dataclass(frozen=True)
 class KeyboardAction:
     keys: tuple[str, ...] = ()
-    scroll_clicks: int = 0
+    scroll_clicks: float = 0
     mouse_target: str | None = None
     mouse_button: str | None = None
     click: bool = False
@@ -30,8 +30,8 @@ class KeyboardActionPlanner:
         "paste_clipboard": ("ctrl", "v"),
     }
     _SCROLL_CLICKS_BY_ACTION = {
-        "scroll_down": -1,
-        "scroll_up": 1,
+        "scroll_down": -0.5,
+        "scroll_up": 0.5,
     }
     _MOUSE_TARGET_BY_ACTION = {
         "focus_chat_list": ("chat_list", False),

@@ -21,7 +21,7 @@ OutputEventKind = Literal[
 class OutputEvent:
     kind: OutputEventKind
     keys: tuple[str, ...] = ()
-    scroll_clicks: int = 0
+    scroll_clicks: float = 0
     mouse_target: str | None = None
     mouse_button: MouseButton | None = None
     click: bool = False
@@ -46,7 +46,7 @@ class OutputBackend(Protocol):
     def press_keys(self, keys: tuple[str, ...]) -> None:
         pass
 
-    def scroll(self, clicks: int) -> None:
+    def scroll(self, clicks: float) -> None:
         pass
 
     def focus_mouse_target(self, target: str, *, click: bool) -> None:
@@ -66,7 +66,7 @@ class DryRunOutputBackend:
     def press_keys(self, keys: tuple[str, ...]) -> None:
         self.events.append(OutputEvent(kind="press_keys", keys=keys))
 
-    def scroll(self, clicks: int) -> None:
+    def scroll(self, clicks: float) -> None:
         self.events.append(OutputEvent(kind="scroll", scroll_clicks=clicks))
 
     def focus_mouse_target(self, target: str, *, click: bool) -> None:
