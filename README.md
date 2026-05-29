@@ -91,6 +91,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m ai_operator_controller --help
 .\.venv\Scripts\python.exe -m ai_operator_controller doctor
 .\.venv\Scripts\python.exe -m ai_operator_controller doctor --profile config\examples\profile.codex.windows.json
+.\.venv\Scripts\python.exe -m ai_operator_controller plan-action cursor_left
 .\.venv\Scripts\python.exe -m pytest
 ```
 
@@ -100,6 +101,10 @@ For a more detailed Windows setup and current capability notes, see
 The `doctor --profile` command validates public app profiles before any desktop
 automation runs. It checks hotkeys, controller bindings, action names, Codex
 focus targets, and obvious private/local markers.
+
+The `plan-action` command runs the output layer in dry-run mode. It shows which
+keyboard, mouse, or scroll operation would run without sending real desktop
+input.
 
 ## Security Checks
 

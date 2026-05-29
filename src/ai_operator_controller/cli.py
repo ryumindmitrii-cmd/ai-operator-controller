@@ -6,6 +6,7 @@ from pathlib import Path
 
 from . import __version__
 from .config import ProfileValidationError, load_profile, validate_profile
+from .executor import dry_run_action
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -22,8 +23,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "command",
         nargs="?",
-        choices=["doctor"],
-        help="Optional command. The scaffold currently supports only 'doctor'.",
+        choices=["doctor", "plan-action"],
+        help="Optional command. Use 'doctor' or 'plan-action'.",
+    )
+    parser.add_argument(
+        "action_name",
+        nargs="?",
+        help="Action name to plan when running the 'plan-action' command.",
     )
     return parser
 
@@ -55,6 +61,22 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Focus targets: valid ({result.focus_target_count})")
             print("Private/local markers: none detected")
         print("Next step: migrate the private prototype through docs/migration-from-local-dictation.md")
+        return 0
+
+    if args.command == "plan-action":
+        if args.action_name is None:
+            print("Action planning failed: missing action name", file=sys.stderr)
+            return 2
+        try:
+            events = dry_run_action(args.action_name)
+        except ValueError as exc:
+            print(f"Action planning failed for {args.action_name}: {exc}", file=sys.stderr)
+            return 2
+
+        print(f"Action: {args.action_name}")
+        print("Mode: dry-run")
+        for event in events:
+            print(event.describe())
         return 0
 
     parser.print_help()

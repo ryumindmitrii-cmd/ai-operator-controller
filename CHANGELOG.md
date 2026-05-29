@@ -8,3 +8,4 @@
 - Added controller action mapping tests and a safe Codex Windows profile.
 - Added GitHub CI for compile, lint, and test checks.
 - Added profile loading and validation to the `doctor --profile` command.
+- Added a dry-run action executor and `plan-action` CLI command.

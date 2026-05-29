@@ -32,3 +32,19 @@ def test_doctor_profile_command_reports_validation_errors(tmp_path, capsys):
     captured = capsys.readouterr()
     assert "Profile validation failed" in captured.err
     assert "Unknown action" in captured.err
+
+
+def test_plan_action_command_prints_dry_run_event(capsys):
+    assert main(["plan-action", "cursor_left"]) == 0
+
+    output = capsys.readouterr().out
+    assert "Action: cursor_left" in output
+    assert "press_keys: left" in output
+
+
+def test_plan_action_command_reports_unsupported_actions(capsys):
+    assert main(["plan-action", "dictate_paste"]) == 2
+
+    captured = capsys.readouterr()
+    assert "Action planning failed" in captured.err
+    assert "dictate_paste" in captured.err

@@ -29,6 +29,8 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m ai_operator_controller --help
 .\.venv\Scripts\python.exe -m ai_operator_controller doctor
 .\.venv\Scripts\python.exe -m ai_operator_controller doctor --profile config\examples\profile.codex.windows.json
+.\.venv\Scripts\python.exe -m ai_operator_controller plan-action cursor_left
+.\.venv\Scripts\python.exe -m ai_operator_controller plan-action focus_message_pane
 .\.venv\Scripts\python.exe -m pytest
 .\.venv\Scripts\python.exe -m ruff check src tests
 ```
@@ -38,6 +40,8 @@ Expected result:
 - `doctor` prints that the scaffold is installed.
 - `doctor --profile` reports that the Codex profile actions, gamepad mapping,
   focus targets, and private/local marker checks are valid.
+- `plan-action` prints dry-run output events without sending real keyboard,
+  mouse, or scroll input.
 - Tests pass.
 - Ruff reports no lint issues.
 
@@ -47,6 +51,7 @@ Expected result:
   `config/examples/profile.codex.windows.json`.
 - Profile loading and validation through `ai_operator_controller doctor
   --profile`.
+- Dry-run output planning through `ai_operator_controller plan-action`.
 - Text cleanup and replacement-rule tests.
 - Controller mapping logic for sticks, buttons, D-pad scrolling, and semantic
   actions.
