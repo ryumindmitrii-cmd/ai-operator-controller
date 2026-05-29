@@ -33,6 +33,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m ai_operator_controller plan-action focus_message_pane
 .\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --axis right_stick_x 0.8
 .\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --hat dpad 0 -1
+.\.venv\Scripts\python.exe -m ai_operator_controller clean-text --rules config\examples\replacements.example.json --text "uh first line new line second line send"
 .\.venv\Scripts\python.exe -m pytest
 .\.venv\Scripts\python.exe -m ruff check src tests
 ```
@@ -46,6 +47,8 @@ Expected result:
   mouse, or scroll input.
 - `simulate-gamepad` resolves profile-based controller inputs into actions and
   dry-run output events.
+- `clean-text` prints cleaned dictation text and whether a trailing send command
+  was detected.
 - Tests pass.
 - Ruff reports no lint issues.
 
@@ -58,6 +61,7 @@ Expected result:
 - Dry-run output planning through `ai_operator_controller plan-action`.
 - Profile-driven gamepad simulation through `ai_operator_controller
   simulate-gamepad`.
+- Text cleanup through `ai_operator_controller clean-text`.
 - Text cleanup and replacement-rule tests.
 - Controller mapping logic for sticks, buttons, D-pad scrolling, and semantic
   actions.
@@ -111,6 +115,34 @@ or sending real desktop input:
 
 Dictation actions such as `A` are reported as future runtime actions in this
 preview. They do not start recording yet.
+
+## Clean Text
+
+Run the public example replacement rules against a short dictation sample:
+
+```powershell
+.\.venv\Scripts\python.exe -m ai_operator_controller clean-text --rules config\examples\replacements.example.json --text "uh first line new line second line send"
+```
+
+Expected output includes:
+
+```text
+Mode: text-cleanup
+Should send: yes
+Text:
+first line
+second line
+```
+
+For longer text, pipe stdin instead of putting the text in the command history:
+
+```powershell
+"um label colon value" | .\.venv\Scripts\python.exe -m ai_operator_controller clean-text --rules config\examples\replacements.example.json
+```
+
+Use `config\examples\replacements.example.json` as a template only. Personal
+names, phrases, chat snippets, and private vocabulary should stay in ignored
+local config files, not in commits or issue reports.
 
 ## Privacy Rule
 

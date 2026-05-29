@@ -1,3 +1,4 @@
+import io
 from pathlib import Path
 
 from ai_operator_controller.cli import main
@@ -48,6 +49,56 @@ def test_plan_action_command_reports_unsupported_actions(capsys):
     captured = capsys.readouterr()
     assert "Action planning failed" in captured.err
     assert "dictate_paste" in captured.err
+
+
+def test_clean_text_command_cleans_text_from_argument(capsys):
+    assert (
+        main(
+            [
+                "clean-text",
+                "--rules",
+                "config/examples/replacements.example.json",
+                "--text",
+                "uh first line new line second line send",
+            ]
+        )
+        == 0
+    )
+
+    output = capsys.readouterr().out
+    assert "Mode: text-cleanup" in output
+    assert "Should send: yes" in output
+    assert "first line\nsecond line" in output
+
+
+def test_clean_text_command_cleans_text_from_stdin(capsys, monkeypatch):
+    monkeypatch.setattr("sys.stdin", io.StringIO("um label colon value"))
+
+    assert (
+        main(
+            [
+                "clean-text",
+                "--rules",
+                "config/examples/replacements.example.json",
+            ]
+        )
+        == 0
+    )
+
+    output = capsys.readouterr().out
+    assert "Should send: no" in output
+    assert "label: value" in output
+
+
+def test_clean_text_command_reports_invalid_rules_file(tmp_path, capsys):
+    bad_rules = tmp_path / "bad-rules.json"
+    bad_rules.write_text('{"replace_phrases": []}', encoding="utf-8")
+
+    assert main(["clean-text", "--rules", str(bad_rules), "--text", "hello"]) == 2
+
+    captured = capsys.readouterr()
+    assert "Text cleanup failed" in captured.err
+    assert "replace_phrases must be an object" in captured.err
 
 
 def test_simulate_gamepad_axis_prints_dry_run_event(capsys):

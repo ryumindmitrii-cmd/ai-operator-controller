@@ -93,6 +93,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m ai_operator_controller doctor --profile config\examples\profile.codex.windows.json
 .\.venv\Scripts\python.exe -m ai_operator_controller plan-action cursor_left
 .\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --axis right_stick_x 0.8
+.\.venv\Scripts\python.exe -m ai_operator_controller clean-text --rules config\examples\replacements.example.json --text "uh first line new line second line send"
 .\.venv\Scripts\python.exe -m pytest
 ```
 
@@ -110,6 +111,11 @@ input.
 The `simulate-gamepad` command runs the public Codex controller profile through
 the same dry-run output layer. It is intended for mapping tests and does not read
 from a physical controller yet.
+
+The `clean-text` command runs dictation text through replacement, filler phrase,
+and trailing send-command rules. It accepts text through `--text` or stdin. Keep
+personal replacement dictionaries out of git; use the public example file as a
+template for local private copies.
 
 ## Security Checks
 

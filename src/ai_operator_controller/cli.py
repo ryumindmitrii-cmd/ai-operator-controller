@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -8,6 +9,7 @@ from . import __version__
 from .config import ProfileValidationError, load_profile, validate_profile
 from .executor import dry_run_action
 from .gamepad import GamepadActionResult, GamepadActionRuntime, bindings_from_profile
+from .text_rules import CleanedDictation, TextRules, clean_dictation, load_text_rules
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -40,10 +42,19 @@ def build_parser() -> argparse.ArgumentParser:
         help="Simulate a gamepad hat, for example: --hat dpad 0 -1.",
     )
     parser.add_argument(
+        "--rules",
+        type=Path,
+        help="Text cleanup rules file for the 'clean-text' command.",
+    )
+    parser.add_argument(
+        "--text",
+        help="Text to clean when running the 'clean-text' command. Reads stdin when omitted.",
+    )
+    parser.add_argument(
         "command",
         nargs="?",
-        choices=["doctor", "plan-action", "simulate-gamepad"],
-        help="Optional command. Use 'doctor', 'plan-action', or 'simulate-gamepad'.",
+        choices=["doctor", "plan-action", "simulate-gamepad", "clean-text"],
+        help="Optional command. Use 'doctor', 'plan-action', 'simulate-gamepad', or 'clean-text'.",
     )
     parser.add_argument(
         "action_name",
@@ -98,6 +109,19 @@ def main(argv: list[str] | None = None) -> int:
             print(event.describe())
         return 0
 
+    if args.command == "clean-text":
+        try:
+            result = _clean_text(args)
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            print(f"Text cleanup failed: {exc}", file=sys.stderr)
+            return 2
+
+        print("Mode: text-cleanup")
+        print(f"Should send: {'yes' if result.should_send else 'no'}")
+        print("Text:")
+        print(result.text)
+        return 0
+
     if args.command == "simulate-gamepad":
         try:
             result = _simulate_gamepad(args)
@@ -120,6 +144,25 @@ def main(argv: list[str] | None = None) -> int:
 
     parser.print_help()
     return 0
+
+
+def _clean_text(args: argparse.Namespace) -> CleanedDictation:
+    rules = load_text_rules(args.rules) if args.rules is not None else TextRules()
+    text = _read_text_input(args.text)
+    return clean_dictation(text, rules)
+
+
+def _read_text_input(argument_text: str | None) -> str:
+    if argument_text is not None:
+        return argument_text
+
+    if sys.stdin.isatty():
+        raise ValueError("provide --text or pipe text on stdin")
+
+    text = sys.stdin.read()
+    if text == "":
+        raise ValueError("provide --text or pipe text on stdin")
+    return text
 
 
 def _simulate_gamepad(args: argparse.Namespace) -> GamepadActionResult | None:
