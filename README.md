@@ -90,11 +90,16 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -e ".[dev]"
 .\.venv\Scripts\python.exe -m ai_operator_controller --help
 .\.venv\Scripts\python.exe -m ai_operator_controller doctor
+.\.venv\Scripts\python.exe -m ai_operator_controller doctor --profile config\examples\profile.codex.windows.json
 .\.venv\Scripts\python.exe -m pytest
 ```
 
 For a more detailed Windows setup and current capability notes, see
 `docs/windows-quickstart.md`.
+
+The `doctor --profile` command validates public app profiles before any desktop
+automation runs. It checks hotkeys, controller bindings, action names, Codex
+focus targets, and obvious private/local markers.
 
 ## Security Checks
 

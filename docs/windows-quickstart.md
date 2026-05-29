@@ -28,6 +28,7 @@ python -m venv .venv
 ```powershell
 .\.venv\Scripts\python.exe -m ai_operator_controller --help
 .\.venv\Scripts\python.exe -m ai_operator_controller doctor
+.\.venv\Scripts\python.exe -m ai_operator_controller doctor --profile config\examples\profile.codex.windows.json
 .\.venv\Scripts\python.exe -m pytest
 .\.venv\Scripts\python.exe -m ruff check src tests
 ```
@@ -35,6 +36,8 @@ python -m venv .venv
 Expected result:
 
 - `doctor` prints that the scaffold is installed.
+- `doctor --profile` reports that the Codex profile actions, gamepad mapping,
+  focus targets, and private/local marker checks are valid.
 - Tests pass.
 - Ruff reports no lint issues.
 
@@ -42,6 +45,8 @@ Expected result:
 
 - Safe public Codex Windows profile:
   `config/examples/profile.codex.windows.json`.
+- Profile loading and validation through `ai_operator_controller doctor
+  --profile`.
 - Text cleanup and replacement-rule tests.
 - Controller mapping logic for sticks, buttons, D-pad scrolling, and semantic
   actions.

@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import argparse
+import sys
+from pathlib import Path
 
 from . import __version__
+from .config import ProfileValidationError, load_profile, validate_profile
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -11,6 +14,11 @@ def build_parser() -> argparse.ArgumentParser:
         description="Local-first voice and gamepad control layer for AI workspaces.",
     )
     parser.add_argument("--version", action="store_true", help="Print version and exit.")
+    parser.add_argument(
+        "--profile",
+        type=Path,
+        help="Validate an app profile when running the 'doctor' command.",
+    )
     parser.add_argument(
         "command",
         nargs="?",
@@ -30,9 +38,24 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "doctor":
         print("AI Operator Controller scaffold is installed.")
+        if args.profile is not None:
+            try:
+                profile = load_profile(args.profile)
+                result = validate_profile(profile, source=args.profile)
+            except ProfileValidationError as exc:
+                print(f"Profile validation failed: {exc}", file=sys.stderr)
+                return 2
+
+            print(f"Profile: {result.profile_name}")
+            print(f"Actions: valid ({len(result.actions)})")
+            print(
+                "Gamepad mapping: valid "
+                f"({result.button_count} buttons, {result.axis_count} axes, {result.hat_count} hats)"
+            )
+            print(f"Focus targets: valid ({result.focus_target_count})")
+            print("Private/local markers: none detected")
         print("Next step: migrate the private prototype through docs/migration-from-local-dictation.md")
         return 0
 
     parser.print_help()
     return 0
-

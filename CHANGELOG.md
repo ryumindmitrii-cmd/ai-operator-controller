@@ -7,3 +7,4 @@
 - Added package and CLI scaffold.
 - Added controller action mapping tests and a safe Codex Windows profile.
 - Added GitHub CI for compile, lint, and test checks.
+- Added profile loading and validation to the `doctor --profile` command.
