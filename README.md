@@ -49,10 +49,11 @@ Questions, bug reports, and feature ideas should go through GitHub issues.
   - `LT`: Space.
   - `RT`: Enter.
   - Left stick up/down: move to previous/next chat.
-  - Right stick left/right/up/down: move the text cursor.
-  - D-pad left/right: move the mouse to the chat list or message pane so D-pad
+  - D-pad: move the text cursor with arrow-key actions.
+  - Right stick left/right: move the mouse to the chat list or message pane so
     scrolling targets the intended area without changing text-input focus.
-  - D-pad up/down: scroll the selected chat area.
+  - Right stick up/down: scroll the selected chat area, with repeat speed scaled
+    by stick intensity.
 - Local text cleanup:
   - replacement dictionary;
   - filler phrase filter;

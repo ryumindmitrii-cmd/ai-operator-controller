@@ -31,30 +31,30 @@ def test_runtime_axis_emits_action_and_dry_run_output():
     result = runtime.update_axis("right_stick_x", 0.8, now=0.0)
 
     assert result is not None
-    assert result.action_name == "cursor_right"
-    assert [event.describe() for event in result.output_events] == ["press_keys: right"]
+    assert result.action_name == "focus_message_pane"
+    assert [event.describe() for event in result.output_events] == [
+        "focus_mouse_target: message_pane click=True"
+    ]
 
 
-def test_runtime_hat_emits_scroll_action_and_dry_run_output():
+def test_runtime_axis_emits_scroll_action_and_dry_run_output():
     runtime = GamepadActionRuntime(bindings_from_profile(load_profile(PROFILE_PATH)))
 
-    result = runtime.update_hat("dpad", (0, -1), now=0.0)
+    result = runtime.update_axis("right_stick_y", 0.8, now=0.0)
 
     assert result is not None
     assert result.action_name == "scroll_down"
     assert [event.describe() for event in result.output_events] == ["scroll: -0.5"]
 
 
-def test_runtime_hat_emits_focus_action_and_dry_run_output():
+def test_runtime_hat_emits_cursor_action_and_dry_run_output():
     runtime = GamepadActionRuntime(bindings_from_profile(load_profile(PROFILE_PATH)))
 
     result = runtime.update_hat("dpad", (1, 0), now=0.0)
 
     assert result is not None
-    assert result.action_name == "focus_message_pane"
-    assert [event.describe() for event in result.output_events] == [
-        "focus_mouse_target: message_pane click=True"
-    ]
+    assert result.action_name == "cursor_right"
+    assert [event.describe() for event in result.output_events] == ["press_keys: right"]
 
 
 def test_runtime_button_repeats_when_held_after_cooldown():

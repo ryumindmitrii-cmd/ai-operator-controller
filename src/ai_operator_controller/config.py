@@ -119,6 +119,7 @@ def _validate_axis_binding(name: str, value: Any, label: str) -> None:
         )
     _require_non_negative_number(binding, "cooldown_seconds", label)
     _validate_optional_bool(binding, "repeat", label)
+    _validate_optional_bool(binding, "scale_cooldown_by_intensity", label)
     _require_at_least_one_action(
         binding,
         ("action", "negative_action", "positive_action"),

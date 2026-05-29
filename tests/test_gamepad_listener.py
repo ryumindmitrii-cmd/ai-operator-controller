@@ -71,7 +71,7 @@ def test_poll_gamepad_state_emits_axis_action():
     assert actions[0].input_name == "right_stick_x"
     assert actions[0].raw_index == 2
     assert actions[0].raw_value == "0.800"
-    assert actions[0].result.action_name == "cursor_right"
+    assert actions[0].result.action_name == "focus_message_pane"
 
 
 def test_poll_gamepad_state_emits_hat_action():
@@ -89,7 +89,7 @@ def test_poll_gamepad_state_emits_hat_action():
     assert actions[0].input_name == "dpad"
     assert actions[0].raw_index == 0
     assert actions[0].raw_value == "0 -1"
-    assert actions[0].result.action_name == "scroll_down"
+    assert actions[0].result.action_name == "cursor_down"
 
 
 def test_listen_gamepad_dry_run_emits_until_max_events():

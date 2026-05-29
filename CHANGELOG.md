@@ -14,3 +14,5 @@
 - Added `dictate-once` preview runtime from transcript text to dry-run output.
 - Added `listen-gamepad --dry-run` for physical controller mapping checks.
 - Added LB/RB mappings for left and right mouse clicks.
+- Moved text cursor movement to D-pad and right-stick scrolling to analog
+  intensity-scaled repeats in the Codex profile.

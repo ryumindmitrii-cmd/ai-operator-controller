@@ -57,10 +57,9 @@
         "axis": 2,
         "threshold": 0.55,
         "release_threshold": 0.2,
-        "cooldown_seconds": 0.08,
-        "repeat": true,
-        "negative_action": "cursor_left",
-        "positive_action": "cursor_right"
+        "cooldown_seconds": 0.25,
+        "negative_action": "focus_chat_list",
+        "positive_action": "focus_message_pane"
       },
       "right_stick_y": {
         "axis": 3,
@@ -68,8 +67,9 @@
         "release_threshold": 0.2,
         "cooldown_seconds": 0.08,
         "repeat": true,
-        "negative_action": "cursor_up",
-        "positive_action": "cursor_down"
+        "scale_cooldown_by_intensity": true,
+        "negative_action": "scroll_up",
+        "positive_action": "scroll_down"
       }
     },
     "hats": {
@@ -77,10 +77,10 @@
         "hat": 0,
         "cooldown_seconds": 0.08,
         "repeat": true,
-        "up_action": "scroll_up",
-        "down_action": "scroll_down",
-        "left_action": "focus_chat_list",
-        "right_action": "focus_message_pane"
+        "up_action": "cursor_up",
+        "down_action": "cursor_down",
+        "left_action": "cursor_left",
+        "right_action": "cursor_right"
       }
     }
   },

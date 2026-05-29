@@ -22,6 +22,7 @@ class AxisBinding:
     negative_action: str | None = None
     positive_action: str | None = None
     repeat: bool = False
+    scale_cooldown_by_intensity: bool = False
 
     def __post_init__(self) -> None:
         if not 0 < self.release_threshold < self.threshold <= 1:
@@ -49,7 +50,7 @@ class AxisActionResolver:
             self._active_direction = direction
             return None
 
-        if not self._can_emit(direction, now):
+        if not self._can_emit(direction, value, now):
             return None
 
         self._active_direction = direction
@@ -74,15 +75,21 @@ class AxisActionResolver:
             return self.binding.negative_action
         return self.binding.positive_action
 
-    def _can_emit(self, direction: AxisDirection, now: float) -> bool:
+    def _can_emit(self, direction: AxisDirection, value: float, now: float) -> bool:
         if self._active_direction != direction:
-            return self._cooldown_elapsed(now)
-        return self.binding.repeat and self._cooldown_elapsed(now)
+            return self._cooldown_elapsed(value, now)
+        return self.binding.repeat and self._cooldown_elapsed(value, now)
 
-    def _cooldown_elapsed(self, now: float) -> bool:
+    def _cooldown_elapsed(self, value: float, now: float) -> bool:
         if self._last_action_at is None:
             return True
-        return now - self._last_action_at >= self.binding.cooldown_seconds
+        return now - self._last_action_at >= self._effective_cooldown(value)
+
+    def _effective_cooldown(self, value: float) -> float:
+        if not self.binding.scale_cooldown_by_intensity:
+            return self.binding.cooldown_seconds
+        intensity = min(1.0, max(self.binding.threshold, abs(value)))
+        return self.binding.cooldown_seconds / intensity
 
 
 @dataclass(frozen=True)
@@ -307,6 +314,7 @@ def _axis_binding_from_profile(binding: Mapping[str, Any]) -> AxisBinding:
         negative_action=_optional_str(binding.get("negative_action")),
         positive_action=_optional_str(binding.get("positive_action")),
         repeat=bool(binding.get("repeat", False)),
+        scale_cooldown_by_intensity=bool(binding.get("scale_cooldown_by_intensity", False)),
     )
 
 

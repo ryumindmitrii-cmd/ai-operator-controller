@@ -167,8 +167,8 @@ def test_simulate_gamepad_axis_prints_dry_run_event(capsys):
 
     output = capsys.readouterr().out
     assert "Input: axis right_stick_x 0.8" in output
-    assert "Action: cursor_right" in output
-    assert "press_keys: right" in output
+    assert "Action: focus_message_pane" in output
+    assert "focus_mouse_target: message_pane click=True" in output
 
 
 def test_simulate_gamepad_button_reports_future_dictation_action(capsys):
@@ -212,24 +212,23 @@ def test_simulate_gamepad_bumper_button_prints_mouse_click(capsys):
     assert "click_mouse: right" in output
 
 
-def test_simulate_gamepad_hat_prints_dry_run_event(capsys):
+def test_simulate_gamepad_scroll_axis_prints_dry_run_event(capsys):
     assert (
         main(
             [
                 "simulate-gamepad",
                 "--profile",
                 "config/examples/profile.codex.windows.json",
-                "--hat",
-                "dpad",
-                "0",
-                "-1",
+                "--axis",
+                "right_stick_y",
+                "0.8",
             ]
         )
         == 0
     )
 
     output = capsys.readouterr().out
-    assert "Input: hat dpad 0 -1" in output
+    assert "Input: axis right_stick_y 0.8" in output
     assert "Action: scroll_down" in output
     assert "scroll: -0.5" in output
 

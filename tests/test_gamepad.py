@@ -42,6 +42,27 @@ def test_cursor_axis_repeats_while_held_after_cooldown():
     assert resolver.update(0.7, now=0.08) == "cursor_right"
 
 
+def test_axis_can_scale_repeat_cooldown_by_intensity():
+    resolver = AxisActionResolver(
+        AxisBinding(
+            axis=3,
+            threshold=0.55,
+            release_threshold=0.2,
+            cooldown_seconds=0.08,
+            negative_action="scroll_up",
+            positive_action="scroll_down",
+            repeat=True,
+            scale_cooldown_by_intensity=True,
+        )
+    )
+
+    assert resolver.update(0.6, now=0.0) == "scroll_down"
+    assert resolver.update(0.6, now=0.08) is None
+    assert resolver.update(0.6, now=0.14) == "scroll_down"
+    assert resolver.update(1.0, now=0.20) is None
+    assert resolver.update(1.0, now=0.221) == "scroll_down"
+
+
 def test_dpad_hat_repeats_scroll_actions_while_held():
     resolver = HatActionResolver(
         HatBinding(

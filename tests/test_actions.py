@@ -57,14 +57,15 @@ def test_public_codex_profile_maps_controller_to_chat_cursor_and_scroll_actions(
     assert axes["lt"]["action"] == "space"
     assert axes["left_stick_y"]["negative_action"] == "chat_previous"
     assert axes["left_stick_y"]["positive_action"] == "chat_next"
-    assert axes["right_stick_x"]["negative_action"] == "cursor_left"
-    assert axes["right_stick_x"]["positive_action"] == "cursor_right"
-    assert axes["right_stick_y"]["negative_action"] == "cursor_up"
-    assert axes["right_stick_y"]["positive_action"] == "cursor_down"
-    assert hats["dpad"]["up_action"] == "scroll_up"
-    assert hats["dpad"]["down_action"] == "scroll_down"
-    assert hats["dpad"]["left_action"] == "focus_chat_list"
-    assert hats["dpad"]["right_action"] == "focus_message_pane"
+    assert axes["right_stick_x"]["negative_action"] == "focus_chat_list"
+    assert axes["right_stick_x"]["positive_action"] == "focus_message_pane"
+    assert axes["right_stick_y"]["negative_action"] == "scroll_up"
+    assert axes["right_stick_y"]["positive_action"] == "scroll_down"
+    assert axes["right_stick_y"]["scale_cooldown_by_intensity"] is True
+    assert hats["dpad"]["up_action"] == "cursor_up"
+    assert hats["dpad"]["down_action"] == "cursor_down"
+    assert hats["dpad"]["left_action"] == "cursor_left"
+    assert hats["dpad"]["right_action"] == "cursor_right"
     assert hats["dpad"]["repeat"] is True
 
 

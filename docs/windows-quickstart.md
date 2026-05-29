@@ -32,7 +32,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m ai_operator_controller plan-action cursor_left
 .\.venv\Scripts\python.exe -m ai_operator_controller plan-action focus_message_pane
 .\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --axis right_stick_x 0.8
-.\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --hat dpad 0 -1
+.\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --axis right_stick_y 0.8
 .\.venv\Scripts\python.exe -m ai_operator_controller clean-text --rules config\examples\replacements.example.json --text "uh first line new line second line send"
 .\.venv\Scripts\python.exe -m ai_operator_controller dictate-once --rules config\examples\replacements.example.json --text "uh first line new line second line send"
 .\.venv\Scripts\python.exe -m pytest
@@ -78,7 +78,7 @@ mapped actions and stops after five emitted actions.
 - Text cleanup through `ai_operator_controller clean-text`.
 - Preview dictation runtime through `ai_operator_controller dictate-once`.
 - Text cleanup and replacement-rule tests.
-- Controller mapping logic for sticks, buttons, D-pad scrolling, and semantic
+- Controller mapping logic for sticks, buttons, D-pad cursor movement, and semantic
   actions.
 - Output planning for keyboard, mouse, scroll, and focus actions.
 - CLI scaffold and project structure for the upcoming full runtime.
@@ -107,9 +107,10 @@ The default Codex example profile uses these high-frequency controls:
 - `LT`: Space.
 - `RT`: Enter.
 - Left stick up/down: previous or next chat.
-- Right stick: text cursor movement.
-- D-pad left/right: choose chat-list or message-pane scroll target.
-- D-pad up/down: scroll the selected target.
+- D-pad: text cursor movement.
+- Right stick left/right: choose chat-list or message-pane scroll target.
+- Right stick up/down: scroll the selected target, with repeat speed scaled by
+  stick intensity.
 
 The `A` focus target is intentionally configurable:
 
@@ -131,7 +132,7 @@ or sending real desktop input:
 ```powershell
 .\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --axis right_stick_x 0.8
 .\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --button b down
-.\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --hat dpad 0 -1
+.\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --axis right_stick_y 0.8
 ```
 
 Dictation actions such as `A` are reported as future runtime actions in this
