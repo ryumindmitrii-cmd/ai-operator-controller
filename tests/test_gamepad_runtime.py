@@ -44,7 +44,7 @@ def test_runtime_axis_emits_scroll_action_and_dry_run_output():
 
     assert result is not None
     assert result.action_name == "scroll_down"
-    assert [event.describe() for event in result.output_events] == ["scroll: -0.5"]
+    assert [event.describe() for event in result.output_events] == ["scroll: -0.25"]
 
 
 def test_runtime_hat_emits_cursor_action_and_dry_run_output():

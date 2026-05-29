@@ -230,7 +230,7 @@ def test_simulate_gamepad_scroll_axis_prints_dry_run_event(capsys):
     output = capsys.readouterr().out
     assert "Input: axis right_stick_y 0.8" in output
     assert "Action: scroll_down" in output
-    assert "scroll: -0.5" in output
+    assert "scroll: -0.25" in output
 
 
 def test_simulate_gamepad_reports_unknown_input_name(capsys):

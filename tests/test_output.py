@@ -27,9 +27,9 @@ def test_scroll_actions_map_to_mouse_wheel_clicks():
     planner = KeyboardActionPlanner()
 
     assert planner.plan("scroll_up").keys == ()
-    assert planner.plan("scroll_up").scroll_clicks == 0.5
+    assert planner.plan("scroll_up").scroll_clicks == 0.25
     assert planner.plan("scroll_down").keys == ()
-    assert planner.plan("scroll_down").scroll_clicks == -0.5
+    assert planner.plan("scroll_down").scroll_clicks == -0.25
 
 
 def test_focus_actions_map_to_mouse_targets():
