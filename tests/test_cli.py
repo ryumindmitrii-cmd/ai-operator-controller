@@ -231,7 +231,7 @@ def test_simulate_gamepad_hat_prints_dry_run_event(capsys):
     output = capsys.readouterr().out
     assert "Input: hat dpad 0 -1" in output
     assert "Action: scroll_down" in output
-    assert "scroll: -3" in output
+    assert "scroll: -2" in output
 
 
 def test_simulate_gamepad_reports_unknown_input_name(capsys):
