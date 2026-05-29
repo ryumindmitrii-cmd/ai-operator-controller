@@ -42,7 +42,7 @@ Questions, bug reports, and feature ideas should go through GitHub issues.
 - Xbox-compatible controller controls:
   - `A`: focus near the lower-center message input, move the caret to the end,
     dictate, and paste.
-  - `X`: dictate to clipboard.
+  - `X`: dictate and paste at the current text cursor without moving focus.
   - `B`: Backspace; hold to repeat.
   - `LB`: Left mouse click.
   - `RB`: Right mouse click.

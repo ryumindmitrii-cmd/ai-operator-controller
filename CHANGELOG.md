@@ -16,3 +16,6 @@
 - Added LB/RB mappings for left and right mouse clicks.
 - Moved text cursor movement to D-pad and right-stick scrolling to analog
   intensity-scaled repeats in the Codex profile.
+- Changed `X` in the Codex profile to paste-mode dictation at the current
+  caret, while `A` keeps the lower message-input focus step.
+- Tuned analog scroll dry-run output to quarter-wheel steps.

@@ -30,8 +30,8 @@ controller while keeping privacy local.
 
 - A user can install the tool on Windows and use it in Codex without editing
   source code.
-- The default profile supports dictation, clipboard-only mode, Enter,
-  Backspace, and recent-chat navigation.
+- The default profile supports focus-targeted dictation, current-caret
+  dictation, Enter, Backspace, and recent-chat navigation.
 - Private voice audio and transcripts stay local by default.
 - Public examples are clean and contain no private paths or personal data.
 
@@ -43,4 +43,3 @@ controller while keeping privacy local.
 - Controller mappings are valuable enough to differentiate the project from
   existing dictation apps.
 - Local GPU transcription is a meaningful selling point for power users.
-

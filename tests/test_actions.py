@@ -13,7 +13,6 @@ def test_public_codex_profile_uses_only_known_actions():
 
     assert {
         "dictate_paste",
-        "dictate_clipboard",
         "enter",
         "space",
         "backspace",
@@ -54,6 +53,8 @@ def test_public_codex_profile_maps_controller_to_chat_cursor_and_scroll_actions(
     assert buttons["lb"]["action"] == "mouse_left_click"
     assert buttons["rb"]["button"] == 5
     assert buttons["rb"]["action"] == "mouse_right_click"
+    assert buttons["x"]["action"] == "dictate_paste"
+    assert "focus_before_action" not in buttons["x"]
     assert axes["lt"]["action"] == "space"
     assert axes["left_stick_y"]["negative_action"] == "chat_previous"
     assert axes["left_stick_y"]["positive_action"] == "chat_next"

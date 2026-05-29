@@ -100,7 +100,7 @@ The default Codex example profile uses these high-frequency controls:
 
 - `A`: focus near the lower-center message input, move the caret to the end, and
   start paste-mode dictation.
-- `X`: clipboard-only dictation.
+- `X`: paste-mode dictation at the current text cursor without moving focus.
 - `B`: Backspace with hold-to-repeat.
 - `LB`: left mouse click.
 - `RB`: right mouse click.
