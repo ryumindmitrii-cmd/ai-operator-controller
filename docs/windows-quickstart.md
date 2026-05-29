@@ -34,6 +34,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --axis right_stick_x 0.8
 .\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --hat dpad 0 -1
 .\.venv\Scripts\python.exe -m ai_operator_controller clean-text --rules config\examples\replacements.example.json --text "uh first line new line second line send"
+.\.venv\Scripts\python.exe -m ai_operator_controller dictate-once --rules config\examples\replacements.example.json --text "uh first line new line second line send"
 .\.venv\Scripts\python.exe -m pytest
 .\.venv\Scripts\python.exe -m ruff check src tests
 ```
@@ -49,6 +50,8 @@ Expected result:
   dry-run output events.
 - `clean-text` prints cleaned dictation text and whether a trailing send command
   was detected.
+- `dictate-once` runs the preview dictation pipeline from transcript text to
+  dry-run output without recording audio or sending keyboard input.
 - Tests pass.
 - Ruff reports no lint issues.
 
@@ -62,6 +65,7 @@ Expected result:
 - Profile-driven gamepad simulation through `ai_operator_controller
   simulate-gamepad`.
 - Text cleanup through `ai_operator_controller clean-text`.
+- Preview dictation runtime through `ai_operator_controller dictate-once`.
 - Text cleanup and replacement-rule tests.
 - Controller mapping logic for sticks, buttons, D-pad scrolling, and semantic
   actions.
@@ -72,6 +76,8 @@ Expected result:
 
 - No Windows tray app or installer yet.
 - The public package does not yet run the full push-to-talk dictation loop.
+- `dictate-once` uses transcript text as input; microphone recording and local
+  faster-whisper transcription are still being migrated.
 - The private prototype is not copied into this repository until logs, local
   paths, recordings, dictionaries, and machine-specific scripts are sanitized.
 
@@ -143,6 +149,56 @@ For longer text, pipe stdin instead of putting the text in the command history:
 Use `config\examples\replacements.example.json` as a template only. Personal
 names, phrases, chat snippets, and private vocabulary should stay in ignored
 local config files, not in commits or issue reports.
+
+## Dictation Pipeline Preview
+
+Run the first public dictation pipeline without a microphone:
+
+```powershell
+.\.venv\Scripts\python.exe -m ai_operator_controller dictate-once --rules config\examples\replacements.example.json --text "uh first line new line second line send"
+```
+
+Expected output includes:
+
+```text
+Mode: dictate-once
+Source: transcript
+Action: dictate_paste
+Output target: paste
+Should send: yes
+Text:
+first line
+second line
+Dry-run output:
+write_text: paste length=22
+press_keys: enter
+```
+
+Clipboard-only preview:
+
+```powershell
+.\.venv\Scripts\python.exe -m ai_operator_controller dictate-once --dictation-action dictate_clipboard --rules config\examples\replacements.example.json --text "uh clipboard only send"
+```
+
+This command is intentionally dry-run only in the public preview. It does not
+listen to the microphone, write to the clipboard, paste into applications, or
+press Enter.
+
+## Controller Install Check
+
+You can connect an Xbox-compatible controller to a laptop and verify the public
+profile mapping without reading the physical controller yet:
+
+```powershell
+.\.venv\Scripts\python.exe -m ai_operator_controller doctor --profile config\examples\profile.codex.windows.json
+.\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --axis right_stick_x 0.8
+.\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --button a down
+.\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --hat dpad 0 -1
+```
+
+The next runtime patch should replace these simulated inputs with physical
+`pygame` controller events while keeping the same action names and dry-run
+verification path.
 
 ## Privacy Rule
 

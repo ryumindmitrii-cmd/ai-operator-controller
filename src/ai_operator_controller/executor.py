@@ -6,7 +6,8 @@ from typing import Literal, Protocol
 from .output import KeyboardAction, KeyboardActionPlanner
 
 
-OutputEventKind = Literal["press_keys", "scroll", "focus_mouse_target"]
+TextOutputTarget = Literal["paste", "clipboard"]
+OutputEventKind = Literal["press_keys", "scroll", "focus_mouse_target", "write_text"]
 
 
 @dataclass(frozen=True)
@@ -16,12 +17,17 @@ class OutputEvent:
     scroll_clicks: int = 0
     mouse_target: str | None = None
     click: bool = False
+    text_target: TextOutputTarget | None = None
+    text_length: int = 0
 
     def describe(self) -> str:
         if self.kind == "press_keys":
             return f"press_keys: {'+'.join(self.keys)}"
         if self.kind == "scroll":
             return f"scroll: {self.scroll_clicks}"
+        if self.kind == "write_text":
+            target = self.text_target or ""
+            return f"write_text: {target} length={self.text_length}"
         target = self.mouse_target or ""
         return f"focus_mouse_target: {target} click={self.click}"
 
@@ -34,6 +40,9 @@ class OutputBackend(Protocol):
         pass
 
     def focus_mouse_target(self, target: str, *, click: bool) -> None:
+        pass
+
+    def write_text(self, text: str, *, target: TextOutputTarget) -> None:
         pass
 
 
@@ -50,6 +59,11 @@ class DryRunOutputBackend:
     def focus_mouse_target(self, target: str, *, click: bool) -> None:
         self.events.append(
             OutputEvent(kind="focus_mouse_target", mouse_target=target, click=click)
+        )
+
+    def write_text(self, text: str, *, target: TextOutputTarget) -> None:
+        self.events.append(
+            OutputEvent(kind="write_text", text_target=target, text_length=len(text))
         )
 
 

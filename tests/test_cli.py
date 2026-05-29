@@ -101,6 +101,55 @@ def test_clean_text_command_reports_invalid_rules_file(tmp_path, capsys):
     assert "replace_phrases must be an object" in captured.err
 
 
+def test_dictate_once_command_runs_preview_paste_pipeline(capsys):
+    assert (
+        main(
+            [
+                "dictate-once",
+                "--rules",
+                "config/examples/replacements.example.json",
+                "--text",
+                "uh first line new line second line send",
+            ]
+        )
+        == 0
+    )
+
+    output = capsys.readouterr().out
+    assert "Mode: dictate-once" in output
+    assert "Source: transcript" in output
+    assert "Action: dictate_paste" in output
+    assert "Output target: paste" in output
+    assert "Should send: yes" in output
+    assert "first line\nsecond line" in output
+    assert "write_text: paste length=22" in output
+    assert "press_keys: enter" in output
+
+
+def test_dictate_once_command_supports_clipboard_action(capsys):
+    assert (
+        main(
+            [
+                "dictate-once",
+                "--dictation-action",
+                "dictate_clipboard",
+                "--rules",
+                "config/examples/replacements.example.json",
+                "--text",
+                "uh clipboard only send",
+            ]
+        )
+        == 0
+    )
+
+    output = capsys.readouterr().out
+    assert "Action: dictate_clipboard" in output
+    assert "Output target: clipboard" in output
+    assert "Should send: yes" in output
+    assert "write_text: clipboard length=14" in output
+    assert "press_keys: enter" not in output
+
+
 def test_simulate_gamepad_axis_prints_dry_run_event(capsys):
     assert (
         main(

@@ -17,6 +17,7 @@
 - [ ] Move private replacements into ignored local config.
 - [ ] Keep a safe public example replacement file.
 - [x] Add tests for text cleanup and action mapping.
+- [x] Add preview dictation runtime command with transcript input.
 - [ ] Add a local Windows run command.
 
 ## Phase 2: Usable Windows MVP

@@ -31,6 +31,12 @@ Output Layer
   - logs and tray status
 ```
 
+The public preview exposes this pipeline incrementally. The `dictate-once`
+command currently starts from transcript text instead of microphone audio, then
+runs text cleanup and produces dry-run output events. This keeps the public
+runtime testable before the real audio recorder, local speech backend, and
+Windows input backend are migrated.
+
 ## Configuration Model
 
 Public code must not assume Dmitrii's local paths. Runtime behavior should be

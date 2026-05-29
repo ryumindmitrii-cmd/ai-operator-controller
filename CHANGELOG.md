@@ -11,3 +11,4 @@
 - Added a dry-run action executor and `plan-action` CLI command.
 - Added profile-driven gamepad simulation for buttons, axes, and D-pad hats.
 - Added `clean-text` CLI support for public replacement-rule testing.
+- Added `dictate-once` preview runtime from transcript text to dry-run output.

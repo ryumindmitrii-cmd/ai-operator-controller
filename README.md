@@ -94,6 +94,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m ai_operator_controller plan-action cursor_left
 .\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --axis right_stick_x 0.8
 .\.venv\Scripts\python.exe -m ai_operator_controller clean-text --rules config\examples\replacements.example.json --text "uh first line new line second line send"
+.\.venv\Scripts\python.exe -m ai_operator_controller dictate-once --rules config\examples\replacements.example.json --text "uh first line new line second line send"
 .\.venv\Scripts\python.exe -m pytest
 ```
 
@@ -116,6 +117,11 @@ The `clean-text` command runs dictation text through replacement, filler phrase,
 and trailing send-command rules. It accepts text through `--text` or stdin. Keep
 personal replacement dictionaries out of git; use the public example file as a
 template for local private copies.
+
+The `dictate-once` command runs the first public dictation pipeline in preview
+mode. It accepts transcript text through `--text` or stdin, applies text cleanup,
+and prints the dry-run output for `dictate_paste` or `dictate_clipboard` without
+recording audio or sending real keyboard input.
 
 ## Security Checks
 

@@ -9,6 +9,7 @@ from . import __version__
 from .config import ProfileValidationError, load_profile, validate_profile
 from .executor import dry_run_action
 from .gamepad import GamepadActionResult, GamepadActionRuntime, bindings_from_profile
+from .runtime import DICTATION_ACTION_TARGETS, StaticTranscriptProvider, run_dictation_once
 from .text_rules import CleanedDictation, TextRules, clean_dictation, load_text_rules
 
 
@@ -48,13 +49,22 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--text",
-        help="Text to clean when running the 'clean-text' command. Reads stdin when omitted.",
+        help="Text for 'clean-text' or transcript text for 'dictate-once'. Reads stdin when omitted.",
+    )
+    parser.add_argument(
+        "--dictation-action",
+        choices=sorted(DICTATION_ACTION_TARGETS),
+        default="dictate_paste",
+        help="Dictation action for the 'dictate-once' command.",
     )
     parser.add_argument(
         "command",
         nargs="?",
-        choices=["doctor", "plan-action", "simulate-gamepad", "clean-text"],
-        help="Optional command. Use 'doctor', 'plan-action', 'simulate-gamepad', or 'clean-text'.",
+        choices=["doctor", "plan-action", "simulate-gamepad", "clean-text", "dictate-once"],
+        help=(
+            "Optional command. Use 'doctor', 'plan-action', 'simulate-gamepad', "
+            "'clean-text', or 'dictate-once'."
+        ),
     )
     parser.add_argument(
         "action_name",
@@ -122,6 +132,25 @@ def main(argv: list[str] | None = None) -> int:
         print(result.text)
         return 0
 
+    if args.command == "dictate-once":
+        try:
+            result = _dictate_once(args)
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            print(f"Dictation preview failed: {exc}", file=sys.stderr)
+            return 2
+
+        print("Mode: dictate-once")
+        print("Source: transcript")
+        print(f"Action: {result.action_name}")
+        print(f"Output target: {result.output_target}")
+        print(f"Should send: {'yes' if result.should_send else 'no'}")
+        print("Text:")
+        print(result.text)
+        print("Dry-run output:")
+        for event in result.output_events:
+            print(event.describe())
+        return 0
+
     if args.command == "simulate-gamepad":
         try:
             result = _simulate_gamepad(args)
@@ -150,6 +179,16 @@ def _clean_text(args: argparse.Namespace) -> CleanedDictation:
     rules = load_text_rules(args.rules) if args.rules is not None else TextRules()
     text = _read_text_input(args.text)
     return clean_dictation(text, rules)
+
+
+def _dictate_once(args: argparse.Namespace):
+    rules = load_text_rules(args.rules) if args.rules is not None else TextRules()
+    transcript = _read_text_input(args.text)
+    return run_dictation_once(
+        args.dictation_action,
+        StaticTranscriptProvider(transcript),
+        rules=rules,
+    )
 
 
 def _read_text_input(argument_text: str | None) -> str:
