@@ -55,6 +55,15 @@ Expected result:
 - Tests pass.
 - Ruff reports no lint issues.
 
+If a controller is connected, run:
+
+```powershell
+.\.venv\Scripts\python.exe -m ai_operator_controller listen-gamepad --profile config\examples\profile.codex.windows.json --dry-run --max-events 5
+```
+
+Press mapped controls such as `B`, right stick, or D-pad. The command prints
+mapped actions and stops after five emitted actions.
+
 ## Current Public Capabilities
 
 - Safe public Codex Windows profile:
@@ -64,6 +73,8 @@ Expected result:
 - Dry-run output planning through `ai_operator_controller plan-action`.
 - Profile-driven gamepad simulation through `ai_operator_controller
   simulate-gamepad`.
+- Physical gamepad dry-run listening through `ai_operator_controller
+  listen-gamepad --dry-run`.
 - Text cleanup through `ai_operator_controller clean-text`.
 - Preview dictation runtime through `ai_operator_controller dictate-once`.
 - Text cleanup and replacement-rule tests.
@@ -78,6 +89,8 @@ Expected result:
 - The public package does not yet run the full push-to-talk dictation loop.
 - `dictate-once` uses transcript text as input; microphone recording and local
   faster-whisper transcription are still being migrated.
+- `listen-gamepad --dry-run` reads a physical controller but intentionally does
+  not send real keyboard, mouse, clipboard, or dictation output.
 - The private prototype is not copied into this repository until logs, local
   paths, recordings, dictionaries, and machine-specific scripts are sanitized.
 
@@ -184,21 +197,29 @@ This command is intentionally dry-run only in the public preview. It does not
 listen to the microphone, write to the clipboard, paste into applications, or
 press Enter.
 
-## Controller Install Check
+## Physical Controller Dry Run
 
 You can connect an Xbox-compatible controller to a laptop and verify the public
-profile mapping without reading the physical controller yet:
+profile mapping without sending real desktop input:
 
 ```powershell
 .\.venv\Scripts\python.exe -m ai_operator_controller doctor --profile config\examples\profile.codex.windows.json
-.\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --axis right_stick_x 0.8
-.\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --button a down
-.\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --hat dpad 0 -1
+.\.venv\Scripts\python.exe -m ai_operator_controller listen-gamepad --profile config\examples\profile.codex.windows.json --dry-run --max-events 10
 ```
 
-The next runtime patch should replace these simulated inputs with physical
-`pygame` controller events while keeping the same action names and dry-run
-verification path.
+Expected output shape:
+
+```text
+Controller: Xbox Controller
+Mode: dry-run
+Listening for mapped gamepad actions. Press Ctrl+C to stop.
+Input: button b down
+Action: backspace
+press_keys: backspace
+```
+
+If no controller is detected, reconnect it and rerun the command. Use
+`--gamepad-index 1` if Windows exposes the controller as a non-default device.
 
 ## Privacy Rule
 

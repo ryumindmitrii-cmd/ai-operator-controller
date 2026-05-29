@@ -230,3 +230,20 @@ def test_simulate_gamepad_reports_unknown_input_name(capsys):
 
     captured = capsys.readouterr()
     assert "unknown gamepad axis: missing_axis" in captured.err
+
+
+def test_listen_gamepad_requires_dry_run(capsys):
+    assert (
+        main(
+            [
+                "listen-gamepad",
+                "--profile",
+                "config/examples/profile.codex.windows.json",
+            ]
+        )
+        == 2
+    )
+
+    captured = capsys.readouterr()
+    assert "Gamepad listener failed" in captured.err
+    assert "--dry-run is required" in captured.err

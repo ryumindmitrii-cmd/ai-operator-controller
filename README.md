@@ -95,6 +95,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --axis right_stick_x 0.8
 .\.venv\Scripts\python.exe -m ai_operator_controller clean-text --rules config\examples\replacements.example.json --text "uh first line new line second line send"
 .\.venv\Scripts\python.exe -m ai_operator_controller dictate-once --rules config\examples\replacements.example.json --text "uh first line new line second line send"
+.\.venv\Scripts\python.exe -m ai_operator_controller listen-gamepad --profile config\examples\profile.codex.windows.json --dry-run --max-events 5
 .\.venv\Scripts\python.exe -m pytest
 ```
 
@@ -122,6 +123,10 @@ The `dictate-once` command runs the first public dictation pipeline in preview
 mode. It accepts transcript text through `--text` or stdin, applies text cleanup,
 and prints the dry-run output for `dictate_paste` or `dictate_clipboard` without
 recording audio or sending real keyboard input.
+
+The `listen-gamepad --dry-run` command reads a physical controller through
+`pygame`, maps it through the selected profile, and prints the actions that would
+run. It does not send keyboard, mouse, clipboard, or dictation output.
 
 ## Security Checks
 

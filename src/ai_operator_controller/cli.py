@@ -9,6 +9,7 @@ from . import __version__
 from .config import ProfileValidationError, load_profile, validate_profile
 from .executor import dry_run_action
 from .gamepad import GamepadActionResult, GamepadActionRuntime, bindings_from_profile
+from .gamepad_listener import PygameGamepadReader, listen_gamepad_dry_run
 from .runtime import DICTATION_ACTION_TARGETS, StaticTranscriptProvider, run_dictation_once
 from .text_rules import CleanedDictation, TextRules, clean_dictation, load_text_rules
 
@@ -58,12 +59,40 @@ def build_parser() -> argparse.ArgumentParser:
         help="Dictation action for the 'dictate-once' command.",
     )
     parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Required for preview-only desktop listeners that must not send real input.",
+    )
+    parser.add_argument(
+        "--gamepad-index",
+        type=int,
+        help="Override the gamepad device index from the selected profile.",
+    )
+    parser.add_argument(
+        "--max-events",
+        type=int,
+        help="Stop a listener after this many emitted actions.",
+    )
+    parser.add_argument(
+        "--poll-interval",
+        type=float,
+        default=0.03,
+        help="Polling interval in seconds for physical gamepad listeners.",
+    )
+    parser.add_argument(
         "command",
         nargs="?",
-        choices=["doctor", "plan-action", "simulate-gamepad", "clean-text", "dictate-once"],
+        choices=[
+            "doctor",
+            "plan-action",
+            "simulate-gamepad",
+            "clean-text",
+            "dictate-once",
+            "listen-gamepad",
+        ],
         help=(
             "Optional command. Use 'doctor', 'plan-action', 'simulate-gamepad', "
-            "'clean-text', or 'dictate-once'."
+            "'clean-text', 'dictate-once', or 'listen-gamepad'."
         ),
     )
     parser.add_argument(
@@ -171,6 +200,13 @@ def main(argv: list[str] | None = None) -> int:
             print(event.describe())
         return 0
 
+    if args.command == "listen-gamepad":
+        try:
+            return _listen_gamepad(args)
+        except (ProfileValidationError, RuntimeError, ValueError) as exc:
+            print(f"Gamepad listener failed: {exc}", file=sys.stderr)
+            return 2
+
     parser.print_help()
     return 0
 
@@ -245,6 +281,45 @@ def _simulate_gamepad(args: argparse.Namespace) -> GamepadActionResult | None:
         return runtime.update_hat(name, hat_value, now=0.0)
     except KeyError as exc:
         raise ValueError(f"unknown gamepad hat: {name}") from exc
+
+
+def _listen_gamepad(args: argparse.Namespace) -> int:
+    if not args.dry_run:
+        raise ValueError("--dry-run is required for listen-gamepad")
+    if args.profile is None:
+        raise ValueError("--profile is required for listen-gamepad")
+
+    profile = load_profile(args.profile)
+    validate_profile(profile, source=args.profile)
+    bindings = bindings_from_profile(profile)
+    gamepad_index = args.gamepad_index
+    if gamepad_index is None:
+        gamepad_index = int(profile["gamepad"].get("index", 0))
+
+    reader = PygameGamepadReader(device_index=gamepad_index)
+    print(f"Controller: {reader.controller_name}")
+    print("Mode: dry-run")
+    print("Listening for mapped gamepad actions. Press Ctrl+C to stop.")
+
+    count = listen_gamepad_dry_run(
+        bindings,
+        reader,
+        max_events=args.max_events,
+        poll_interval_seconds=args.poll_interval,
+        emit=_print_polled_gamepad_action,
+    )
+    print(f"Stopped after {count} action(s).")
+    return 0
+
+
+def _print_polled_gamepad_action(action) -> None:
+    print(action.describe_input())
+    print(f"Action: {action.result.action_name}")
+    if action.result.unsupported_reason is not None:
+        print(f"Output: unsupported ({action.result.unsupported_reason})")
+        return
+    for event in action.result.output_events:
+        print(event.describe())
 
 
 def _parse_button_state(state: str) -> bool:

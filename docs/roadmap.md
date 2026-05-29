@@ -23,7 +23,8 @@
 ## Phase 2: Usable Windows MVP
 
 - [ ] Global hotkeys: paste and clipboard modes.
-- [ ] Xbox controller mapping with semantic chat and cursor actions.
+- [x] Xbox controller mapping with semantic chat and cursor actions.
+- [x] Physical controller dry-run listener.
 - [ ] SendInput output backend.
 - [ ] Tray indicator.
 - [ ] Model/device config.

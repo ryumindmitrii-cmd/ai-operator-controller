@@ -12,3 +12,4 @@
 - Added profile-driven gamepad simulation for buttons, axes, and D-pad hats.
 - Added `clean-text` CLI support for public replacement-rule testing.
 - Added `dictate-once` preview runtime from transcript text to dry-run output.
+- Added `listen-gamepad --dry-run` for physical controller mapping checks.
