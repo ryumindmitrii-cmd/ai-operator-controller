@@ -92,7 +92,7 @@ def poll_gamepad_state(
 
 
 class PygameGamepadReader:
-    def __init__(self, *, device_index: int = 0) -> None:
+    def __init__(self, *, device_index: int = 0, connect_attempts: int = 3) -> None:
         try:
             import pygame
         except ModuleNotFoundError as exc:
@@ -102,10 +102,12 @@ class PygameGamepadReader:
             ) from exc
 
         self._pygame = pygame
+        if connect_attempts < 1:
+            raise RuntimeError("connect_attempts must be positive")
+
         pygame.init()
         pygame.joystick.init()
-
-        joystick_count = pygame.joystick.get_count()
+        joystick_count = _detect_joystick_count(pygame, attempts=connect_attempts)
         if joystick_count <= 0:
             raise RuntimeError("No joystick devices detected")
         if device_index < 0 or device_index >= joystick_count:
@@ -178,3 +180,20 @@ def listen_gamepad_dry_run(
 def _hat_value(value: Any) -> HatValue:
     x, y = value
     return int(x), int(y)
+
+
+def _detect_joystick_count(pygame: Any, *, attempts: int) -> int:
+    count = 0
+    for attempt in range(attempts):
+        pygame.event.pump()
+        pygame.joystick.quit()
+        if attempt:
+            pygame.quit()
+            time.sleep(0.25)
+            pygame.init()
+        pygame.joystick.init()
+        count = int(pygame.joystick.get_count())
+        if count > 0:
+            return count
+        time.sleep(0.25)
+    return count

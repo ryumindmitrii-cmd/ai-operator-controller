@@ -8,6 +8,7 @@ from ai_operator_controller.gamepad import GamepadActionRuntime, bindings_from_p
 from ai_operator_controller.gamepad_listener import (
     GamepadState,
     PygameGamepadReader,
+    _detect_joystick_count,
     listen_gamepad_dry_run,
     poll_gamepad_state,
 )
@@ -123,6 +124,18 @@ def test_pygame_reader_reports_missing_dependency(monkeypatch):
         PygameGamepadReader()
 
 
+def test_detect_joystick_count_reinitializes_after_empty_scan(monkeypatch):
+    monkeypatch.setattr("ai_operator_controller.gamepad_listener.time.sleep", lambda _seconds: None)
+    fake_pygame = FakePygame([0, 1])
+
+    count = _detect_joystick_count(fake_pygame, attempts=2)
+
+    assert count == 1
+    assert fake_pygame.quit_calls == 1
+    assert fake_pygame.joystick.quit_calls == 2
+    assert fake_pygame.joystick.init_calls == 2
+
+
 class FakeReader:
     controller_name = "Fake Controller"
 
@@ -147,3 +160,39 @@ class FakeClock:
         if len(self._values) == 1:
             return self._values[0]
         return self._values.pop(0)
+
+
+class FakePygame:
+    def __init__(self, counts):
+        self.joystick = FakeJoystickModule(counts)
+        self.event = FakeEventModule()
+        self.quit_calls = 0
+
+    def init(self):
+        pass
+
+    def quit(self):
+        self.quit_calls += 1
+
+
+class FakeJoystickModule:
+    def __init__(self, counts):
+        self._counts = list(counts)
+        self.init_calls = 0
+        self.quit_calls = 0
+
+    def init(self):
+        self.init_calls += 1
+
+    def quit(self):
+        self.quit_calls += 1
+
+    def get_count(self):
+        if len(self._counts) == 1:
+            return self._counts[0]
+        return self._counts.pop(0)
+
+
+class FakeEventModule:
+    def pump(self):
+        pass
