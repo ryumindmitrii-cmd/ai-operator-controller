@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">AI Operator Controller workspace flow</title>
+  <desc id="desc">Synthetic AI workspace diagram showing how gamepad actions control chat selection, message scrolling, prompt focus, and dictation at the current cursor.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f7f6f2; }
+      .window { fill: #ffffff; stroke: #d8d5cc; stroke-width: 2; }
+      .sidebar { fill: #f0efe9; stroke: #d8d5cc; stroke-width: 2; }
+      .topbar { fill: #262b31; }
+      .message { fill: #ffffff; stroke: #d8d5cc; stroke-width: 1.5; }
+      .message-alt { fill: #eef6f1; stroke: #b7dfc4; stroke-width: 1.5; }
+      .prompt { fill: #fff9db; stroke: #e0b72f; stroke-width: 2; }
+      .card { fill: #ffffff; stroke: #d8d5cc; stroke-width: 2; }
+      .title { fill: #22272e; font-family: "Segoe UI", Arial, sans-serif; font-size: 34px; font-weight: 700; }
+      .label { fill: #22272e; font-family: "Segoe UI", Arial, sans-serif; font-size: 18px; font-weight: 700; }
+      .body { fill: #4c5560; font-family: "Segoe UI", Arial, sans-serif; font-size: 15px; }
+      .small { fill: #68707a; font-family: "Segoe UI", Arial, sans-serif; font-size: 13px; }
+      .mono { fill: #22272e; font-family: "Cascadia Mono", Consolas, monospace; font-size: 15px; font-weight: 700; }
+      .key { fill: #1971c2; }
+      .key-green { fill: #2f9e44; }
+      .key-orange { fill: #f08c00; }
+      .key-cyan { fill: #0ca678; }
+      .arrow { stroke: #59636e; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+      .thin { stroke: #b3bac2; stroke-width: 2; fill: none; stroke-linecap: round; }
+      .key-text { fill: #ffffff; font-family: "Segoe UI", Arial, sans-serif; font-size: 14px; font-weight: 800; text-anchor: middle; dominant-baseline: middle; }
+    </style>
+    <marker id="arrowhead" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#59636e" />
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1200" height="720" />
+  <text x="64" y="76" class="title">What it feels like</text>
+  <text x="64" y="108" class="body">A synthetic AI workspace flow: no real screen capture, no private data, no cloud transcript.</text>
+
+  <g transform="translate(64 135)">
+    <rect x="0" y="0" width="1072" height="420" rx="10" class="window" />
+    <rect x="0" y="0" width="265" height="420" rx="10" class="sidebar" />
+    <rect x="0" y="0" width="1072" height="48" rx="10" class="topbar" />
+    <circle cx="28" cy="24" r="7" fill="#fa5252" />
+    <circle cx="52" cy="24" r="7" fill="#f59f00" />
+    <circle cx="76" cy="24" r="7" fill="#40c057" />
+    <text x="104" y="30" style="fill:#ffffff;font-family:'Segoe UI',Arial,sans-serif;font-size:15px;font-weight:700">Generic AI Workspace</text>
+
+    <text x="24" y="85" class="label">Chat list</text>
+    <rect x="20" y="108" width="218" height="46" rx="8" fill="#ffffff" stroke="#d8d5cc" />
+    <text x="39" y="136" class="body">Planning thread</text>
+    <rect id="selected-chat" x="20" y="166" width="218" height="46" rx="8" fill="#dff3e6" stroke="#9bd2ad" />
+    <text x="39" y="194" class="body">AI workspace control</text>
+    <rect x="20" y="224" width="218" height="46" rx="8" fill="#ffffff" stroke="#d8d5cc" />
+    <text x="39" y="252" class="body">Packaging notes</text>
+    <rect x="20" y="282" width="218" height="46" rx="8" fill="#ffffff" stroke="#d8d5cc" />
+    <text x="39" y="310" class="body">Bug triage</text>
+    <rect x="245" y="86" width="6" height="292" rx="3" fill="#ced4da" />
+    <rect x="245" y="158" width="6" height="88" rx="3" fill="#868e96" />
+
+    <text x="301" y="85" class="label">Message pane</text>
+    <rect x="301" y="109" width="688" height="62" rx="8" class="message" />
+    <text x="325" y="136" class="body">User asks for hands-light AI workflow control.</text>
+    <line x1="325" y1="151" x2="620" y2="151" class="thin" />
+    <rect x="365" y="192" width="624" height="86" rx="8" class="message-alt" />
+    <text x="389" y="220" class="body">AI response appears here. Right stick scrolls this pane</text>
+    <text x="389" y="245" class="body">without stealing focus from the prompt bar.</text>
+    <rect x="301" y="299" width="688" height="52" rx="8" class="message" />
+    <text x="325" y="328" class="body">Left stick changes the active chat by row.</text>
+    <rect x="998" y="100" width="8" height="250" rx="4" fill="#ced4da" />
+    <rect x="998" y="186" width="8" height="86" rx="4" fill="#868e96" />
+
+    <rect id="prompt-bar" x="301" y="366" width="688" height="38" rx="10" class="prompt" />
+    <text x="325" y="390" class="mono">Prompt bar: cleaned dictation lands here</text>
+    <path id="caret" d="M 952 375 L 952 397" class="thin" />
+  </g>
+
+  <path d="M 182 586 C 166 522, 167 394, 178 333" class="arrow" marker-end="url(#arrowhead)" />
+  <path d="M 462 586 C 650 576, 858 575, 1012 545 C 1040 514, 1002 445, 895 388" class="arrow" marker-end="url(#arrowhead)" />
+  <path d="M 742 586 C 728 560, 711 546, 690 542" class="arrow" marker-end="url(#arrowhead)" />
+  <path d="M 1022 586 C 1015 543, 1014 522, 1016 510" class="arrow" marker-end="url(#arrowhead)" />
+
+  <g transform="translate(64 585)">
+    <rect width="232" height="78" rx="8" class="card" />
+    <circle cx="34" cy="39" r="17" class="key" />
+    <text x="34" y="40" class="key-text">LS</text>
+    <text x="62" y="33" class="label" style="font-size:16px">select chat row</text>
+    <text x="62" y="55" class="small">move up or down the list</text>
+  </g>
+
+  <g transform="translate(344 585)">
+    <rect width="232" height="78" rx="8" class="card" />
+    <circle cx="34" cy="39" r="17" class="key-cyan" />
+    <text x="34" y="40" class="key-text">RS</text>
+    <text x="62" y="33" class="label" style="font-size:16px">analog scroll</text>
+    <text x="62" y="55" class="small">speed follows stick intensity</text>
+  </g>
+
+  <g transform="translate(624 585)">
+    <rect width="232" height="78" rx="8" class="card" />
+    <circle cx="34" cy="39" r="17" class="key-green" />
+    <text x="34" y="40" class="key-text">A</text>
+    <text x="62" y="33" class="label" style="font-size:16px">focus prompt</text>
+    <text x="62" y="55" class="small">then dictate and paste</text>
+  </g>
+
+  <g transform="translate(904 585)">
+    <rect width="232" height="78" rx="8" class="card" />
+    <circle cx="34" cy="39" r="17" class="key-orange" />
+    <text x="34" y="40" class="key-text">X</text>
+    <text x="62" y="33" class="label" style="font-size:16px">dictate at cursor</text>
+    <text x="62" y="55" class="small">keep current insertion point</text>
+  </g>
+
+  <text x="64" y="695" class="small">Use this image in README, issues, and launch posts when a screen recording would expose a personal desktop.</text>
+</svg>

@@ -24,6 +24,16 @@ Windows installer.
 
 Questions, bug reports, and feature ideas should go through GitHub issues.
 
+## Visual Overview
+
+These public diagrams are synthetic. They do not show a real desktop, private
+transcript, personal account, or application screenshot. PNG exports are stored
+next to the SVG sources for launch posts and issue comments.
+
+![Gamepad control map](docs/assets/controller-map.svg)
+
+![Synthetic workspace flow](docs/assets/workspace-flow.svg)
+
 ## What This Project Is
 
 - A local dictation tool for power users who work inside AI chats all day.
