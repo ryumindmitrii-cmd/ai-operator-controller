@@ -1,0 +1,14 @@
+{
+  "profile_name": "local_quality_default",
+  "description": "Example local speech profile that prioritizes recognition quality over startup speed.",
+  "backend": "faster-whisper",
+  "model": "large-v3",
+  "device": "cuda",
+  "compute_type": "float16",
+  "language": "auto",
+  "fallback": {
+    "enabled": true,
+    "device": "cpu",
+    "compute_type": "int8"
+  }
+}

@@ -27,7 +27,8 @@
 - [x] Physical controller dry-run listener.
 - [ ] SendInput output backend.
 - [ ] Tray indicator.
-- [ ] Model/device config.
+- [ ] Validated model/device config using `large-v3` as the local quality
+  default and requiring faster models to be explicit user overrides.
 - [ ] Installer/startup docs.
 - [ ] Manual test checklist for Codex Desktop.
 

@@ -46,6 +46,8 @@ next to the SVG sources for launch posts and issue comments.
 
 - Windows-first desktop runtime.
 - Push-to-talk dictation using local `faster-whisper`.
+- Speech quality default: `large-v3` for the local `faster-whisper` profile.
+  Faster or smaller models should be explicit user overrides, not the default.
 - Global hotkeys:
   - `F9`: dictate and paste into the active window.
   - `F8`: dictate to clipboard only.

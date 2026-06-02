@@ -47,6 +47,11 @@ driven by profile files:
 - text profile: replacements, trash phrases, send commands;
 - privacy profile: logging and redaction settings.
 
+The default local speech profile should prioritize recognition quality over
+startup speed. Use `large-v3` as the public quality default for
+`faster-whisper`; faster or smaller models should be explicit user-selected
+overrides, not silent defaults.
+
 ## Public API Boundary
 
 The first stable boundary should be a small action model:

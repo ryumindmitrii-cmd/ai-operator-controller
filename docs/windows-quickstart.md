@@ -11,7 +11,9 @@ prototype after privacy cleanup.
 - Python 3.11 or 3.12.
 - Git.
 - An Xbox-compatible controller for controller mapping experiments.
-- Optional: NVIDIA GPU for future local `faster-whisper` use.
+- Optional: NVIDIA GPU for future local `faster-whisper` use. The public
+  quality speech profile uses `large-v3` on CUDA/float16 by default; CPU users
+  can override device and compute type when the full speech runtime is migrated.
 
 ## Install From GitHub
 
@@ -68,6 +70,8 @@ mapped actions and stops after five emitted actions.
 
 - Safe public Codex Windows profile:
   `config/examples/profile.codex.windows.json`.
+- Safe public local speech quality profile:
+  `config/examples/speech.local-quality.example.json`.
 - Profile loading and validation through `ai_operator_controller doctor
   --profile`.
 - Dry-run output planning through `ai_operator_controller plan-action`.

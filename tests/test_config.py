@@ -11,6 +11,7 @@ from ai_operator_controller.config import (
 
 
 PROFILE_PATH = Path("config/examples/profile.codex.windows.json")
+SPEECH_PROFILE_PATH = Path("config/examples/speech.local-quality.example.json")
 
 
 def test_public_codex_profile_loads_and_validates():
@@ -48,3 +49,11 @@ def test_profile_validation_rejects_private_path_markers():
 
     with pytest.raises(ProfileValidationError, match="private/local marker"):
         validate_profile(profile, source=PROFILE_PATH)
+
+
+def test_public_speech_profile_uses_quality_model_by_default():
+    profile = json.loads(SPEECH_PROFILE_PATH.read_text())
+
+    assert profile["backend"] == "faster-whisper"
+    assert profile["model"] == "large-v3"
+    assert "turbo" not in json.dumps(profile).lower()
