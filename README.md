@@ -34,6 +34,15 @@ next to the SVG sources for launch posts and issue comments.
 
 ![Synthetic workspace flow](docs/assets/workspace-flow.svg)
 
+## Community
+
+Use GitHub Discussions for setup questions, accessibility and alternative-input
+feedback, workflow ideas, and general project discussion:
+https://github.com/ryumindmitrii-cmd/ai-operator-controller/discussions
+
+Use GitHub Issues for reproducible bugs and concrete feature requests:
+https://github.com/ryumindmitrii-cmd/ai-operator-controller/issues
+
 ## What This Project Is
 
 - A local dictation tool for power users who work inside AI chats all day.
