@@ -11,6 +11,7 @@ from .executor import dry_run_action
 from .gamepad import GamepadActionResult, GamepadActionRuntime, bindings_from_profile
 from .gamepad_listener import PygameGamepadReader, listen_gamepad_dry_run
 from .runtime import DICTATION_ACTION_TARGETS, StaticTranscriptProvider, run_dictation_once
+from .text_polish import polish_text
 from .text_rules import CleanedDictation, TextRules, clean_dictation, load_text_rules
 
 
@@ -50,13 +51,21 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--text",
-        help="Text for 'clean-text' or transcript text for 'dictate-once'. Reads stdin when omitted.",
+        help=(
+            "Text for 'clean-text'/'polish-text' or transcript text for "
+            "'dictate-once'. Reads stdin when omitted."
+        ),
     )
     parser.add_argument(
         "--dictation-action",
         choices=sorted(DICTATION_ACTION_TARGETS),
         default="dictate_paste",
         help="Dictation action for the 'dictate-once' command.",
+    )
+    parser.add_argument(
+        "--polish",
+        action="store_true",
+        help="Apply local deterministic punctuation polish after text cleanup.",
     )
     parser.add_argument(
         "--dry-run",
@@ -87,12 +96,13 @@ def build_parser() -> argparse.ArgumentParser:
             "plan-action",
             "simulate-gamepad",
             "clean-text",
+            "polish-text",
             "dictate-once",
             "listen-gamepad",
         ],
         help=(
             "Optional command. Use 'doctor', 'plan-action', 'simulate-gamepad', "
-            "'clean-text', 'dictate-once', or 'listen-gamepad'."
+            "'clean-text', 'polish-text', 'dictate-once', or 'listen-gamepad'."
         ),
     )
     parser.add_argument(
@@ -161,6 +171,18 @@ def main(argv: list[str] | None = None) -> int:
         print(result.text)
         return 0
 
+    if args.command == "polish-text":
+        try:
+            text = polish_text(_read_text_input(args.text))
+        except ValueError as exc:
+            print(f"Text polish failed: {exc}", file=sys.stderr)
+            return 2
+
+        print("Mode: text-polish")
+        print("Text:")
+        print(text)
+        return 0
+
     if args.command == "dictate-once":
         try:
             result = _dictate_once(args)
@@ -214,7 +236,10 @@ def main(argv: list[str] | None = None) -> int:
 def _clean_text(args: argparse.Namespace) -> CleanedDictation:
     rules = load_text_rules(args.rules) if args.rules is not None else TextRules()
     text = _read_text_input(args.text)
-    return clean_dictation(text, rules)
+    cleaned = clean_dictation(text, rules)
+    if not args.polish:
+        return cleaned
+    return CleanedDictation(text=polish_text(cleaned.text), should_send=cleaned.should_send)
 
 
 def _dictate_once(args: argparse.Namespace):
@@ -224,6 +249,7 @@ def _dictate_once(args: argparse.Namespace):
         args.dictation_action,
         StaticTranscriptProvider(transcript),
         rules=rules,
+        polish=args.polish,
     )
 
 

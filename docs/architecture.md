@@ -52,6 +52,12 @@ startup speed. Use `large-v3` as the public quality default for
 `faster-whisper`; faster or smaller models should be explicit user-selected
 overrides, not silent defaults.
 
+Speech profiles may include `initial_prompt` and `hotwords` for domain terms
+such as Codex, ChatGPT, GitHub, PowerShell, and SendInput. Text polishing is a
+separate postprocess step. The first public provider is `local_rules`, a
+deterministic local punctuation pass that does not call external services or
+rewrite meaning.
+
 ## Public API Boundary
 
 The first stable boundary should be a small action model:

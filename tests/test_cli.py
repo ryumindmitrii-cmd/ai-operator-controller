@@ -90,6 +90,23 @@ def test_clean_text_command_cleans_text_from_stdin(capsys, monkeypatch):
     assert "label: value" in output
 
 
+def test_polish_text_command_polishes_text_from_argument(capsys):
+    assert (
+        main(
+            [
+                "polish-text",
+                "--text",
+                "так смотри я думаю что это можно сделать но надо проверить локально",
+            ]
+        )
+        == 0
+    )
+
+    output = capsys.readouterr().out
+    assert "Mode: text-polish" in output
+    assert "Так, смотри, я думаю, что это можно сделать, но надо проверить локально." in output
+
+
 def test_clean_text_command_reports_invalid_rules_file(tmp_path, capsys):
     bad_rules = tmp_path / "bad-rules.json"
     bad_rules.write_text('{"replace_phrases": []}', encoding="utf-8")

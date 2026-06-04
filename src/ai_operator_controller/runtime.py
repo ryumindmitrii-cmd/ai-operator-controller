@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from .executor import ActionExecutor, DryRunOutputBackend, OutputEvent, TextOutputTarget
+from .text_polish import polish_text
 from .text_rules import TextRules, clean_dictation
 
 
@@ -40,6 +41,7 @@ def run_dictation_once(
     transcript_provider: TranscriptProvider,
     *,
     rules: TextRules | None = None,
+    polish: bool = False,
 ) -> DictationRunResult:
     try:
         output_target = DICTATION_ACTION_TARGETS[action_name]
@@ -47,8 +49,9 @@ def run_dictation_once(
         raise ValueError(f"Expected dictation action, got: {action_name}") from exc
 
     cleaned = clean_dictation(transcript_provider.transcribe_once(), rules)
+    output_text = polish_text(cleaned.text) if polish else cleaned.text
     backend = DryRunOutputBackend()
-    backend.write_text(cleaned.text, target=output_target)
+    backend.write_text(output_text, target=output_target)
 
     if output_target == "paste" and cleaned.should_send:
         ActionExecutor(backend).execute("enter")
@@ -56,7 +59,7 @@ def run_dictation_once(
     return DictationRunResult(
         action_name=action_name,
         output_target=output_target,
-        text=cleaned.text,
+        text=output_text,
         should_send=cleaned.should_send,
         output_events=tuple(backend.events),
     )

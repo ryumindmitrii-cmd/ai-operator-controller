@@ -31,6 +31,16 @@ def test_run_dictation_once_cleans_text_and_plans_paste_output():
     )
 
 
+def test_run_dictation_once_can_polish_cleaned_text():
+    result = run_dictation_once(
+        "dictate_paste",
+        StaticTranscriptProvider("так смотри я думаю что это можно сделать"),
+        polish=True,
+    )
+
+    assert result.text == "Так, смотри, я думаю, что это можно сделать."
+
+
 def test_run_dictation_once_clipboard_mode_does_not_plan_enter():
     rules = TextRules(send_commands=["send"])
 

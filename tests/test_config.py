@@ -56,4 +56,10 @@ def test_public_speech_profile_uses_quality_model_by_default():
 
     assert profile["backend"] == "faster-whisper"
     assert profile["model"] == "large-v3"
+    assert "Codex" in profile["hotwords"]
+    assert profile["postprocess"] == {
+        "mode": "polished",
+        "provider": "local_rules",
+        "allow_external_services": False,
+    }
     assert "turbo" not in json.dumps(profile).lower()

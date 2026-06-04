@@ -36,6 +36,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --axis right_stick_x 0.8
 .\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --axis right_stick_y 0.8
 .\.venv\Scripts\python.exe -m ai_operator_controller clean-text --rules config\examples\replacements.example.json --text "uh first line new line second line send"
+.\.venv\Scripts\python.exe -m ai_operator_controller polish-text --text "так смотри я думаю что это можно сделать но надо проверить локально"
 .\.venv\Scripts\python.exe -m ai_operator_controller dictate-once --rules config\examples\replacements.example.json --text "uh first line new line second line send"
 .\.venv\Scripts\python.exe -m pytest
 .\.venv\Scripts\python.exe -m ruff check src tests
@@ -52,6 +53,8 @@ Expected result:
   dry-run output events.
 - `clean-text` prints cleaned dictation text and whether a trailing send command
   was detected.
+- `polish-text` prints locally polished punctuation for dictated text without
+  using a network service.
 - `dictate-once` runs the preview dictation pipeline from transcript text to
   dry-run output without recording audio or sending keyboard input.
 - Tests pass.
@@ -169,6 +172,26 @@ For longer text, pipe stdin instead of putting the text in the command history:
 Use `config\examples\replacements.example.json` as a template only. Personal
 names, phrases, chat snippets, and private vocabulary should stay in ignored
 local config files, not in commits or issue reports.
+
+## Polish Text
+
+Run the local deterministic punctuation polish layer:
+
+```powershell
+.\.venv\Scripts\python.exe -m ai_operator_controller polish-text --text "так смотри я думаю что это можно сделать но надо проверить локально"
+```
+
+Expected output includes:
+
+```text
+Mode: text-polish
+Text:
+Так, смотри, я думаю, что это можно сделать, но надо проверить локально.
+```
+
+This pass is local-only. It adjusts punctuation, spacing, and sentence
+capitalization, but it is not allowed to add new content or send dictated text to
+an external service.
 
 ## Dictation Pipeline Preview
 
