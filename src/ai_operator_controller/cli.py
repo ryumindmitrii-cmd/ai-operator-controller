@@ -68,6 +68,23 @@ def build_parser() -> argparse.ArgumentParser:
         help="Apply local deterministic punctuation polish after text cleanup.",
     )
     parser.add_argument(
+        "--transcription-confidence",
+        type=float,
+        help="Optional 0..1 recognition confidence for dictation quality preview.",
+    )
+    parser.add_argument(
+        "--review-long-text-chars",
+        type=int,
+        default=240,
+        help="Require manual review before auto-send when dictated text is longer.",
+    )
+    parser.add_argument(
+        "--max-postprocess-change-ratio",
+        type=float,
+        default=0.25,
+        help="Require manual review before auto-send when polishing changes text too much.",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Required for preview-only desktop listeners that must not send real input.",
@@ -195,6 +212,11 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Action: {result.action_name}")
         print(f"Output target: {result.output_target}")
         print(f"Should send: {'yes' if result.should_send else 'no'}")
+        print(f"Auto-send: {'yes' if result.quality.send_allowed else 'no'}")
+        print(f"Review required: {'yes' if result.quality.review_required else 'no'}")
+        print(f"Quality confidence: {result.quality.confidence}")
+        quality_reasons = ", ".join(result.quality.reasons) if result.quality.reasons else "none"
+        print(f"Quality reasons: {quality_reasons}")
         print("Text:")
         print(result.text)
         print("Dry-run output:")
@@ -250,6 +272,9 @@ def _dictate_once(args: argparse.Namespace):
         StaticTranscriptProvider(transcript),
         rules=rules,
         polish=args.polish,
+        transcription_confidence=args.transcription_confidence,
+        review_long_text_chars=args.review_long_text_chars,
+        max_postprocess_change_ratio=args.max_postprocess_change_ratio,
     )
 
 

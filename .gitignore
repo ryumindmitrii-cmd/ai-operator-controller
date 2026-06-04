@@ -34,6 +34,7 @@ replacements.json
 auth.json
 
 # Local project management notes
+_drafts/
 docs/prompts/
 docs/github-first-public-repo.md
 

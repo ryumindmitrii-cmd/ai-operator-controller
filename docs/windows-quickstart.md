@@ -108,6 +108,7 @@ The default Codex example profile uses these high-frequency controls:
 - `A`: focus near the lower-center message input, move the caret to the end, and
   start paste-mode dictation.
 - `X`: paste-mode dictation at the current text cursor without moving focus.
+- `Y`: toggle the Codex side bar with `Ctrl+Alt+B`.
 - `B`: Backspace with hold-to-repeat.
 - `LB`: left mouse click.
 - `RB`: right mouse click.
@@ -118,6 +119,7 @@ The default Codex example profile uses these high-frequency controls:
 - Right stick left/right: choose chat-list or message-pane scroll target.
 - Right stick up/down: scroll the selected target, with repeat speed scaled by
   stick intensity.
+- Menu/Start: toggle the bottom panel with `Ctrl+J`.
 
 The `A` focus target is intentionally configurable:
 
@@ -139,6 +141,8 @@ or sending real desktop input:
 ```powershell
 .\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --axis right_stick_x 0.8
 .\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --button b down
+.\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --button y down
+.\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --button menu down
 .\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --axis right_stick_y 0.8
 ```
 
@@ -209,6 +213,10 @@ Source: transcript
 Action: dictate_paste
 Output target: paste
 Should send: yes
+Auto-send: yes
+Review required: no
+Quality confidence: high
+Quality reasons: none
 Text:
 first line
 second line
@@ -216,6 +224,11 @@ Dry-run output:
 write_text: paste length=22
 press_keys: enter
 ```
+
+`Should send` means the cleanup layer recognized a trailing voice command such
+as "send". `Auto-send` is the stricter quality-gate decision. It stays `no` and
+does not plan `press_keys: enter` when optional recognition confidence is low,
+the text is long, or local polishing changed the text too much.
 
 Clipboard-only preview:
 

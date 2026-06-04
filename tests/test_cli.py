@@ -167,6 +167,31 @@ def test_dictate_once_command_supports_clipboard_action(capsys):
     assert "press_keys: enter" not in output
 
 
+def test_dictate_once_command_reports_blocked_auto_send(capsys):
+    assert (
+        main(
+            [
+                "dictate-once",
+                "--rules",
+                "config/examples/replacements.example.json",
+                "--transcription-confidence",
+                "0.2",
+                "--text",
+                "please review this send",
+            ]
+        )
+        == 0
+    )
+
+    output = capsys.readouterr().out
+    assert "Should send: yes" in output
+    assert "Auto-send: no" in output
+    assert "Review required: yes" in output
+    assert "Quality confidence: low" in output
+    assert "low_transcription_confidence" in output
+    assert "press_keys: enter" not in output
+
+
 def test_simulate_gamepad_axis_prints_dry_run_event(capsys):
     assert (
         main(
@@ -227,6 +252,44 @@ def test_simulate_gamepad_bumper_button_prints_mouse_click(capsys):
     assert "Input: button rb down" in output
     assert "Action: mouse_right_click" in output
     assert "click_mouse: right" in output
+
+
+def test_simulate_gamepad_panel_buttons_print_keyboard_shortcuts(capsys):
+    assert (
+        main(
+            [
+                "simulate-gamepad",
+                "--profile",
+                "config/examples/profile.codex.windows.json",
+                "--button",
+                "y",
+                "down",
+            ]
+        )
+        == 0
+    )
+
+    sidebar_output = capsys.readouterr().out
+    assert "Action: toggle_sidebar" in sidebar_output
+    assert "press_keys: ctrl+alt+b" in sidebar_output
+
+    assert (
+        main(
+            [
+                "simulate-gamepad",
+                "--profile",
+                "config/examples/profile.codex.windows.json",
+                "--button",
+                "menu",
+                "down",
+            ]
+        )
+        == 0
+    )
+
+    bottom_panel_output = capsys.readouterr().out
+    assert "Action: toggle_bottom_panel" in bottom_panel_output
+    assert "press_keys: ctrl+j" in bottom_panel_output
 
 
 def test_simulate_gamepad_scroll_axis_prints_dry_run_event(capsys):

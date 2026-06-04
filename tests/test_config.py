@@ -22,7 +22,7 @@ def test_public_codex_profile_loads_and_validates():
     assert result.profile_name == "codex_windows_default"
     assert "dictate_paste" in result.actions
     assert "cursor_left" in result.actions
-    assert result.button_count == 5
+    assert result.button_count == 7
     assert result.axis_count == 5
     assert result.hat_count == 1
 
@@ -61,5 +61,12 @@ def test_public_speech_profile_uses_quality_model_by_default():
         "mode": "polished",
         "provider": "local_rules",
         "allow_external_services": False,
+    }
+    assert profile["quality_gate"] == {
+        "review_long_text_chars": 240,
+        "max_postprocess_change_ratio": 0.25,
+        "min_transcription_confidence": 0.55,
+        "medium_transcription_confidence": 0.75,
+        "block_auto_send_on_review": True,
     }
     assert "turbo" not in json.dumps(profile).lower()

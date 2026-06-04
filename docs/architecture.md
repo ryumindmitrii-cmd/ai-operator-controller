@@ -46,6 +46,8 @@ driven by profile files:
 - speech profile: model, device, compute type, language;
 - text profile: replacements, trash phrases, send commands;
 - privacy profile: logging and redaction settings.
+- private learning candidates: reviewed hotwords, replacements, punctuation
+  hints, and assistant guards scoped by project profile.
 
 The default local speech profile should prioritize recognition quality over
 startup speed. Use `large-v3` as the public quality default for
@@ -57,6 +59,18 @@ such as Codex, ChatGPT, GitHub, PowerShell, and SendInput. Text polishing is a
 separate postprocess step. The first public provider is `local_rules`, a
 deterministic local punctuation pass that does not call external services or
 rewrite meaning.
+
+Dictation quality is a separate runtime report. The report keeps raw, cleaned,
+and final postprocessed text as separate values, records optional recognizer
+confidence, and computes whether automatic Enter is allowed. A trailing voice
+command such as "send" means the user requested send; it does not automatically
+mean the system may press Enter. Long text, low recognizer confidence, or a large
+postprocess change should require manual review.
+
+Private learning is review-first. The public project may define a candidate
+format and validators, but raw chat logs, transcripts, recordings, screenshots,
+and clipboard content must remain outside git. Approved candidates should compile
+into private per-profile runtime files instead of a single global dictionary.
 
 ## Public API Boundary
 
@@ -78,6 +92,8 @@ focus_chat_list
 focus_message_pane
 scroll_up
 scroll_down
+toggle_sidebar
+toggle_bottom_panel
 ctrl_tab
 ctrl_shift_tab
 paste_clipboard
@@ -119,4 +135,6 @@ and redacted coordinates.
 - Controller indices differ across devices.
 - Speech models are large and may be hard to package.
 - Any logging of dictated text can leak sensitive information.
+- Overconfident auto-send can turn a transcription error into an unintended
+  message.
 - Public examples can accidentally expose private workflows if not sanitized.

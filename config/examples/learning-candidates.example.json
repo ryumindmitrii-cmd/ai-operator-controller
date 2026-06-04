@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "description": "Synthetic example for private local learning candidates. Do not store raw chats, transcripts, recordings, clipboard content, or private file paths here.",
+  "candidates": [
+    {
+      "id": "example-hotword-001",
+      "project_profile": "open_source",
+      "candidate_type": "hotword",
+      "status": "candidate",
+      "source_ref": "synthetic-review-note-001",
+      "reason": "Technical term should be preserved during local speech recognition.",
+      "payload": {
+        "value": "SendInput"
+      }
+    },
+    {
+      "id": "example-replacement-001",
+      "project_profile": "open_source",
+      "candidate_type": "replacement",
+      "status": "candidate",
+      "source_ref": "synthetic-review-note-002",
+      "reason": "Common recognition mismatch for a technical tool name.",
+      "payload": {
+        "from": "pi test",
+        "to": "pytest"
+      }
+    },
+    {
+      "id": "example-guard-001",
+      "project_profile": "workspace_default",
+      "candidate_type": "assistant_guard",
+      "status": "candidate",
+      "source_ref": "synthetic-review-note-003",
+      "reason": "Long dictated messages should be clarified when recognition quality is uncertain.",
+      "payload": {
+        "trigger": "low_or_medium_dictation_quality",
+        "instruction": "If the dictated request is ambiguous, ask a clarifying question before inferring missing details."
+      }
+    },
+    {
+      "id": "example-punctuation-001",
+      "project_profile": "workspace_default",
+      "candidate_type": "punctuation_hint",
+      "status": "candidate",
+      "source_ref": "synthetic-review-note-004",
+      "reason": "Spoken transition often needs a comma instead of a sentence break.",
+      "payload": {
+        "phrase": "so look",
+        "preferred_output": "so, look"
+      }
+    }
+  ]
+}

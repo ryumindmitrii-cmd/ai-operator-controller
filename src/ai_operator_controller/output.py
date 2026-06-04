@@ -28,6 +28,8 @@ class KeyboardActionPlanner:
         "enter": ("enter",),
         "space": ("space",),
         "paste_clipboard": ("ctrl", "v"),
+        "toggle_bottom_panel": ("ctrl", "j"),
+        "toggle_sidebar": ("ctrl", "alt", "b"),
     }
     _SCROLL_CLICKS_BY_ACTION = {
         "scroll_down": -0.25,

@@ -23,6 +23,13 @@
     "provider": "local_rules",
     "allow_external_services": false
   },
+  "quality_gate": {
+    "review_long_text_chars": 240,
+    "max_postprocess_change_ratio": 0.25,
+    "min_transcription_confidence": 0.55,
+    "medium_transcription_confidence": 0.75,
+    "block_auto_send_on_review": true
+  },
   "fallback": {
     "enabled": true,
     "device": "cpu",

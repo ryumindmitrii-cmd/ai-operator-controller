@@ -58,6 +58,45 @@ def test_run_dictation_once_clipboard_mode_does_not_plan_enter():
     )
 
 
+def test_run_dictation_once_blocks_auto_send_when_confidence_is_low():
+    rules = TextRules(send_commands=["send"])
+
+    result = run_dictation_once(
+        "dictate_paste",
+        StaticTranscriptProvider("please check this send"),
+        rules=rules,
+        transcription_confidence=0.2,
+    )
+
+    assert result.should_send is True
+    assert result.quality.confidence == "low"
+    assert result.quality.send_allowed is False
+    assert result.quality.review_required is True
+    assert result.output_events == (
+        OutputEvent(kind="write_text", text_target="paste", text_length=17),
+    )
+
+
+def test_run_dictation_once_blocks_auto_send_for_long_text():
+    rules = TextRules(send_commands=["send"])
+    long_text = " ".join(["word"] * 40)
+
+    result = run_dictation_once(
+        "dictate_paste",
+        StaticTranscriptProvider(f"{long_text} send"),
+        rules=rules,
+        review_long_text_chars=100,
+    )
+
+    assert result.should_send is True
+    assert result.quality.confidence == "medium"
+    assert result.quality.send_allowed is False
+    assert result.quality.review_required is True
+    assert result.output_events == (
+        OutputEvent(kind="write_text", text_target="paste", text_length=len(long_text)),
+    )
+
+
 def test_run_dictation_once_rejects_non_dictation_actions():
     with pytest.raises(ValueError, match="dictation action"):
         run_dictation_once("cursor_left", StaticTranscriptProvider("hello"))

@@ -28,6 +28,8 @@ def test_public_codex_profile_uses_only_known_actions():
         "mouse_right_click",
         "scroll_down",
         "scroll_up",
+        "toggle_bottom_panel",
+        "toggle_sidebar",
     }.issubset(actions)
     assert actions <= ACTION_NAMES
 
@@ -55,6 +57,10 @@ def test_public_codex_profile_maps_controller_to_chat_cursor_and_scroll_actions(
     assert buttons["rb"]["action"] == "mouse_right_click"
     assert buttons["x"]["action"] == "dictate_paste"
     assert "focus_before_action" not in buttons["x"]
+    assert buttons["y"]["button"] == 3
+    assert buttons["y"]["action"] == "toggle_sidebar"
+    assert buttons["menu"]["button"] == 7
+    assert buttons["menu"]["action"] == "toggle_bottom_panel"
     assert axes["lt"]["action"] == "space"
     assert axes["left_stick_y"]["negative_action"] == "chat_previous"
     assert axes["left_stick_y"]["positive_action"] == "chat_next"

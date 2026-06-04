@@ -22,6 +22,8 @@ ACTION_NAMES = frozenset(
         "mouse_right_click",
         "scroll_down",
         "scroll_up",
+        "toggle_bottom_panel",
+        "toggle_sidebar",
         "ctrl_tab",
         "ctrl_shift_tab",
         "paste_clipboard",

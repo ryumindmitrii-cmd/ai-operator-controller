@@ -64,6 +64,7 @@ https://github.com/ryumindmitrii-cmd/ai-operator-controller/issues
   - `A`: focus near the lower-center message input, move the caret to the end,
     dictate, and paste.
   - `X`: dictate and paste at the current text cursor without moving focus.
+  - `Y`: toggle the Codex side bar with `Ctrl+Alt+B`.
   - `B`: Backspace; hold to repeat.
   - `LB`: Left mouse click.
   - `RB`: Right mouse click.
@@ -75,10 +76,20 @@ https://github.com/ryumindmitrii-cmd/ai-operator-controller/issues
     scrolling targets the intended area without changing text-input focus.
   - Right stick up/down: scroll the selected chat area, with repeat speed scaled
     by stick intensity.
+  - Menu/Start: toggle the bottom panel with `Ctrl+J`.
 - Local text cleanup:
   - replacement dictionary;
   - filler phrase filter;
   - voice commands such as "new line" and "send".
+- Dictation quality gate:
+  - keep raw, cleaned, and final text separate inside the runtime report;
+  - distinguish "user requested send" from "safe to press Enter";
+  - block automatic Enter when confidence is low, text is long, or local
+    polishing changed the text too much.
+- Private learning candidate pipeline:
+  - collect reviewed hotword, replacement, punctuation, and assistant-guard
+    candidates without storing raw chats in git;
+  - keep sensitive contexts separated by project profile.
 - System tray status indicator.
 - App profiles for Codex, ChatGPT, Cursor, browsers, and editors.
 
@@ -117,6 +128,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m ai_operator_controller doctor --profile config\examples\profile.codex.windows.json
 .\.venv\Scripts\python.exe -m ai_operator_controller plan-action cursor_left
 .\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --axis right_stick_x 0.8
+.\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --button y down
 .\.venv\Scripts\python.exe -m ai_operator_controller clean-text --rules config\examples\replacements.example.json --text "uh first line new line second line send"
 .\.venv\Scripts\python.exe -m ai_operator_controller polish-text --text "так смотри я думаю что это можно сделать но надо проверить локально"
 .\.venv\Scripts\python.exe -m ai_operator_controller dictate-once --rules config\examples\replacements.example.json --text "uh first line new line second line send"
@@ -152,11 +164,18 @@ external service or adding new content.
 The `dictate-once` command runs the first public dictation pipeline in preview
 mode. It accepts transcript text through `--text` or stdin, applies text cleanup,
 and prints the dry-run output for `dictate_paste` or `dictate_clipboard` without
-recording audio or sending real keyboard input.
+recording audio or sending real keyboard input. Its quality report separates a
+recognized trailing send command from actual auto-send permission. If the text is
+too long, the optional recognition confidence is low, or local polishing changes
+the text too much, `Auto-send` is blocked and `press_keys: enter` is not planned.
 
 The `listen-gamepad --dry-run` command reads a physical controller through
 `pygame`, maps it through the selected profile, and prints the actions that would
 run. It does not send keyboard, mouse, clipboard, or dictation output.
+
+The private learning pipeline is specified in `docs/private-learning-pipeline.md`.
+Its public example format stores reviewed candidates only. Raw chats,
+transcripts, recordings, screenshots, and clipboard content must stay out of git.
 
 ## Security Checks
 

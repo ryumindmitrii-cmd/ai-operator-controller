@@ -27,8 +27,10 @@
         "cooldown_seconds": 0.1
       },
       "lb": { "button": 4, "action": "mouse_left_click" },
+      "menu": { "button": 7, "action": "toggle_bottom_panel" },
       "rb": { "button": 5, "action": "mouse_right_click" },
-      "x": { "button": 2, "action": "dictate_paste" }
+      "x": { "button": 2, "action": "dictate_paste" },
+      "y": { "button": 3, "action": "toggle_sidebar" }
     },
     "axes": {
       "lt": {

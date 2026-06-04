@@ -23,6 +23,13 @@ def test_chat_actions_have_keyboard_fallbacks():
     assert planner.plan("chat_next").keys == ("ctrl", "tab")
 
 
+def test_panel_toggle_actions_map_to_codex_keyboard_shortcuts():
+    planner = KeyboardActionPlanner()
+
+    assert planner.plan("toggle_sidebar").keys == ("ctrl", "alt", "b")
+    assert planner.plan("toggle_bottom_panel").keys == ("ctrl", "j")
+
+
 def test_scroll_actions_map_to_mouse_wheel_clicks():
     planner = KeyboardActionPlanner()
 

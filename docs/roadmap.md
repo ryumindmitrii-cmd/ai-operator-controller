@@ -18,6 +18,7 @@
 - [ ] Keep a safe public example replacement file.
 - [x] Add tests for text cleanup and action mapping.
 - [x] Add preview dictation runtime command with transcript input.
+- [x] Add private learning candidate format and safety boundary.
 - [ ] Add a local Windows run command.
 
 ## Phase 2: Usable Windows MVP
@@ -46,6 +47,7 @@
 - Toggle mode for long dictation.
 - Per-app profile auto-detection.
 - Voice command grammar.
+- Local private learning extractor and review CLI.
 - Cloud transcription as opt-in provider.
 - Native Windows tray/installer.
 - macOS/Linux support if demand exists.

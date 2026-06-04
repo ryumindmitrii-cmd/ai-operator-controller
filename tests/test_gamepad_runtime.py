@@ -13,7 +13,7 @@ PROFILE_PATH = Path("config/examples/profile.codex.windows.json")
 def test_profile_builds_gamepad_bindings():
     bindings = bindings_from_profile(load_profile(PROFILE_PATH))
 
-    assert sorted(bindings.buttons) == ["a", "b", "lb", "rb", "x"]
+    assert sorted(bindings.buttons) == ["a", "b", "lb", "menu", "rb", "x", "y"]
     assert sorted(bindings.axes) == [
         "left_stick_y",
         "lt",
@@ -84,6 +84,20 @@ def test_runtime_bumper_buttons_emit_mouse_clicks():
     assert right is not None
     assert right.action_name == "mouse_right_click"
     assert [event.describe() for event in right.output_events] == ["click_mouse: right"]
+
+
+def test_runtime_panel_buttons_emit_codex_panel_shortcuts():
+    runtime = GamepadActionRuntime(bindings_from_profile(load_profile(PROFILE_PATH)))
+
+    sidebar = runtime.update_button("y", True, now=0.0)
+    bottom_panel = runtime.update_button("menu", True, now=0.0)
+
+    assert sidebar is not None
+    assert sidebar.action_name == "toggle_sidebar"
+    assert [event.describe() for event in sidebar.output_events] == ["press_keys: ctrl+alt+b"]
+    assert bottom_panel is not None
+    assert bottom_panel.action_name == "toggle_bottom_panel"
+    assert [event.describe() for event in bottom_panel.output_events] == ["press_keys: ctrl+j"]
 
 
 def test_runtime_reports_future_dictation_action_without_output_effect():
