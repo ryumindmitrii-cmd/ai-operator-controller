@@ -2,6 +2,9 @@
 param(
     [switch]$WithMicrophone,
     [double]$MicrophoneSeconds = 0.2,
+    [switch]$WithSpeechModel,
+    [string]$SpeechAudioPath,
+    [switch]$AllowModelDownload,
     [switch]$SkipBandit,
     [switch]$SkipPipAudit
 )
@@ -113,6 +116,10 @@ if ($MicrophoneSeconds -le 0) {
     throw "MicrophoneSeconds must be positive"
 }
 
+if ($WithSpeechModel -and -not $SpeechAudioPath) {
+    throw "SpeechAudioPath is required when WithSpeechModel is set"
+}
+
 Push-Location $RepoRoot
 try {
     Invoke-Step "CLI help" {
@@ -145,6 +152,29 @@ try {
     else {
         Write-Host ""
         Write-Host "Skipping microphone dry run. Pass -WithMicrophone to record metadata only."
+    }
+
+    if ($WithSpeechModel) {
+        Invoke-Step "Speech model transcription dry run" {
+            $transcribeArgs = @(
+                "-m",
+                "ai_operator_controller",
+                "transcribe-file",
+                "--speech-profile",
+                "config\examples\speech.local-quality.example.json",
+                "--audio-file",
+                $SpeechAudioPath,
+                "--dry-run"
+            )
+            if ($AllowModelDownload) {
+                $transcribeArgs += "--allow-model-download"
+            }
+            & $VenvPython @transcribeArgs
+        }
+    }
+    else {
+        Write-Host ""
+        Write-Host "Skipping speech model dry run. Pass -WithSpeechModel -SpeechAudioPath <file> to transcribe a local file."
     }
 
     Invoke-Step "Tests" {

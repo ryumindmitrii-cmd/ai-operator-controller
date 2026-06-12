@@ -40,8 +40,12 @@ use cases.
 - [x] Reproducible local setup and smoke scripts exist for venv creation, CLI
   dry-runs, tests, lint, compile checks, privacy/security scans, and optional
   microphone metadata smoke tests.
+- [x] Public package has a test-covered `faster-whisper` config/backend wrapper
+  and `transcribe-file --dry-run` command for explicit local audio files.
+- [x] Real local `faster-whisper` model smoke test runs with cached `large-v3` on
+  CUDA against synthetic silence; VAD returns an empty transcript instead of
+  prompt text.
 - [ ] Public package does not yet run push-to-talk microphone recording.
-- [ ] Public package does not yet run the real local `faster-whisper` runtime.
 - [ ] Public package does not yet send real Windows input.
 - [ ] There is no one-command installer or startup setup.
 
@@ -82,10 +86,11 @@ public package without copying private data.
   - Acceptance: can record a short local sample through a testable interface.
   - Verification: unit tests for audio buffer handling; manual metadata-only
     `record-once --dry-run` on Windows.
-- [ ] Add public `faster-whisper` speech backend wrapper.
+- [x] Add public `faster-whisper` speech backend wrapper.
   - Acceptance: backend accepts model/device config and returns transcript text
     plus confidence metadata when available.
-  - Verification: mocked backend tests plus one manual local model smoke test.
+  - Verification: mocked backend tests plus manual local model smoke test with
+    cached `large-v3` on synthetic silence.
 - [ ] Add local runtime command for paste and clipboard modes.
   - Acceptance: `dictate-run` or equivalent can record, transcribe, clean,
     polish, quality-check, and write planned output events.

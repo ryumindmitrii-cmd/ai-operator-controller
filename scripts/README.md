@@ -31,3 +31,15 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -WithMic
 
 The microphone smoke test does not save audio, print transcripts, touch the
 clipboard, or send keyboard input.
+
+To include a real local `faster-whisper` model check, provide an explicit local
+audio file:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -WithSpeechModel -SpeechAudioPath <PATH_TO_WAV>
+```
+
+By default this does not download a missing model. Add `-AllowModelDownload` only
+when you are intentionally allowing `faster-whisper` to fetch model files. The
+audio file and transcript are never saved by the script, but the transcript is
+printed to the terminal as part of the manual check.

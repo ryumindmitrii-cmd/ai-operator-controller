@@ -78,6 +78,8 @@ mapped actions and stops after five emitted actions.
   listen-gamepad --dry-run`.
 - Microphone metadata dry-run through `ai_operator_controller record-once
   --dry-run`.
+- Local file transcription dry-run through `ai_operator_controller
+  transcribe-file --dry-run`.
 - Text cleanup through `ai_operator_controller clean-text`.
 - Preview dictation runtime through `ai_operator_controller dictate-once`.
 - Text cleanup and replacement-rule tests.
@@ -91,8 +93,9 @@ mapped actions and stops after five emitted actions.
 - No Windows tray app or installer yet.
 - The public package can record a metadata-only microphone dry run, but does not
   yet run the full push-to-talk dictation loop.
-- `dictate-once` uses transcript text as input; microphone recording and local
-  faster-whisper transcription are still being migrated.
+- `transcribe-file` can run a local `faster-whisper` profile against an explicit
+  audio file, but the full push-to-talk microphone transcription loop is still
+  being migrated.
 - `listen-gamepad --dry-run` reads a physical controller but intentionally does
   not send real keyboard, mouse, clipboard, or dictation output.
 - The private prototype is not copied into this repository until logs, local
@@ -221,6 +224,40 @@ Peak: 0.123456
 This command is only a microphone smoke test. It does not write `.wav` files,
 does not print or store transcripts, and does not interact with the clipboard or
 keyboard.
+
+## Local File Transcription Dry Run
+
+Run a local `faster-whisper` speech profile against an explicit audio file:
+
+```powershell
+.\.venv\Scripts\python.exe -m ai_operator_controller transcribe-file --speech-profile config\examples\speech.local-quality.example.json --audio-file <PATH_TO_WAV> --dry-run
+```
+
+Expected output shape:
+
+```text
+Mode: transcribe-file
+Dry-run: yes
+Saved file: no
+Model: large-v3
+Device: cuda
+Compute type: float16
+VAD filter: enabled
+Fallback used: no
+Model download: disabled
+Language: ru
+Language probability: 0.987
+Duration: 3.210s
+Segments: 1
+Text:
+...
+```
+
+Model downloads are disabled by default so this command fails clearly if the
+model is not already available locally. Add `--allow-model-download` only when
+you intentionally want `faster-whisper` to fetch model files. The command does
+not save audio, write clipboard content, or send keyboard input, but it does
+print the transcript to the terminal.
 
 ## Dictation Pipeline Preview
 

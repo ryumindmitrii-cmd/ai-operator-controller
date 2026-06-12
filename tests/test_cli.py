@@ -3,6 +3,7 @@ from pathlib import Path
 
 from ai_operator_controller.audio_recorder import AudioSampleSummary
 from ai_operator_controller.cli import main
+from ai_operator_controller.speech import TranscriptionResult
 
 
 def test_version_command(capsys):
@@ -235,6 +236,75 @@ def test_record_once_command_prints_safe_audio_metadata(capsys, monkeypatch):
     assert "RMS: 0.125000" in output
     assert "Peak: 0.500000" in output
     assert "Text:" not in output
+
+
+def test_transcribe_file_requires_dry_run(tmp_path, capsys):
+    audio_path = tmp_path / "sample.wav"
+    audio_path.write_bytes(b"not a real wav")
+
+    assert main(["transcribe-file", "--audio-file", str(audio_path)]) == 2
+
+    captured = capsys.readouterr()
+    assert "Transcription preview failed" in captured.err
+    assert "--dry-run is required" in captured.err
+
+
+def test_transcribe_file_command_prints_transcript_and_metadata(tmp_path, capsys, monkeypatch):
+    audio_path = tmp_path / "sample.wav"
+    audio_path.write_bytes(b"not a real wav")
+
+    def fake_transcribe_audio_file(audio_path_arg, config, *, local_files_only, model_factory=None):
+        assert audio_path_arg == audio_path
+        assert config.model == "large-v3"
+        assert local_files_only is True
+        assert model_factory is None
+        return TranscriptionResult(
+            text="hello from local whisper",
+            language="en",
+            language_probability=0.92,
+            duration_seconds=1.25,
+            segment_count=3,
+            model="large-v3",
+            device="cuda",
+            compute_type="float16",
+            vad_filter=True,
+            used_fallback=False,
+        )
+
+    monkeypatch.setattr(
+        "ai_operator_controller.cli.transcribe_audio_file",
+        fake_transcribe_audio_file,
+    )
+
+    assert (
+        main(
+            [
+                "transcribe-file",
+                "--speech-profile",
+                "config/examples/speech.local-quality.example.json",
+                "--audio-file",
+                str(audio_path),
+                "--dry-run",
+            ]
+        )
+        == 0
+    )
+
+    output = capsys.readouterr().out
+    assert "Mode: transcribe-file" in output
+    assert "Dry-run: yes" in output
+    assert "Saved file: no" in output
+    assert "Model: large-v3" in output
+    assert "Device: cuda" in output
+    assert "Compute type: float16" in output
+    assert "VAD filter: enabled" in output
+    assert "Model download: disabled" in output
+    assert "Language: en" in output
+    assert "Language probability: 0.920" in output
+    assert "Duration: 1.250s" in output
+    assert "Segments: 3" in output
+    assert "Text:" in output
+    assert "hello from local whisper" in output
 
 
 def test_simulate_gamepad_axis_prints_dry_run_event(capsys):

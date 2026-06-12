@@ -6,6 +6,7 @@
   "device": "cuda",
   "compute_type": "float16",
   "language": "auto",
+  "vad_filter": true,
   "initial_prompt": "Russian technical dictation for AI workspaces. Preserve terms such as Codex, ChatGPT, GitHub, PowerShell, faster-whisper, SendInput, Python, pytest, and Windows. Use natural Russian punctuation.",
   "hotwords": [
     "Codex",

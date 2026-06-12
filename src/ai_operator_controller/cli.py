@@ -12,6 +12,12 @@ from .executor import dry_run_action
 from .gamepad import GamepadActionResult, GamepadActionRuntime, bindings_from_profile
 from .gamepad_listener import PygameGamepadReader, listen_gamepad_dry_run
 from .runtime import DICTATION_ACTION_TARGETS, StaticTranscriptProvider, run_dictation_once
+from .speech import (
+    SpeechConfigError,
+    SpeechRecognitionError,
+    load_speech_config,
+    transcribe_audio_file,
+)
 from .text_polish import polish_text
 from .text_rules import CleanedDictation, TextRules, clean_dictation, load_text_rules
 
@@ -114,6 +120,22 @@ def build_parser() -> argparse.ArgumentParser:
         help="Optional microphone device index for the 'record-once' command.",
     )
     parser.add_argument(
+        "--speech-profile",
+        type=Path,
+        default=Path("config/examples/speech.local-quality.example.json"),
+        help="Speech profile for the 'transcribe-file' command.",
+    )
+    parser.add_argument(
+        "--audio-file",
+        type=Path,
+        help="Audio file for the 'transcribe-file' command.",
+    )
+    parser.add_argument(
+        "--allow-model-download",
+        action="store_true",
+        help="Allow faster-whisper to download a missing model for 'transcribe-file'.",
+    )
+    parser.add_argument(
         "--gamepad-index",
         type=int,
         help="Override the gamepad device index from the selected profile.",
@@ -140,12 +162,13 @@ def build_parser() -> argparse.ArgumentParser:
             "polish-text",
             "dictate-once",
             "record-once",
+            "transcribe-file",
             "listen-gamepad",
         ],
         help=(
             "Optional command. Use 'doctor', 'plan-action', 'simulate-gamepad', "
-            "'clean-text', 'polish-text', 'dictate-once', 'record-once', or "
-            "'listen-gamepad'."
+            "'clean-text', 'polish-text', 'dictate-once', 'record-once', "
+            "'transcribe-file', or 'listen-gamepad'."
         ),
     )
     parser.add_argument(
@@ -269,6 +292,36 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Peak: {result.peak_abs:.6f}")
         return 0
 
+    if args.command == "transcribe-file":
+        try:
+            result = _transcribe_file(args)
+        except (OSError, ValueError, SpeechConfigError, SpeechRecognitionError) as exc:
+            print(f"Transcription preview failed: {exc}", file=sys.stderr)
+            return 2
+
+        print("Mode: transcribe-file")
+        print("Dry-run: yes")
+        print("Saved file: no")
+        print(f"Model: {result.model}")
+        print(f"Device: {result.device}")
+        print(f"Compute type: {result.compute_type}")
+        print(f"VAD filter: {'enabled' if result.vad_filter else 'disabled'}")
+        print(f"Fallback used: {'yes' if result.used_fallback else 'no'}")
+        print(f"Model download: {'enabled' if args.allow_model_download else 'disabled'}")
+        print(f"Language: {result.language or 'unknown'}")
+        if result.language_probability is None:
+            print("Language probability: unknown")
+        else:
+            print(f"Language probability: {result.language_probability:.3f}")
+        if result.duration_seconds is None:
+            print("Duration: unknown")
+        else:
+            print(f"Duration: {result.duration_seconds:.3f}s")
+        print(f"Segments: {result.segment_count}")
+        print("Text:")
+        print(result.text)
+        return 0
+
     if args.command == "simulate-gamepad":
         try:
             result = _simulate_gamepad(args)
@@ -331,6 +384,19 @@ def _record_once(args: argparse.Namespace):
         sample_rate=args.sample_rate,
         channels=args.channels,
         device=args.mic_device,
+    )
+
+
+def _transcribe_file(args: argparse.Namespace):
+    if not args.dry_run:
+        raise ValueError("--dry-run is required for transcribe-file")
+    if args.audio_file is None:
+        raise ValueError("--audio-file is required for transcribe-file")
+    config = load_speech_config(args.speech_profile)
+    return transcribe_audio_file(
+        args.audio_file,
+        config,
+        local_files_only=not args.allow_model_download,
     )
 
 
