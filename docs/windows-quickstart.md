@@ -80,6 +80,8 @@ mapped actions and stops after five emitted actions.
   --dry-run`.
 - Local file transcription dry-run through `ai_operator_controller
   transcribe-file --dry-run`.
+- Local microphone-to-output pipeline dry-run through `ai_operator_controller
+  dictate-run --dry-run`.
 - Text cleanup through `ai_operator_controller clean-text`.
 - Preview dictation runtime through `ai_operator_controller dictate-once`.
 - Text cleanup and replacement-rule tests.
@@ -260,6 +262,37 @@ not save audio, write clipboard content, or send keyboard input, but it does
 print the transcript to the terminal.
 
 ## Dictation Pipeline Preview
+
+Run the local microphone-to-output dry-run pipeline:
+
+```powershell
+.\.venv\Scripts\python.exe -m ai_operator_controller dictate-run --seconds 2 --rules config\examples\replacements.example.json --dry-run
+```
+
+Expected output shape:
+
+```text
+Mode: dictate-run
+Dry-run: yes
+Saved audio: no
+Source: microphone
+Audio duration: 2.000s
+Transcription model: large-v3
+Transcription VAD filter: enabled
+Action: dictate_paste
+Output target: paste
+Should send: no
+Auto-send: no
+Text:
+...
+Dry-run output:
+write_text: paste length=...
+```
+
+This command records to a temporary local file, transcribes it, applies cleanup
+and the quality gate, prints planned output events, and deletes the temporary
+file. It does not write clipboard content, paste into applications, or press
+Enter.
 
 Run the first public dictation pipeline without a microphone:
 

@@ -3,10 +3,11 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import tempfile
 from pathlib import Path
 
 from . import __version__
-from .audio_recorder import AudioRecorderError, record_microphone_once
+from .audio_recorder import AudioRecorderError, record_microphone_once, record_microphone_to_wav
 from .config import ProfileValidationError, load_profile, validate_profile
 from .executor import dry_run_action
 from .gamepad import GamepadActionResult, GamepadActionRuntime, bindings_from_profile
@@ -161,13 +162,14 @@ def build_parser() -> argparse.ArgumentParser:
             "clean-text",
             "polish-text",
             "dictate-once",
+            "dictate-run",
             "record-once",
             "transcribe-file",
             "listen-gamepad",
         ],
         help=(
             "Optional command. Use 'doctor', 'plan-action', 'simulate-gamepad', "
-            "'clean-text', 'polish-text', 'dictate-once', 'record-once', "
+            "'clean-text', 'polish-text', 'dictate-once', 'dictate-run', 'record-once', "
             "'transcribe-file', or 'listen-gamepad'."
         ),
     )
@@ -258,6 +260,54 @@ def main(argv: list[str] | None = None) -> int:
 
         print("Mode: dictate-once")
         print("Source: transcript")
+        print(f"Action: {result.action_name}")
+        print(f"Output target: {result.output_target}")
+        print(f"Should send: {'yes' if result.should_send else 'no'}")
+        print(f"Auto-send: {'yes' if result.quality.send_allowed else 'no'}")
+        print(f"Review required: {'yes' if result.quality.review_required else 'no'}")
+        print(f"Quality confidence: {result.quality.confidence}")
+        quality_reasons = ", ".join(result.quality.reasons) if result.quality.reasons else "none"
+        print(f"Quality reasons: {quality_reasons}")
+        print("Text:")
+        print(result.text)
+        print("Dry-run output:")
+        for event in result.output_events:
+            print(event.describe())
+        return 0
+
+    if args.command == "dictate-run":
+        try:
+            result, audio_summary, transcription = _dictate_run(args)
+        except (
+            OSError,
+            ValueError,
+            json.JSONDecodeError,
+            AudioRecorderError,
+            SpeechConfigError,
+            SpeechRecognitionError,
+        ) as exc:
+            print(f"Dictation runtime failed: {exc}", file=sys.stderr)
+            return 2
+
+        print("Mode: dictate-run")
+        print("Dry-run: yes")
+        print("Saved audio: no")
+        print("Source: microphone")
+        print(f"Audio duration: {audio_summary.duration_seconds:.3f}s")
+        print(f"Audio frames: {audio_summary.frame_count}")
+        print(f"Audio RMS: {audio_summary.rms:.6f}")
+        print(f"Audio peak: {audio_summary.peak_abs:.6f}")
+        print(f"Transcription model: {transcription.model}")
+        print(f"Transcription device: {transcription.device}")
+        print(f"Transcription compute type: {transcription.compute_type}")
+        print(f"Transcription VAD filter: {'enabled' if transcription.vad_filter else 'disabled'}")
+        print(f"Transcription fallback used: {'yes' if transcription.used_fallback else 'no'}")
+        print(f"Transcription language: {transcription.language or 'unknown'}")
+        if transcription.language_probability is None:
+            print("Transcription language probability: unknown")
+        else:
+            print(f"Transcription language probability: {transcription.language_probability:.3f}")
+        print(f"Transcription segments: {transcription.segment_count}")
         print(f"Action: {result.action_name}")
         print(f"Output target: {result.output_target}")
         print(f"Should send: {'yes' if result.should_send else 'no'}")
@@ -387,6 +437,41 @@ def _record_once(args: argparse.Namespace):
     )
 
 
+def _dictate_run(args: argparse.Namespace):
+    if not args.dry_run:
+        raise ValueError("--dry-run is required for dictate-run")
+
+    speech_config = load_speech_config(args.speech_profile)
+    rules = load_text_rules(args.rules) if args.rules is not None else TextRules()
+
+    temp_path = _make_temp_wav_path()
+    try:
+        audio_summary = record_microphone_to_wav(
+            temp_path,
+            seconds=args.seconds,
+            sample_rate=args.sample_rate,
+            channels=args.channels,
+            device=args.mic_device,
+        )
+        transcription = transcribe_audio_file(
+            temp_path,
+            speech_config,
+            local_files_only=not args.allow_model_download,
+        )
+        result = run_dictation_once(
+            args.dictation_action,
+            StaticTranscriptProvider(transcription.text),
+            rules=rules,
+            polish=args.polish,
+            transcription_confidence=transcription.language_probability,
+            review_long_text_chars=args.review_long_text_chars,
+            max_postprocess_change_ratio=args.max_postprocess_change_ratio,
+        )
+        return result, audio_summary, transcription
+    finally:
+        temp_path.unlink(missing_ok=True)
+
+
 def _transcribe_file(args: argparse.Namespace):
     if not args.dry_run:
         raise ValueError("--dry-run is required for transcribe-file")
@@ -398,6 +483,13 @@ def _transcribe_file(args: argparse.Namespace):
         config,
         local_files_only=not args.allow_model_download,
     )
+
+
+def _make_temp_wav_path() -> Path:
+    handle = tempfile.NamedTemporaryFile(prefix="ai-operator-", suffix=".wav", delete=False)
+    path = Path(handle.name)
+    handle.close()
+    return path
 
 
 def _read_text_input(argument_text: str | None) -> str:

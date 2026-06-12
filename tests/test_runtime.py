@@ -97,6 +97,17 @@ def test_run_dictation_once_blocks_auto_send_for_long_text():
     )
 
 
+def test_run_dictation_once_does_not_plan_empty_text_output():
+    result = run_dictation_once(
+        "dictate_paste",
+        StaticTranscriptProvider(""),
+    )
+
+    assert result.text == ""
+    assert result.quality.confidence == "low"
+    assert result.output_events == ()
+
+
 def test_run_dictation_once_rejects_non_dictation_actions():
     with pytest.raises(ValueError, match="dictation action"):
         run_dictation_once("cursor_left", StaticTranscriptProvider("hello"))

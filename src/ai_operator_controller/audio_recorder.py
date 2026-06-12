@@ -3,7 +3,10 @@ from __future__ import annotations
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 import math
+from pathlib import Path
+import struct
 from typing import Any
+import wave
 
 
 @dataclass(frozen=True)
@@ -29,7 +32,44 @@ def record_microphone_once(
     device: int | None = None,
 ) -> AudioSampleSummary:
     _validate_recording_options(seconds=seconds, sample_rate=sample_rate, channels=channels)
+    samples = _record_microphone_samples(
+        seconds=seconds,
+        sample_rate=sample_rate,
+        channels=channels,
+        device=device,
+    )
+    dtype = str(getattr(samples, "dtype", "float32"))
+    return summarize_audio_samples(samples, sample_rate=sample_rate, dtype=dtype)
 
+
+def record_microphone_to_wav(
+    output_path: str | Path,
+    *,
+    seconds: float,
+    sample_rate: int = 16000,
+    channels: int = 1,
+    device: int | None = None,
+) -> AudioSampleSummary:
+    _validate_recording_options(seconds=seconds, sample_rate=sample_rate, channels=channels)
+    samples = _record_microphone_samples(
+        seconds=seconds,
+        sample_rate=sample_rate,
+        channels=channels,
+        device=device,
+    )
+    dtype = str(getattr(samples, "dtype", "float32"))
+    summary = summarize_audio_samples(samples, sample_rate=sample_rate, dtype=dtype)
+    _write_float32_wav(Path(output_path), samples, sample_rate=sample_rate, channels=channels)
+    return summary
+
+
+def _record_microphone_samples(
+    *,
+    seconds: float,
+    sample_rate: int,
+    channels: int,
+    device: int | None,
+) -> Any:
     try:
         import sounddevice as sd
     except ImportError as exc:
@@ -48,8 +88,7 @@ def record_microphone_once(
     except Exception as exc:
         raise AudioRecorderError(f"microphone recording failed: {exc}") from exc
 
-    dtype = str(getattr(samples, "dtype", "float32"))
-    return summarize_audio_samples(samples, sample_rate=sample_rate, dtype=dtype)
+    return samples
 
 
 def summarize_audio_samples(
@@ -86,6 +125,33 @@ def _validate_recording_options(*, seconds: float, sample_rate: int, channels: i
         raise ValueError("sample_rate must be positive")
     if channels <= 0:
         raise ValueError("channels must be positive")
+
+
+def _write_float32_wav(
+    output_path: Path,
+    samples: Any,
+    *,
+    sample_rate: int,
+    channels: int,
+) -> None:
+    rows = _rows_from_samples(samples)
+    with wave.open(str(output_path), "wb") as wav_file:
+        wav_file.setnchannels(channels)
+        wav_file.setsampwidth(2)
+        wav_file.setframerate(sample_rate)
+        for row in rows:
+            values = row if _is_channel_sequence(row) else [row]
+            padded_values = list(values)[:channels]
+            padded_values.extend([0.0] * (channels - len(padded_values)))
+            for value in padded_values:
+                wav_file.writeframesraw(_float_to_pcm16(float(value)))
+        wav_file.writeframes(b"")
+
+
+def _float_to_pcm16(value: float) -> bytes:
+    clamped = max(-1.0, min(1.0, value))
+    integer = int(round(clamped * 32767))
+    return struct.pack("<h", integer)
 
 
 def _rows_from_samples(samples: Any) -> list[Any]:

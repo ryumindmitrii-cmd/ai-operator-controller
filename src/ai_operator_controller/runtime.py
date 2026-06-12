@@ -67,7 +67,8 @@ def run_dictation_once(
         max_postprocess_change_ratio=max_postprocess_change_ratio,
     )
     backend = DryRunOutputBackend()
-    backend.write_text(output_text, target=output_target)
+    if output_text:
+        backend.write_text(output_text, target=output_target)
 
     if quality.send_allowed:
         ActionExecutor(backend).execute("enter")

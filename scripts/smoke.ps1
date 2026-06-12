@@ -4,6 +4,7 @@ param(
     [double]$MicrophoneSeconds = 0.2,
     [switch]$WithSpeechModel,
     [string]$SpeechAudioPath,
+    [switch]$WithDictateRun,
     [switch]$AllowModelDownload,
     [switch]$SkipBandit,
     [switch]$SkipPipAudit
@@ -175,6 +176,29 @@ try {
     else {
         Write-Host ""
         Write-Host "Skipping speech model dry run. Pass -WithSpeechModel -SpeechAudioPath <file> to transcribe a local file."
+    }
+
+    if ($WithDictateRun) {
+        Invoke-Step "Dictation runtime dry run" {
+            $dictateRunArgs = @(
+                "-m",
+                "ai_operator_controller",
+                "dictate-run",
+                "--seconds",
+                $MicrophoneSeconds,
+                "--rules",
+                "config\examples\replacements.example.json",
+                "--dry-run"
+            )
+            if ($AllowModelDownload) {
+                $dictateRunArgs += "--allow-model-download"
+            }
+            & $VenvPython @dictateRunArgs
+        }
+    }
+    else {
+        Write-Host ""
+        Write-Host "Skipping dictation runtime dry run. Pass -WithDictateRun to record, transcribe, and plan output events."
     }
 
     Invoke-Step "Tests" {

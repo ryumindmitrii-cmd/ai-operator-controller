@@ -307,6 +307,105 @@ def test_transcribe_file_command_prints_transcript_and_metadata(tmp_path, capsys
     assert "hello from local whisper" in output
 
 
+def test_dictate_run_requires_dry_run(capsys):
+    assert main(["dictate-run", "--seconds", "0.1"]) == 2
+
+    captured = capsys.readouterr()
+    assert "Dictation runtime failed" in captured.err
+    assert "--dry-run is required" in captured.err
+
+
+def test_dictate_run_records_transcribes_and_prints_dry_run_events(
+    tmp_path,
+    capsys,
+    monkeypatch,
+):
+    captured_audio_paths = []
+
+    def fake_record_microphone_to_wav(
+        output_path,
+        *,
+        seconds,
+        sample_rate,
+        channels,
+        device,
+    ):
+        assert seconds == 0.5
+        assert sample_rate == 16000
+        assert channels == 1
+        assert device is None
+        captured_audio_paths.append(output_path)
+        output_path.write_bytes(b"fake wav")
+        return AudioSampleSummary(
+            sample_rate=16000,
+            frame_count=8000,
+            channel_count=1,
+            dtype="float32",
+            duration_seconds=0.5,
+            rms=0.125,
+            peak_abs=0.5,
+        )
+
+    def fake_transcribe_audio_file(audio_path_arg, config, *, local_files_only, model_factory=None):
+        assert audio_path_arg == captured_audio_paths[0]
+        assert config.model == "large-v3"
+        assert local_files_only is True
+        assert model_factory is None
+        return TranscriptionResult(
+            text="uh first line new line second line send",
+            language="en",
+            language_probability=0.92,
+            duration_seconds=0.5,
+            segment_count=2,
+            model="large-v3",
+            device="cuda",
+            compute_type="float16",
+            vad_filter=True,
+            used_fallback=False,
+        )
+
+    monkeypatch.setattr(
+        "ai_operator_controller.cli.record_microphone_to_wav",
+        fake_record_microphone_to_wav,
+    )
+    monkeypatch.setattr(
+        "ai_operator_controller.cli.transcribe_audio_file",
+        fake_transcribe_audio_file,
+    )
+
+    assert (
+        main(
+            [
+                "dictate-run",
+                "--seconds",
+                "0.5",
+                "--rules",
+                "config/examples/replacements.example.json",
+                "--dry-run",
+            ]
+        )
+        == 0
+    )
+
+    output = capsys.readouterr().out
+    assert captured_audio_paths
+    assert not captured_audio_paths[0].exists()
+    assert "Mode: dictate-run" in output
+    assert "Dry-run: yes" in output
+    assert "Saved audio: no" in output
+    assert "Audio duration: 0.500s" in output
+    assert "Audio frames: 8000" in output
+    assert "Transcription model: large-v3" in output
+    assert "Transcription segments: 2" in output
+    assert "Action: dictate_paste" in output
+    assert "Output target: paste" in output
+    assert "Should send: yes" in output
+    assert "Auto-send: yes" in output
+    assert "first line\nsecond line" in output
+    assert "write_text: paste length=22" in output
+    assert "press_keys: enter" in output
+
+
 def test_simulate_gamepad_axis_prints_dry_run_event(capsys):
     assert (
         main(

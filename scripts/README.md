@@ -43,3 +43,15 @@ By default this does not download a missing model. Add `-AllowModelDownload` onl
 when you are intentionally allowing `faster-whisper` to fetch model files. The
 audio file and transcript are never saved by the script, but the transcript is
 printed to the terminal as part of the manual check.
+
+To include the full local dry-run pipeline from microphone to planned output
+events:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -WithDictateRun
+```
+
+This records a temporary microphone sample, transcribes it locally, applies text
+cleanup and the quality gate, prints dry-run output events, and deletes the
+temporary audio file. It still does not touch the clipboard or send keyboard
+input.

@@ -124,6 +124,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-dev.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -WithMicrophone
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -WithSpeechModel -SpeechAudioPath <PATH_TO_WAV>
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -WithDictateRun
 ```
 
 The first smoke command skips microphone access. The second command includes a
@@ -142,6 +143,7 @@ Useful individual checks:
 .\.venv\Scripts\python.exe -m ai_operator_controller clean-text --rules config\examples\replacements.example.json --text "uh first line new line second line send"
 .\.venv\Scripts\python.exe -m ai_operator_controller record-once --seconds 2 --dry-run
 .\.venv\Scripts\python.exe -m ai_operator_controller transcribe-file --speech-profile config\examples\speech.local-quality.example.json --audio-file <PATH_TO_WAV> --dry-run
+.\.venv\Scripts\python.exe -m ai_operator_controller dictate-run --seconds 2 --rules config\examples\replacements.example.json --dry-run
 .\.venv\Scripts\python.exe -m ai_operator_controller polish-text --text "так смотри я думаю что это можно сделать но надо проверить локально"
 .\.venv\Scripts\python.exe -m ai_operator_controller dictate-once --rules config\examples\replacements.example.json --text "uh first line new line second line send"
 .\.venv\Scripts\python.exe -m ai_operator_controller listen-gamepad --profile config\examples\profile.codex.windows.json --dry-run --max-events 5
@@ -183,6 +185,11 @@ metadata. It does not save audio, write clipboard content, or send keyboard
 input. Model downloads are disabled by default; pass `--allow-model-download`
 only when you intentionally want `faster-whisper` to fetch a missing model.
 
+The `dictate-run --dry-run` command records a temporary microphone sample,
+transcribes it locally, applies cleanup/polish and the dictation quality gate,
+prints planned output events, and deletes the temporary audio file. It does not
+touch the clipboard or send keyboard input.
+
 The `dictate-once` command runs the first public dictation pipeline in preview
 mode. It accepts transcript text through `--text` or stdin, applies text cleanup,
 and prints the dry-run output for `dictate_paste` or `dictate_clipboard` without
@@ -205,6 +212,7 @@ transcripts, recordings, screenshots, and clipboard content must stay out of git
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -WithMicrophone
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -WithSpeechModel -SpeechAudioPath <PATH_TO_WAV>
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -WithDictateRun
 .\.venv\Scripts\python.exe -m ruff check src tests
 .\.venv\Scripts\python.exe -m bandit -r src
 .\.venv\Scripts\python.exe -m pip_audit
