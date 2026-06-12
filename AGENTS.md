@@ -58,6 +58,32 @@ for tools such as Codex, ChatGPT, Cursor, browsers, and editors.
   skill or skill-candidate via `routine-skill-capture`; do not include private
   logs, transcripts, replacement dictionaries, paths, or app payloads.
 
+## Algedonic Confidence Protocol
+
+- Treat operator-control failures as control signals, not just ordinary bugs,
+  when they can cause wrong-window input, accidental send, stale listener state,
+  privacy leakage, or misleading public-release claims.
+- Use `algedonic-confidence-protocol` when evidence conflicts, a smoke test
+  fails, a controller/hotkey/listener reconnect behaves differently from the
+  expected mapping, the target app/window is uncertain, public artifact hygiene
+  is unclear, or Dmitrii reports that a claimed working behavior failed in the
+  real desktop workflow.
+- Negative signals include: ASR recognized text but paste did not happen,
+  hotkey fires twice, controller disconnect/reconnect breaks listening, a voice
+  "send" command is detected when review is required, text would be inserted
+  into the wrong active window, clipboard-only mode sends text, private logs or
+  recordings could enter the public repo, or a GitHub/release action is proposed
+  without explicit confirmation.
+- On a negative signal, lower confidence and throttle actions: gather evidence,
+  run dry-runs or local reversible checks, verify the target app/window and
+  mapping, and do not press Enter/Send, inject desktop input, publish, push,
+  release, or alter external services until the required evidence and Dmitrii's
+  confirmation are present.
+- On a positive repeated signal, capture the reusable learning as a sanitized
+  test, checklist, skill-candidate, or documentation update without storing raw
+  dictated text, recordings, clipboard content, private chat payloads, or local
+  secrets.
+
 ## Verification
 
 For non-trivial changes, finish with at least one concrete check:
@@ -78,3 +104,11 @@ Before public release, verify:
 - `.gitignore` excludes logs, audio, virtualenvs, configs, secrets, and local
   machine artifacts;
 - no real API keys, tokens, chat logs, or recordings are in the repo.
+
+## Outcome Integrity
+
+- Run the Pre-Claim Outcome Gate before saying an operator-control or public-release step is done. If physical controller/focus behavior or public artifact hygiene is not verified, call it partial/unverified.
+- Before saying an operator-control change is done, verify the final mapping in the intended app/window: hotkey, gamepad button/trigger, voice command, clipboard/send behavior, focus target, and rollback toggle.
+- Treat wrong-window send, wrong gamepad mapping, accidental Enter/send, stale controller reconnect, or private chat/audio/log artifact in the public repo as `Confident Wrong Action`.
+- For public GitHub preparation, verify not only that files exist, but that private local paths, recordings, logs, tokens, and personal chat payloads are excluded from tracked/public artifacts.
+- If physical device behavior cannot be tested without Dmitrii, mark it as unverified and give an exact smoke-test checklist instead of saying done.

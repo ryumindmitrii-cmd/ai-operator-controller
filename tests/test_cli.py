@@ -1,6 +1,7 @@
 import io
 from pathlib import Path
 
+from ai_operator_controller.audio_recorder import AudioSampleSummary
 from ai_operator_controller.cli import main
 
 
@@ -190,6 +191,50 @@ def test_dictate_once_command_reports_blocked_auto_send(capsys):
     assert "Quality confidence: low" in output
     assert "low_transcription_confidence" in output
     assert "press_keys: enter" not in output
+
+
+def test_record_once_requires_dry_run(capsys):
+    assert main(["record-once", "--seconds", "0.1"]) == 2
+
+    captured = capsys.readouterr()
+    assert "Record preview failed" in captured.err
+    assert "--dry-run is required" in captured.err
+
+
+def test_record_once_command_prints_safe_audio_metadata(capsys, monkeypatch):
+    def fake_record_microphone_once(*, seconds, sample_rate, channels, device):
+        assert seconds == 0.5
+        assert sample_rate == 16000
+        assert channels == 1
+        assert device is None
+        return AudioSampleSummary(
+            sample_rate=16000,
+            frame_count=8000,
+            channel_count=1,
+            dtype="float32",
+            duration_seconds=0.5,
+            rms=0.125,
+            peak_abs=0.5,
+        )
+
+    monkeypatch.setattr(
+        "ai_operator_controller.cli.record_microphone_once",
+        fake_record_microphone_once,
+    )
+
+    assert main(["record-once", "--seconds", "0.5", "--dry-run"]) == 0
+
+    output = capsys.readouterr().out
+    assert "Mode: record-once" in output
+    assert "Dry-run: yes" in output
+    assert "Saved file: no" in output
+    assert "Duration: 0.500s" in output
+    assert "Sample rate: 16000 Hz" in output
+    assert "Channels: 1" in output
+    assert "Frames: 8000" in output
+    assert "RMS: 0.125000" in output
+    assert "Peak: 0.500000" in output
+    assert "Text:" not in output
 
 
 def test_simulate_gamepad_axis_prints_dry_run_event(capsys):

@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 from . import __version__
+from .audio_recorder import AudioRecorderError, record_microphone_once
 from .config import ProfileValidationError, load_profile, validate_profile
 from .executor import dry_run_action
 from .gamepad import GamepadActionResult, GamepadActionRuntime, bindings_from_profile
@@ -90,6 +91,29 @@ def build_parser() -> argparse.ArgumentParser:
         help="Required for preview-only desktop listeners that must not send real input.",
     )
     parser.add_argument(
+        "--seconds",
+        type=float,
+        default=2.0,
+        help="Recording duration in seconds for the 'record-once' command.",
+    )
+    parser.add_argument(
+        "--sample-rate",
+        type=int,
+        default=16000,
+        help="Audio sample rate for the 'record-once' command.",
+    )
+    parser.add_argument(
+        "--channels",
+        type=int,
+        default=1,
+        help="Audio channel count for the 'record-once' command.",
+    )
+    parser.add_argument(
+        "--mic-device",
+        type=int,
+        help="Optional microphone device index for the 'record-once' command.",
+    )
+    parser.add_argument(
         "--gamepad-index",
         type=int,
         help="Override the gamepad device index from the selected profile.",
@@ -115,11 +139,13 @@ def build_parser() -> argparse.ArgumentParser:
             "clean-text",
             "polish-text",
             "dictate-once",
+            "record-once",
             "listen-gamepad",
         ],
         help=(
             "Optional command. Use 'doctor', 'plan-action', 'simulate-gamepad', "
-            "'clean-text', 'polish-text', 'dictate-once', or 'listen-gamepad'."
+            "'clean-text', 'polish-text', 'dictate-once', 'record-once', or "
+            "'listen-gamepad'."
         ),
     )
     parser.add_argument(
@@ -224,6 +250,25 @@ def main(argv: list[str] | None = None) -> int:
             print(event.describe())
         return 0
 
+    if args.command == "record-once":
+        try:
+            result = _record_once(args)
+        except (AudioRecorderError, ValueError) as exc:
+            print(f"Record preview failed: {exc}", file=sys.stderr)
+            return 2
+
+        print("Mode: record-once")
+        print("Dry-run: yes")
+        print("Saved file: no")
+        print(f"Duration: {result.duration_seconds:.3f}s")
+        print(f"Sample rate: {result.sample_rate} Hz")
+        print(f"Channels: {result.channel_count}")
+        print(f"Frames: {result.frame_count}")
+        print(f"Dtype: {result.dtype}")
+        print(f"RMS: {result.rms:.6f}")
+        print(f"Peak: {result.peak_abs:.6f}")
+        return 0
+
     if args.command == "simulate-gamepad":
         try:
             result = _simulate_gamepad(args)
@@ -275,6 +320,17 @@ def _dictate_once(args: argparse.Namespace):
         transcription_confidence=args.transcription_confidence,
         review_long_text_chars=args.review_long_text_chars,
         max_postprocess_change_ratio=args.max_postprocess_change_ratio,
+    )
+
+
+def _record_once(args: argparse.Namespace):
+    if not args.dry_run:
+        raise ValueError("--dry-run is required for record-once")
+    return record_microphone_once(
+        seconds=args.seconds,
+        sample_rate=args.sample_rate,
+        channels=args.channels,
+        device=args.mic_device,
     )
 
 

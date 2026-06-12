@@ -1,5 +1,8 @@
 # Roadmap
 
+For the active implementation checklist and milestone acceptance criteria, use
+`docs/development-plan.md`. This file is the shorter public phase overview.
+
 ## Phase 0: Public Scaffold
 
 - [x] Create clean project directory.

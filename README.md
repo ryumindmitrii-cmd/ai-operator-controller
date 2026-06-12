@@ -120,9 +120,18 @@ https://github.com/ryumindmitrii-cmd/ai-operator-controller/issues
 ```powershell
 git clone https://github.com/ryumindmitrii-cmd/ai-operator-controller.git
 cd ai-operator-controller
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install --upgrade pip
-.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-dev.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -WithMicrophone
+```
+
+The first smoke command skips microphone access. The second command includes a
+metadata-only microphone dry-run and still does not save audio, transcribe
+speech, write clipboard content, or send keyboard input.
+
+Useful individual checks:
+
+```powershell
 .\.venv\Scripts\python.exe -m ai_operator_controller --help
 .\.venv\Scripts\python.exe -m ai_operator_controller doctor
 .\.venv\Scripts\python.exe -m ai_operator_controller doctor --profile config\examples\profile.codex.windows.json
@@ -130,10 +139,10 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --axis right_stick_x 0.8
 .\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --button y down
 .\.venv\Scripts\python.exe -m ai_operator_controller clean-text --rules config\examples\replacements.example.json --text "uh first line new line second line send"
+.\.venv\Scripts\python.exe -m ai_operator_controller record-once --seconds 2 --dry-run
 .\.venv\Scripts\python.exe -m ai_operator_controller polish-text --text "так смотри я думаю что это можно сделать но надо проверить локально"
 .\.venv\Scripts\python.exe -m ai_operator_controller dictate-once --rules config\examples\replacements.example.json --text "uh first line new line second line send"
 .\.venv\Scripts\python.exe -m ai_operator_controller listen-gamepad --profile config\examples\profile.codex.windows.json --dry-run --max-events 5
-.\.venv\Scripts\python.exe -m pytest
 ```
 
 For a more detailed Windows setup and current capability notes, see
@@ -161,6 +170,11 @@ It is deterministic and conservative: it adjusts spacing, sentence
 capitalization, and common Russian dictation commas without sending text to an
 external service or adding new content.
 
+The `record-once --dry-run` command records a short microphone sample and prints
+only safe audio metadata such as duration, frame count, RMS, and peak level. It
+does not save audio, transcribe speech, write clipboard content, or send keyboard
+input.
+
 The `dictate-once` command runs the first public dictation pipeline in preview
 mode. It accepts transcript text through `--text` or stdin, applies text cleanup,
 and prints the dry-run output for `dictate_paste` or `dictate_clipboard` without
@@ -180,6 +194,8 @@ transcripts, recordings, screenshots, and clipboard content must stay out of git
 ## Security Checks
 
 ```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -WithMicrophone
 .\.venv\Scripts\python.exe -m ruff check src tests
 .\.venv\Scripts\python.exe -m bandit -r src
 .\.venv\Scripts\python.exe -m pip_audit

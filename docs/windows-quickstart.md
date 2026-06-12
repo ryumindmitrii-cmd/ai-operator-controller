@@ -20,27 +20,18 @@ prototype after privacy cleanup.
 ```powershell
 git clone https://github.com/ryumindmitrii-cmd/ai-operator-controller.git
 cd ai-operator-controller
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install --upgrade pip
-.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-dev.ps1
 ```
 
 ## Smoke Test
 
 ```powershell
-.\.venv\Scripts\python.exe -m ai_operator_controller --help
-.\.venv\Scripts\python.exe -m ai_operator_controller doctor
-.\.venv\Scripts\python.exe -m ai_operator_controller doctor --profile config\examples\profile.codex.windows.json
-.\.venv\Scripts\python.exe -m ai_operator_controller plan-action cursor_left
-.\.venv\Scripts\python.exe -m ai_operator_controller plan-action focus_message_pane
-.\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --axis right_stick_x 0.8
-.\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --axis right_stick_y 0.8
-.\.venv\Scripts\python.exe -m ai_operator_controller clean-text --rules config\examples\replacements.example.json --text "uh first line new line second line send"
-.\.venv\Scripts\python.exe -m ai_operator_controller polish-text --text "так смотри я думаю что это можно сделать но надо проверить локально"
-.\.venv\Scripts\python.exe -m ai_operator_controller dictate-once --rules config\examples\replacements.example.json --text "uh first line new line second line send"
-.\.venv\Scripts\python.exe -m pytest
-.\.venv\Scripts\python.exe -m ruff check src tests
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -WithMicrophone
 ```
+
+The first command skips microphone access. The second command includes the
+metadata-only microphone check.
 
 Expected result:
 
@@ -51,6 +42,9 @@ Expected result:
   mouse, or scroll input.
 - `simulate-gamepad` resolves profile-based controller inputs into actions and
   dry-run output events.
+- `record-once --dry-run` records a short microphone sample and prints only
+  metadata such as duration, frames, RMS, and peak level. It does not save audio
+  or transcribe it.
 - `clean-text` prints cleaned dictation text and whether a trailing send command
   was detected.
 - `polish-text` prints locally polished punctuation for dictated text without
@@ -82,6 +76,8 @@ mapped actions and stops after five emitted actions.
   simulate-gamepad`.
 - Physical gamepad dry-run listening through `ai_operator_controller
   listen-gamepad --dry-run`.
+- Microphone metadata dry-run through `ai_operator_controller record-once
+  --dry-run`.
 - Text cleanup through `ai_operator_controller clean-text`.
 - Preview dictation runtime through `ai_operator_controller dictate-once`.
 - Text cleanup and replacement-rule tests.
@@ -93,7 +89,8 @@ mapped actions and stops after five emitted actions.
 ## Current Limitations
 
 - No Windows tray app or installer yet.
-- The public package does not yet run the full push-to-talk dictation loop.
+- The public package can record a metadata-only microphone dry run, but does not
+  yet run the full push-to-talk dictation loop.
 - `dictate-once` uses transcript text as input; microphone recording and local
   faster-whisper transcription are still being migrated.
 - `listen-gamepad --dry-run` reads a physical controller but intentionally does
@@ -196,6 +193,34 @@ Text:
 This pass is local-only. It adjusts punctuation, spacing, and sentence
 capitalization, but it is not allowed to add new content or send dictated text to
 an external service.
+
+## Microphone Record Dry Run
+
+Run a short microphone diagnostic without saving audio, transcribing speech, or
+sending desktop input:
+
+```powershell
+.\.venv\Scripts\python.exe -m ai_operator_controller record-once --seconds 2 --dry-run
+```
+
+Expected output shape:
+
+```text
+Mode: record-once
+Dry-run: yes
+Saved file: no
+Duration: 2.000s
+Sample rate: 16000 Hz
+Channels: 1
+Frames: 32000
+Dtype: float32
+RMS: 0.012345
+Peak: 0.123456
+```
+
+This command is only a microphone smoke test. It does not write `.wav` files,
+does not print or store transcripts, and does not interact with the clipboard or
+keyboard.
 
 ## Dictation Pipeline Preview
 
