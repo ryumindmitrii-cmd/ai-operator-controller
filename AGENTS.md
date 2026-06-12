@@ -84,6 +84,24 @@ for tools such as Codex, ChatGPT, Cursor, browsers, and editors.
   dictated text, recordings, clipboard content, private chat payloads, or local
   secrets.
 
+## Autonomy / Escalation Pilot Hook
+
+- Before risky operator-control or public-release work, classify the current
+  mode as `read-only`, `draft`, `local reversible`, `confirmed external write`,
+  or `blocked / escalate`.
+- Continue autonomously for local reversible code, tests, docs, examples, and
+  dry-runs when the target, rollback path, and verification are clear.
+- Switch to `blocked / escalate` when physical controller behavior, active
+  window/focus, paste/send behavior, listener reconnect state, public artifact
+  hygiene, private-data boundary, GitHub/release scope, or external write
+  permission is unclear or conflicting.
+- Do not claim live desktop behavior works until physical focus, mapping,
+  clipboard/send behavior, and rollback are verified or explicitly marked
+  partial/unverified with a smoke-test checklist.
+- Use AI Ops handoff only for reusable governance, skill, eval, or safety-rule
+  learning. Do not copy private transcripts, recordings, logs, local paths, or
+  personal replacement dictionaries into public repo artifacts.
+
 ## Verification
 
 For non-trivial changes, finish with at least one concrete check:
