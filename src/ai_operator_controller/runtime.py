@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from .dictation_quality import DictationQualityReport, assess_dictation_quality
-from .executor import ActionExecutor, DryRunOutputBackend, OutputEvent, TextOutputTarget
+from .executor import ActionExecutor, DryRunOutputBackend, OutputBackend, OutputEvent, TextOutputTarget
 from .text_polish import polish_text
 from .text_rules import TextRules, clean_dictation
 
@@ -42,6 +42,7 @@ def run_dictation_once(
     action_name: str,
     transcript_provider: TranscriptProvider,
     *,
+    output_backend: OutputBackend | None = None,
     rules: TextRules | None = None,
     polish: bool = False,
     transcription_confidence: float | None = None,
@@ -66,7 +67,7 @@ def run_dictation_once(
         review_long_text_chars=review_long_text_chars,
         max_postprocess_change_ratio=max_postprocess_change_ratio,
     )
-    backend = DryRunOutputBackend()
+    backend = output_backend or DryRunOutputBackend()
     if output_text:
         backend.write_text(output_text, target=output_target)
 
@@ -79,5 +80,5 @@ def run_dictation_once(
         text=output_text,
         should_send=cleaned.should_send,
         quality=quality,
-        output_events=tuple(backend.events),
+        output_events=tuple(getattr(backend, "events", ())),
     )

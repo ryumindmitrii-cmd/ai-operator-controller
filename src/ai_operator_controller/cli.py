@@ -9,7 +9,7 @@ from pathlib import Path
 from . import __version__
 from .audio_recorder import AudioRecorderError, record_microphone_once, record_microphone_to_wav
 from .config import ProfileValidationError, load_profile, validate_profile
-from .executor import dry_run_action
+from .executor import RecordingOutputBackend, dry_run_action
 from .gamepad import GamepadActionResult, GamepadActionRuntime, bindings_from_profile
 from .gamepad_listener import PygameGamepadReader, listen_gamepad_dry_run
 from .runtime import DICTATION_ACTION_TARGETS, StaticTranscriptProvider, run_dictation_once
@@ -21,6 +21,7 @@ from .speech import (
 )
 from .text_polish import polish_text
 from .text_rules import CleanedDictation, TextRules, clean_dictation, load_text_rules
+from .windows_output import WindowsOutputError, create_windows_output_backend
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -96,6 +97,14 @@ def build_parser() -> argparse.ArgumentParser:
         "--dry-run",
         action="store_true",
         help="Required for preview-only desktop listeners that must not send real input.",
+    )
+    parser.add_argument(
+        "--execute-output",
+        action="store_true",
+        help=(
+            "Allow 'dictate-run' to write to the active desktop window. "
+            "Use only after focusing a safe target window."
+        ),
     )
     parser.add_argument(
         "--seconds",
@@ -188,6 +197,10 @@ def main(argv: list[str] | None = None) -> int:
     if args.version:
         print(__version__)
         return 0
+
+    if args.execute_output and args.command != "dictate-run":
+        print("--execute-output is only supported for dictate-run", file=sys.stderr)
+        return 2
 
     if args.command == "doctor":
         print("AI Operator Controller scaffold is installed.")
@@ -285,12 +298,14 @@ def main(argv: list[str] | None = None) -> int:
             AudioRecorderError,
             SpeechConfigError,
             SpeechRecognitionError,
+            WindowsOutputError,
         ) as exc:
             print(f"Dictation runtime failed: {exc}", file=sys.stderr)
             return 2
 
         print("Mode: dictate-run")
-        print("Dry-run: yes")
+        print(f"Dry-run: {'yes' if args.dry_run else 'no'}")
+        print(f"Execute output: {'yes' if args.execute_output else 'no'}")
         print("Saved audio: no")
         print("Source: microphone")
         print(f"Audio duration: {audio_summary.duration_seconds:.3f}s")
@@ -316,9 +331,12 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Quality confidence: {result.quality.confidence}")
         quality_reasons = ", ".join(result.quality.reasons) if result.quality.reasons else "none"
         print(f"Quality reasons: {quality_reasons}")
-        print("Text:")
-        print(result.text)
-        print("Dry-run output:")
+        if args.execute_output:
+            print(f"Text: <hidden; length={len(result.text)}>")
+        else:
+            print("Text:")
+            print(result.text)
+        print("Dry-run output:" if args.dry_run else "Output events:")
         for event in result.output_events:
             print(event.describe())
         return 0
@@ -438,11 +456,16 @@ def _record_once(args: argparse.Namespace):
 
 
 def _dictate_run(args: argparse.Namespace):
-    if not args.dry_run:
-        raise ValueError("--dry-run is required for dictate-run")
+    if args.dry_run and args.execute_output:
+        raise ValueError("choose exactly one of --dry-run or --execute-output for dictate-run")
+    if not args.dry_run and not args.execute_output:
+        raise ValueError("--dry-run or --execute-output is required for dictate-run")
 
     speech_config = load_speech_config(args.speech_profile)
     rules = load_text_rules(args.rules) if args.rules is not None else TextRules()
+    output_backend = (
+        RecordingOutputBackend(create_windows_output_backend()) if args.execute_output else None
+    )
 
     temp_path = _make_temp_wav_path()
     try:
@@ -461,6 +484,7 @@ def _dictate_run(args: argparse.Namespace):
         result = run_dictation_once(
             args.dictation_action,
             StaticTranscriptProvider(transcription.text),
+            output_backend=output_backend,
             rules=rules,
             polish=args.polish,
             transcription_confidence=transcription.language_probability,

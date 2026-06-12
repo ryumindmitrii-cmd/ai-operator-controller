@@ -190,6 +190,13 @@ transcribes it locally, applies cleanup/polish and the dictation quality gate,
 prints planned output events, and deletes the temporary audio file. It does not
 touch the clipboard or send keyboard input.
 
+The same command can execute the first real Windows output path when explicitly
+run with `--execute-output` instead of `--dry-run`. In paste mode it writes the
+dictated text to the clipboard, sends `Ctrl+V` to the active window, and presses
+`Enter` only when the dictation quality gate allows auto-send. Use it only after
+focusing a safe test window. Real-output mode hides dictated text in terminal
+output and prints metadata-only output events.
+
 The `dictate-once` command runs the first public dictation pipeline in preview
 mode. It accepts transcript text through `--text` or stdin, applies text cleanup,
 and prints the dry-run output for `dictate_paste` or `dictate_clipboard` without

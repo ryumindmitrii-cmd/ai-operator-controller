@@ -102,6 +102,9 @@ public package without copying private data.
     commands and only enabled by the runtime command.
   - Verification: tests for backend selection and manual paste into a clean test
     window.
+  - Status: `dictate-run --execute-output` and metadata-only event recording are
+    implemented and test-covered; manual clean-window paste verification is
+    still pending, so this remains open.
 - [ ] Keep logs metadata-only by default.
   - Acceptance: default logs contain action names, lengths, confidence, and
     technical state, but not dictated text or clipboard contents.

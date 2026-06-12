@@ -1,6 +1,7 @@
 import pytest
 
 from ai_operator_controller.executor import OutputEvent
+from ai_operator_controller.executor import RecordingOutputBackend
 from ai_operator_controller.runtime import (
     StaticTranscriptProvider,
     run_dictation_once,
@@ -106,6 +107,46 @@ def test_run_dictation_once_does_not_plan_empty_text_output():
     assert result.text == ""
     assert result.quality.confidence == "low"
     assert result.output_events == ()
+
+
+def test_run_dictation_once_can_execute_against_supplied_backend():
+    class SpyBackend:
+        def __init__(self):
+            self.calls = []
+
+        def press_keys(self, keys):
+            self.calls.append(("press_keys", keys))
+
+        def scroll(self, clicks):
+            self.calls.append(("scroll", clicks))
+
+        def focus_mouse_target(self, target, *, click):
+            self.calls.append(("focus_mouse_target", target, click))
+
+        def click_mouse(self, button):
+            self.calls.append(("click_mouse", button))
+
+        def write_text(self, text, *, target):
+            self.calls.append(("write_text", text, target))
+
+    spy = SpyBackend()
+    backend = RecordingOutputBackend(spy)
+
+    result = run_dictation_once(
+        "dictate_paste",
+        StaticTranscriptProvider("hello send"),
+        rules=TextRules(send_commands=["send"]),
+        output_backend=backend,
+    )
+
+    assert spy.calls == [
+        ("write_text", "hello", "paste"),
+        ("press_keys", ("enter",)),
+    ]
+    assert result.output_events == (
+        OutputEvent(kind="write_text", text_target="paste", text_length=5),
+        OutputEvent(kind="press_keys", keys=("enter",)),
+    )
 
 
 def test_run_dictation_once_rejects_non_dictation_actions():

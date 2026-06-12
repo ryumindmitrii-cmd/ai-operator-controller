@@ -83,6 +83,36 @@ class DryRunOutputBackend:
         )
 
 
+class RecordingOutputBackend:
+    def __init__(self, delegate: OutputBackend) -> None:
+        self.delegate = delegate
+        self.events: list[OutputEvent] = []
+
+    def press_keys(self, keys: tuple[str, ...]) -> None:
+        self.delegate.press_keys(keys)
+        self.events.append(OutputEvent(kind="press_keys", keys=keys))
+
+    def scroll(self, clicks: float) -> None:
+        self.delegate.scroll(clicks)
+        self.events.append(OutputEvent(kind="scroll", scroll_clicks=clicks))
+
+    def focus_mouse_target(self, target: str, *, click: bool) -> None:
+        self.delegate.focus_mouse_target(target, click=click)
+        self.events.append(
+            OutputEvent(kind="focus_mouse_target", mouse_target=target, click=click)
+        )
+
+    def click_mouse(self, button: MouseButton) -> None:
+        self.delegate.click_mouse(button)
+        self.events.append(OutputEvent(kind="click_mouse", mouse_button=button))
+
+    def write_text(self, text: str, *, target: TextOutputTarget) -> None:
+        self.delegate.write_text(text, target=target)
+        self.events.append(
+            OutputEvent(kind="write_text", text_target=target, text_length=len(text))
+        )
+
+
 class ActionExecutor:
     def __init__(
         self,

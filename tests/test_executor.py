@@ -4,6 +4,7 @@ from ai_operator_controller.executor import (
     ActionExecutor,
     DryRunOutputBackend,
     OutputEvent,
+    RecordingOutputBackend,
 )
 
 
@@ -51,3 +52,39 @@ def test_executor_rejects_actions_without_output_plan():
 
     with pytest.raises(ValueError, match="Action has no keyboard plan"):
         executor.execute("dictate_paste")
+
+
+def test_recording_backend_delegates_without_storing_text():
+    class SpyBackend:
+        def __init__(self):
+            self.calls = []
+
+        def press_keys(self, keys):
+            self.calls.append(("press_keys", keys))
+
+        def scroll(self, clicks):
+            self.calls.append(("scroll", clicks))
+
+        def focus_mouse_target(self, target, *, click):
+            self.calls.append(("focus_mouse_target", target, click))
+
+        def click_mouse(self, button):
+            self.calls.append(("click_mouse", button))
+
+        def write_text(self, text, *, target):
+            self.calls.append(("write_text", text, target))
+
+    spy = SpyBackend()
+    backend = RecordingOutputBackend(spy)
+
+    backend.write_text("private dictated text", target="paste")
+    backend.press_keys(("enter",))
+
+    assert spy.calls == [
+        ("write_text", "private dictated text", "paste"),
+        ("press_keys", ("enter",)),
+    ]
+    assert backend.events == [
+        OutputEvent(kind="write_text", text_target="paste", text_length=21),
+        OutputEvent(kind="press_keys", keys=("enter",)),
+    ]

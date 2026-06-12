@@ -82,6 +82,8 @@ mapped actions and stops after five emitted actions.
   transcribe-file --dry-run`.
 - Local microphone-to-output pipeline dry-run through `ai_operator_controller
   dictate-run --dry-run`.
+- Explicit Windows output execution through `ai_operator_controller dictate-run
+  --execute-output` after the user focuses a safe target window.
 - Text cleanup through `ai_operator_controller clean-text`.
 - Preview dictation runtime through `ai_operator_controller dictate-once`.
 - Text cleanup and replacement-rule tests.
@@ -93,11 +95,8 @@ mapped actions and stops after five emitted actions.
 ## Current Limitations
 
 - No Windows tray app or installer yet.
-- The public package can record a metadata-only microphone dry run, but does not
-  yet run the full push-to-talk dictation loop.
-- `transcribe-file` can run a local `faster-whisper` profile against an explicit
-  audio file, but the full push-to-talk microphone transcription loop is still
-  being migrated.
+- The public package can run one microphone-to-transcript-to-output command, but
+  does not yet run the full push-to-talk hotkey/controller dictation loop.
 - `listen-gamepad --dry-run` reads a physical controller but intentionally does
   not send real keyboard, mouse, clipboard, or dictation output.
 - The private prototype is not copied into this repository until logs, local
@@ -293,6 +292,29 @@ This command records to a temporary local file, transcribes it, applies cleanup
 and the quality gate, prints planned output events, and deletes the temporary
 file. It does not write clipboard content, paste into applications, or press
 Enter.
+
+To test the first real Windows output path, focus a safe scratch window such as
+an empty Notepad document, then run:
+
+```powershell
+.\.venv\Scripts\python.exe -m ai_operator_controller dictate-run --seconds 2 --rules config\examples\replacements.example.json --execute-output
+```
+
+This is intentionally not a default smoke check. It writes the dictated text to
+the clipboard, sends `Ctrl+V` to the active window, and presses `Enter` only
+when the quality gate allows auto-send. Terminal output hides the dictated text
+and prints metadata-only output events:
+
+```text
+Mode: dictate-run
+Dry-run: no
+Execute output: yes
+Saved audio: no
+...
+Text: <hidden; length=...>
+Output events:
+write_text: paste length=...
+```
 
 Run the first public dictation pipeline without a microphone:
 
