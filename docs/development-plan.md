@@ -48,7 +48,8 @@ use cases.
 - [x] Public package can run microphone-to-transcript-to-output planning through
   `dictate-run --dry-run` without touching the clipboard or keyboard.
 - [ ] Public package does not yet run push-to-talk hotkey/controller dictation.
-- [ ] Public package does not yet send real Windows input.
+- [x] Public package can send explicit Windows paste output through
+  `dictate-run --execute-output`.
 - [ ] There is no one-command installer or startup setup.
 
 ## North-Star User Journey
@@ -97,22 +98,23 @@ public package without copying private data.
   - Acceptance: `dictate-run` or equivalent can record, transcribe, clean,
     polish, quality-check, and write planned output events.
   - Verification: tests for pipeline composition and one manual local dry run.
-- [ ] Add Windows output backend behind an explicit runtime flag.
+- [x] Add Windows output backend behind an explicit runtime flag.
   - Acceptance: real clipboard/paste/Enter execution is impossible from dry-run
     commands and only enabled by the runtime command.
   - Verification: tests for backend selection and manual paste into a clean test
     window.
   - Status: `dictate-run --execute-output` and metadata-only event recording are
-    implemented and test-covered; manual clean-window paste verification is
-    still pending, so this remains open.
-- [ ] Keep logs metadata-only by default.
+    implemented and test-covered. Manual Notepad live smoke verified on
+    2026-06-15 with an explicit Fanvil microphone device.
+- [x] Keep logs metadata-only by default.
   - Acceptance: default logs contain action names, lengths, confidence, and
     technical state, but not dictated text or clipboard contents.
-  - Verification: log scan after manual test.
+  - Verification: execute-output CLI output hides dictated text and reports only
+    length, quality, metadata, and output event names.
 
 Checkpoint:
 
-- [ ] Public runtime can perform one local dictated paste on the maintainer's
+- [x] Public runtime can perform one local dictated paste on the maintainer's
   Windows machine.
 - [ ] Tests pass: `python -m pytest`.
 - [ ] Lint passes: `python -m ruff check src tests`.

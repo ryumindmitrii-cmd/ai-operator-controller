@@ -1,6 +1,11 @@
 import pytest
 
-from ai_operator_controller.windows_output import WindowsDesktopOutputBackend, WindowsOutputError
+from ai_operator_controller.windows_output import (
+    Win32KeyboardController,
+    WindowsDesktopOutputBackend,
+    WindowsOutputError,
+    WindowsVirtualKey,
+)
 
 
 class FakeKeyboard:
@@ -143,6 +148,31 @@ def test_windows_output_backend_releases_pressed_keys_after_press_failure():
         ("press", "KEY_CTRL"),
         ("press", "KEY_SHIFT"),
         ("release", "KEY_CTRL"),
+    ]
+
+
+def test_win32_keyboard_controller_sends_virtual_key_chord():
+    events = []
+    keyboard = Win32KeyboardController(
+        key_event=lambda virtual_key, key_up: events.append((virtual_key, key_up)),
+        sleep=lambda _seconds: None,
+    )
+    backend = WindowsDesktopOutputBackend(
+        keyboard_controller=keyboard,
+        mouse_controller=FakeMouse(),
+        key_namespace=WindowsVirtualKey,
+        button_namespace=FakeButton,
+        clipboard_copy=lambda _text: None,
+        sleep=lambda _seconds: None,
+    )
+
+    backend.press_keys(("ctrl", "v"))
+
+    assert events == [
+        (0x11, False),
+        (0x56, False),
+        (0x56, True),
+        (0x11, True),
     ]
 
 

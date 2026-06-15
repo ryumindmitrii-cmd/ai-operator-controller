@@ -27,6 +27,66 @@ class MouseController(Protocol):
         pass
 
 
+class WindowsVirtualKey:
+    alt = 0x12
+    backspace = 0x08
+    ctrl = 0x11
+    down = 0x28
+    enter = 0x0D
+    left = 0x25
+    right = 0x27
+    shift = 0x10
+    space = 0x20
+    tab = 0x09
+    up = 0x26
+
+    @staticmethod
+    def char(key: str) -> int:
+        if len(key) != 1:
+            raise ValueError(f"expected a single character key, got: {key}")
+        return ord(key.upper())
+
+
+class Win32KeyboardController:
+    _KEYEVENTF_KEYUP = 0x0002
+
+    def __init__(
+        self,
+        *,
+        key_event: Callable[[int, bool], None] | None = None,
+        sleep: Callable[[float], None] = time.sleep,
+        key_delay_seconds: float = 0.03,
+    ) -> None:
+        if key_delay_seconds < 0:
+            raise ValueError("key_delay_seconds must be non-negative")
+        self._key_event = key_event or self._send_keybd_event
+        self._sleep = sleep
+        self._key_delay_seconds = key_delay_seconds
+
+    def press(self, key) -> None:
+        self._key_event(self._coerce_virtual_key(key), False)
+        self._sleep(self._key_delay_seconds)
+
+    def release(self, key) -> None:
+        self._key_event(self._coerce_virtual_key(key), True)
+        self._sleep(self._key_delay_seconds)
+
+    @staticmethod
+    def _coerce_virtual_key(key) -> int:
+        if isinstance(key, int):
+            return key
+        if isinstance(key, str) and len(key) == 1:
+            return ord(key.upper())
+        raise WindowsOutputError(f"unsupported native virtual key: {key}")
+
+    @classmethod
+    def _send_keybd_event(cls, virtual_key: int, key_up: bool) -> None:
+        import ctypes
+
+        flags = cls._KEYEVENTF_KEYUP if key_up else 0
+        ctypes.windll.user32.keybd_event(virtual_key, 0, flags, 0)
+
+
 class WindowsDesktopOutputBackend:
     def __init__(
         self,
@@ -95,6 +155,8 @@ class WindowsDesktopOutputBackend:
 
     def _resolve_key(self, key: str):
         if len(key) == 1:
+            if hasattr(self._key, "char"):
+                return self._key.char(key)
             return key
         key_map = {
             "alt": self._key.alt,
@@ -127,10 +189,10 @@ class WindowsDesktopOutputBackend:
     @staticmethod
     def _load_pynput_controllers():
         try:
-            from pynput import keyboard, mouse
+            from pynput import mouse
         except Exception as exc:  # pragma: no cover - depends on local desktop stack
             raise WindowsOutputError(f"failed to load pynput controllers: {exc}") from exc
-        return keyboard.Controller(), mouse.Controller(), keyboard.Key, mouse.Button
+        return Win32KeyboardController(), mouse.Controller(), WindowsVirtualKey, mouse.Button
 
     @staticmethod
     def _load_clipboard_copy() -> Callable[[str], None]:
