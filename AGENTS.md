@@ -84,7 +84,7 @@ for tools such as Codex, ChatGPT, Cursor, browsers, and editors.
   dictated text, recordings, clipboard content, private chat payloads, or local
   secrets.
 
-## Autonomy / Escalation Pilot Hook
+## Autonomy / Escalation Hook
 
 - Before risky operator-control or public-release work, classify the current
   mode as `read-only`, `draft`, `local reversible`, `confirmed external write`,
@@ -101,6 +101,39 @@ for tools such as Codex, ChatGPT, Cursor, browsers, and editors.
 - Use AI Ops handoff only for reusable governance, skill, eval, or safety-rule
   learning. Do not copy private transcripts, recordings, logs, local paths, or
   personal replacement dictionaries into public repo artifacts.
+
+## Driver / Guard Hook
+
+- Use Driver / Guard separation for public-release readiness, GitHub actions,
+  package publishing, live keyboard injection, Send/Enter behavior, physical
+  controller behavior, or any claim that local controls work in a real target
+  app/window.
+- Driver states the smallest proposed action, target, expected outcome,
+  verification plan, and rollback or config toggle.
+- Guard states evidence checked, missing evidence, blockers, allowed next
+  action, blocked adjacent actions, required Dmitrii confirmation, and permitted
+  outcome wording.
+- Guard must block push, release, publishing, package upload, live Send/Enter,
+  external write, and public "works" claims unless tests, artifact hygiene,
+  runtime evidence, and Dmitrii's exact confirmation match the action.
+- If only tests or dry-runs passed, the allowed outcome is local/tested or
+  partial/unverified, not a live desktop or public-release completion claim.
+
+## Phase 6 Control-Layer Rollout
+
+- Treat the autonomy/escalation and Driver / Guard sections above as active
+  project rules for this repository, not only AI Ops notes.
+- The local pilot covered three reusable patterns for this project: physical
+  controller behavior remains unverified after tests only; product bugs stay in
+  this project while reusable verification learning goes to AI Ops / Skill Lab;
+  public release requires a guard before push/release/publish wording.
+- AI Ops handoff must be sanitized: include the reusable rule/eval signal and
+  recovery path, but not dictated text, recordings, clipboard content, logs,
+  local private paths, personal replacement dictionaries, or private app
+  payloads.
+- This rollout is prompt/rule-level only. It does not add a runtime hook,
+  telemetry, connector, automation, MCP server, memory store, or external
+  service.
 
 ## Verification
 
