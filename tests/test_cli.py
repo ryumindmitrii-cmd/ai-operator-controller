@@ -3,6 +3,7 @@ from pathlib import Path
 
 from ai_operator_controller.audio_recorder import AudioSampleSummary
 from ai_operator_controller.cli import main
+from ai_operator_controller.doctor import CheckResult, DoctorReport
 from ai_operator_controller.speech import TranscriptionResult
 
 
@@ -20,6 +21,65 @@ def test_doctor_profile_command_reports_profile_status(capsys):
     assert "Gamepad mapping: valid" in output
     assert "Focus targets: valid" in output
     assert "Private/local markers: none detected" in output
+
+
+def test_doctor_command_prints_runtime_report(capsys, monkeypatch, tmp_path):
+    speech_profile = tmp_path / "speech.json"
+    speech_profile.write_text("{}", encoding="utf-8")
+    calls = []
+
+    def fake_build_doctor_report(*, profile_path, speech_profile_path, mic_device, gamepad_index):
+        calls.append(
+            {
+                "profile_path": profile_path,
+                "speech_profile_path": speech_profile_path,
+                "mic_device": mic_device,
+                "gamepad_index": gamepad_index,
+            }
+        )
+        return DoctorReport(
+            checks=(
+                CheckResult("Package", "ok", "ai-operator-controller 0.1.0"),
+                CheckResult("Audio", "ok", "input devices: 2; selected: 2 Desk Mic"),
+            ),
+            next_steps=("Run dictate-run --dry-run before --execute-output.",),
+        )
+
+    monkeypatch.setattr(
+        "ai_operator_controller.cli.build_doctor_report",
+        fake_build_doctor_report,
+    )
+
+    assert (
+        main(
+            [
+                "doctor",
+                "--profile",
+                "config/examples/profile.codex.windows.json",
+                "--speech-profile",
+                str(speech_profile),
+                "--mic-device",
+                "2",
+                "--gamepad-index",
+                "1",
+            ]
+        )
+        == 0
+    )
+
+    assert calls == [
+        {
+            "profile_path": Path("config/examples/profile.codex.windows.json"),
+            "speech_profile_path": speech_profile,
+            "mic_device": 2,
+            "gamepad_index": 1,
+        }
+    ]
+    output = capsys.readouterr().out
+    assert "AI Operator Controller doctor" in output
+    assert "[ok] Package: ai-operator-controller 0.1.0" in output
+    assert "[ok] Audio: input devices: 2; selected: 2 Desk Mic" in output
+    assert "Run dictate-run --dry-run before --execute-output." in output
 
 
 def test_doctor_profile_command_reports_validation_errors(tmp_path, capsys):

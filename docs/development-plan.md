@@ -1,6 +1,6 @@
 # Development Plan
 
-Last updated: 2026-06-12.
+Last updated: 2026-06-15.
 
 This is the working product and implementation plan for AI Operator Controller.
 It is intentionally more operational than `docs/roadmap.md`: future maintainers
@@ -40,6 +40,10 @@ use cases.
 - [x] Reproducible local setup and smoke scripts exist for venv creation, CLI
   dry-runs, tests, lint, compile checks, privacy/security scans, and optional
   microphone metadata smoke tests.
+- [x] Read-only `doctor` reports package, Python/platform, audio inputs,
+  selected microphone, speech profile, speech runtime, CUDA/compute-type status,
+  gamepad visibility, and profile validation without recording audio or sending
+  desktop input.
 - [x] Public package has a test-covered `faster-whisper` config/backend wrapper
   and `transcribe-file --dry-run` command for explicit local audio files.
 - [x] Real local `faster-whisper` model smoke test runs with cached `large-v3` on
@@ -128,10 +132,10 @@ Goal: make the first install less dependent on Python knowledge.
 - [ ] Add PowerShell setup script.
   - Acceptance: creates venv, installs package, and prints next commands.
   - Verification: run on a clean checkout.
-- [ ] Add `doctor` checks for runtime prerequisites.
+- [x] Add `doctor` checks for runtime prerequisites.
   - Acceptance: reports Python, package import, audio device availability,
     controller visibility, speech profile, and CUDA/CPU fallback status.
-  - Verification: tests for report formatting plus manual run.
+  - Verification: tests for report formatting plus manual run on 2026-06-15.
 - [ ] Add local config bootstrap.
   - Acceptance: creates ignored local config from public examples without
     overwriting existing private files.

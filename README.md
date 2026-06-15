@@ -129,7 +129,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -WithDic
 
 The first smoke command skips microphone access. The second command includes a
 metadata-only microphone dry-run and still does not save audio, transcribe
-speech, write clipboard content, or send keyboard input.
+speech, write clipboard content, or send keyboard input. The `doctor` check is
+also read-only: it can enumerate local audio and controller devices, but it does
+not record, transcribe, paste, or press keys.
 
 Useful individual checks:
 
@@ -152,9 +154,13 @@ Useful individual checks:
 For a more detailed Windows setup and current capability notes, see
 `docs/windows-quickstart.md`.
 
-The `doctor --profile` command validates public app profiles before any desktop
-automation runs. It checks hotkeys, controller bindings, action names, Codex
-focus targets, and obvious private/local markers.
+The `doctor` command reports local runtime readiness before any desktop
+automation runs. It checks the package import, Python/platform, audio input
+visibility, selected microphone index, speech profile, `faster-whisper` /
+CTranslate2 availability, CUDA and compute-type status, and physical gamepad
+visibility. Add `--profile` to validate public app profiles, including hotkeys,
+controller bindings, action names, Codex focus targets, and obvious
+private/local markers.
 
 The `plan-action` command runs the output layer in dry-run mode. It shows which
 keyboard, mouse, or scroll operation would run without sending real desktop

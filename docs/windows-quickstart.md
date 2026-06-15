@@ -11,9 +11,9 @@ prototype after privacy cleanup.
 - Python 3.11 or 3.12.
 - Git.
 - An Xbox-compatible controller for controller mapping experiments.
-- Optional: NVIDIA GPU for future local `faster-whisper` use. The public
-  quality speech profile uses `large-v3` on CUDA/float16 by default; CPU users
-  can override device and compute type when the full speech runtime is migrated.
+- Optional: NVIDIA GPU for the default local `faster-whisper` quality profile.
+  The public quality speech profile uses `large-v3` on CUDA/float16 by default;
+  CPU users can copy the example profile and override device and compute type.
 
 ## Install From GitHub
 
@@ -35,9 +35,11 @@ metadata-only microphone check.
 
 Expected result:
 
-- `doctor` prints that the scaffold is installed.
-- `doctor --profile` reports that the Codex profile actions, gamepad mapping,
-  focus targets, and private/local marker checks are valid.
+- `doctor` prints a read-only runtime report for Python, package import, audio
+  input visibility, speech runtime, CUDA/compute-type status, and gamepad
+  visibility.
+- `doctor --profile` also reports that the Codex profile actions, gamepad
+  mapping, focus targets, and private/local marker checks are valid.
 - `plan-action` prints dry-run output events without sending real keyboard,
   mouse, or scroll input.
 - `simulate-gamepad` resolves profile-based controller inputs into actions and
@@ -69,6 +71,7 @@ mapped actions and stops after five emitted actions.
   `config/examples/profile.codex.windows.json`.
 - Safe public local speech quality profile:
   `config/examples/speech.local-quality.example.json`.
+- Read-only runtime checks through `ai_operator_controller doctor`.
 - Profile loading and validation through `ai_operator_controller doctor
   --profile`.
 - Dry-run output planning through `ai_operator_controller plan-action`.
@@ -91,6 +94,34 @@ mapped actions and stops after five emitted actions.
   actions.
 - Output planning for keyboard, mouse, scroll, and focus actions.
 - CLI scaffold and project structure for the upcoming full runtime.
+
+## Runtime Doctor
+
+Run the read-only runtime diagnostic before microphone or controller tests:
+
+```powershell
+.\.venv\Scripts\python.exe -m ai_operator_controller doctor --profile config\examples\profile.codex.windows.json --speech-profile config\examples\speech.local-quality.example.json
+```
+
+Expected output shape:
+
+```text
+AI Operator Controller doctor
+Mode: read-only diagnostics
+Safety: No audio was recorded. No clipboard or keyboard output was sent.
+[ok] Package: ...
+[ok] Audio: input devices: ...
+[ok] Speech profile: ...
+[ok] Speech runtime: ...
+[warning] Gamepad: detected: 0
+[ok] Profile: codex_windows_default; Actions: valid ...
+```
+
+Warnings are actionable setup signals, not live desktop actions. For example, a
+gamepad warning means Windows does not currently expose a controller to
+`pygame`. Rerun with `--mic-device <INDEX>` or `--gamepad-index <INDEX>` when
+Windows exposes multiple devices. The command may print local device names to
+the terminal, but it does not save them to the repository or send them anywhere.
 
 ## Current Limitations
 

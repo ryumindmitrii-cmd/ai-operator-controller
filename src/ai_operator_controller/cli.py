@@ -9,6 +9,7 @@ from pathlib import Path
 from . import __version__
 from .audio_recorder import AudioRecorderError, record_microphone_once, record_microphone_to_wav
 from .config import ProfileValidationError, load_profile, validate_profile
+from .doctor import build_doctor_report, format_doctor_report
 from .executor import RecordingOutputBackend, dry_run_action
 from .gamepad import GamepadActionResult, GamepadActionRuntime, bindings_from_profile
 from .gamepad_listener import PygameGamepadReader, listen_gamepad_dry_run
@@ -203,25 +204,23 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     if args.command == "doctor":
-        print("AI Operator Controller scaffold is installed.")
-        if args.profile is not None:
-            try:
-                profile = load_profile(args.profile)
-                result = validate_profile(profile, source=args.profile)
-            except ProfileValidationError as exc:
-                print(f"Profile validation failed: {exc}", file=sys.stderr)
-                return 2
-
-            print(f"Profile: {result.profile_name}")
-            print(f"Actions: valid ({len(result.actions)})")
-            print(
-                "Gamepad mapping: valid "
-                f"({result.button_count} buttons, {result.axis_count} axes, {result.hat_count} hats)"
+        try:
+            report = build_doctor_report(
+                profile_path=args.profile,
+                speech_profile_path=args.speech_profile,
+                mic_device=args.mic_device,
+                gamepad_index=args.gamepad_index,
             )
-            print(f"Focus targets: valid ({result.focus_target_count})")
-            print("Private/local markers: none detected")
-        print("Next step: migrate the private prototype through docs/migration-from-local-dictation.md")
-        return 0
+        except ProfileValidationError as exc:
+            print(f"Profile validation failed: {exc}", file=sys.stderr)
+            return 2
+        except (OSError, ValueError, json.JSONDecodeError, SpeechConfigError) as exc:
+            print(f"Doctor failed: {exc}", file=sys.stderr)
+            return 2
+
+        for line in format_doctor_report(report):
+            print(line)
+        return 2 if report.has_errors else 0
 
     if args.command == "plan-action":
         if args.action_name is None:
