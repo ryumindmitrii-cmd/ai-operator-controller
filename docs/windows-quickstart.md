@@ -21,8 +21,11 @@ prototype after privacy cleanup.
 git clone https://github.com/ryumindmitrii-cmd/ai-operator-controller.git
 cd ai-operator-controller
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-dev.ps1
-.\.venv\Scripts\python.exe -m ai_operator_controller init-local-config
 ```
+
+The setup script checks Python, creates or reuses `.venv`, installs the package
+with development dependencies, creates missing local config files in
+`config/local/`, and runs the read-only doctor check.
 
 ## Smoke Test
 

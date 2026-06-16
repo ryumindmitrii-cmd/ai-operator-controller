@@ -127,6 +127,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -WithSpe
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -WithDictateRun
 ```
 
+The setup script checks Python, creates or reuses `.venv`, installs development
+dependencies, creates missing ignored local config files under `config/local/`,
+and runs the read-only doctor command.
+
 The first smoke command skips microphone access. The second command includes a
 metadata-only microphone dry-run and still does not save audio, transcribe
 speech, write clipboard content, or send keyboard input. The `doctor` check is

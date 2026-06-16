@@ -40,6 +40,8 @@ use cases.
 - [x] Reproducible local setup and smoke scripts exist for venv creation, CLI
   dry-runs, tests, lint, compile checks, privacy/security scans, and optional
   microphone metadata smoke tests.
+- [x] PowerShell setup script checks Python, creates/reuses `.venv`, installs
+  dev dependencies, bootstraps ignored local config, and runs read-only doctor.
 - [x] Read-only `doctor` reports package, Python/platform, audio inputs,
   selected microphone, speech profile, speech runtime, CUDA/compute-type status,
   gamepad visibility, and profile validation without recording audio or sending
@@ -131,9 +133,9 @@ Checkpoint:
 
 Goal: make the first install less dependent on Python knowledge.
 
-- [ ] Add PowerShell setup script.
+- [x] Add PowerShell setup script.
   - Acceptance: creates venv, installs package, and prints next commands.
-  - Verification: run on a clean checkout.
+  - Verification: setup script contract tests plus local run on 2026-06-16.
 - [x] Add `doctor` checks for runtime prerequisites.
   - Acceptance: reports Python, package import, audio device availability,
     controller visibility, speech profile, and CUDA/CPU fallback status.
