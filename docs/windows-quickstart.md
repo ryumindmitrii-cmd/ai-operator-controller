@@ -21,6 +21,7 @@ prototype after privacy cleanup.
 git clone https://github.com/ryumindmitrii-cmd/ai-operator-controller.git
 cd ai-operator-controller
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-dev.ps1
+.\.venv\Scripts\python.exe -m ai_operator_controller init-local-config
 ```
 
 ## Smoke Test
@@ -40,6 +41,8 @@ Expected result:
   visibility.
 - `doctor --profile` also reports that the Codex profile actions, gamepad
   mapping, focus targets, and private/local marker checks are valid.
+- `init-local-config` can create local editable config files without
+  overwriting existing files.
 - `plan-action` prints dry-run output events without sending real keyboard,
   mouse, or scroll input.
 - `simulate-gamepad` resolves profile-based controller inputs into actions and
@@ -72,6 +75,8 @@ mapped actions and stops after five emitted actions.
 - Safe public local speech quality profile:
   `config/examples/speech.local-quality.example.json`.
 - Read-only runtime checks through `ai_operator_controller doctor`.
+- Local editable config bootstrap through `ai_operator_controller
+  init-local-config`.
 - Profile loading and validation through `ai_operator_controller doctor
   --profile`.
 - Dry-run output planning through `ai_operator_controller plan-action`.
@@ -122,6 +127,29 @@ gamepad warning means Windows does not currently expose a controller to
 `pygame`. Rerun with `--mic-device <INDEX>` or `--gamepad-index <INDEX>` when
 Windows exposes multiple devices. The command may print local device names to
 the terminal, but it does not save them to the repository or send them anywhere.
+
+## Local Config Bootstrap
+
+Create local editable configs from the public examples:
+
+```powershell
+.\.venv\Scripts\python.exe -m ai_operator_controller init-local-config
+```
+
+Expected output shape:
+
+```text
+Local config bootstrap
+Mode: create missing files only
+Safety: Existing files were not overwritten.
+Target: config\local
+[created] Speech profile: config\local\speech.local-quality.json
+[created] Codex profile: config\local\profile.codex.windows.json
+[created] Text cleanup rules: config\local\replacements.json
+```
+
+The command writes only to `config/local/`, which is ignored by git. Rerunning it
+is safe: existing local files are reported as `[exists]` and left untouched.
 
 ## Current Limitations
 

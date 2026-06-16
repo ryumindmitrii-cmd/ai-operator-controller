@@ -44,6 +44,8 @@ use cases.
   selected microphone, speech profile, speech runtime, CUDA/compute-type status,
   gamepad visibility, and profile validation without recording audio or sending
   desktop input.
+- [x] Local config bootstrap creates ignored editable speech/profile/rules files
+  from public examples without overwriting existing local config.
 - [x] Public package has a test-covered `faster-whisper` config/backend wrapper
   and `transcribe-file --dry-run` command for explicit local audio files.
 - [x] Real local `faster-whisper` model smoke test runs with cached `large-v3` on
@@ -136,10 +138,11 @@ Goal: make the first install less dependent on Python knowledge.
   - Acceptance: reports Python, package import, audio device availability,
     controller visibility, speech profile, and CUDA/CPU fallback status.
   - Verification: tests for report formatting plus manual run on 2026-06-15.
-- [ ] Add local config bootstrap.
+- [x] Add local config bootstrap.
   - Acceptance: creates ignored local config from public examples without
     overwriting existing private files.
-  - Verification: tests for idempotent file creation.
+  - Verification: tests for idempotent file creation plus smoke command with a
+    temporary target directory.
 - [ ] Add Windows startup/tray guidance.
   - Acceptance: user can start the runtime without editing source code.
   - Verification: manual checklist.

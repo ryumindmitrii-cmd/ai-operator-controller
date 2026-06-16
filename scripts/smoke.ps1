@@ -132,6 +132,15 @@ try {
     Invoke-Step "Profile doctor" {
         & $VenvPython -m ai_operator_controller doctor --profile config\examples\profile.codex.windows.json
     }
+    Invoke-Step "Local config bootstrap" {
+        $tempConfigDir = Join-Path ([System.IO.Path]::GetTempPath()) ("ai-operator-config-" + [guid]::NewGuid().ToString("N"))
+        try {
+            & $VenvPython -m ai_operator_controller init-local-config --local-config-dir $tempConfigDir
+        }
+        finally {
+            Remove-Item -LiteralPath $tempConfigDir -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    }
     Invoke-Step "Action plan" {
         & $VenvPython -m ai_operator_controller plan-action cursor_left
     }

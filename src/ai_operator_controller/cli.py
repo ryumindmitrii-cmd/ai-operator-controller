@@ -13,6 +13,11 @@ from .doctor import build_doctor_report, format_doctor_report
 from .executor import RecordingOutputBackend, dry_run_action
 from .gamepad import GamepadActionResult, GamepadActionRuntime, bindings_from_profile
 from .gamepad_listener import PygameGamepadReader, listen_gamepad_dry_run
+from .local_config import (
+    LocalConfigBootstrapError,
+    bootstrap_local_config,
+    format_local_config_bootstrap,
+)
 from .runtime import DICTATION_ACTION_TARGETS, StaticTranscriptProvider, run_dictation_once
 from .speech import (
     SpeechConfigError,
@@ -163,10 +168,17 @@ def build_parser() -> argparse.ArgumentParser:
         help="Polling interval in seconds for physical gamepad listeners.",
     )
     parser.add_argument(
+        "--local-config-dir",
+        type=Path,
+        default=Path("config/local"),
+        help="Target directory for the 'init-local-config' command.",
+    )
+    parser.add_argument(
         "command",
         nargs="?",
         choices=[
             "doctor",
+            "init-local-config",
             "plan-action",
             "simulate-gamepad",
             "clean-text",
@@ -178,9 +190,9 @@ def build_parser() -> argparse.ArgumentParser:
             "listen-gamepad",
         ],
         help=(
-            "Optional command. Use 'doctor', 'plan-action', 'simulate-gamepad', "
-            "'clean-text', 'polish-text', 'dictate-once', 'dictate-run', 'record-once', "
-            "'transcribe-file', or 'listen-gamepad'."
+            "Optional command. Use 'doctor', 'init-local-config', 'plan-action', "
+            "'simulate-gamepad', 'clean-text', 'polish-text', 'dictate-once', "
+            "'dictate-run', 'record-once', 'transcribe-file', or 'listen-gamepad'."
         ),
     )
     parser.add_argument(
@@ -221,6 +233,17 @@ def main(argv: list[str] | None = None) -> int:
         for line in format_doctor_report(report):
             print(line)
         return 2 if report.has_errors else 0
+
+    if args.command == "init-local-config":
+        try:
+            result = bootstrap_local_config(local_config_dir=args.local_config_dir)
+        except (OSError, LocalConfigBootstrapError) as exc:
+            print(f"Local config bootstrap failed: {exc}", file=sys.stderr)
+            return 2
+
+        for line in format_local_config_bootstrap(result):
+            print(line)
+        return 0
 
     if args.command == "plan-action":
         if args.action_name is None:

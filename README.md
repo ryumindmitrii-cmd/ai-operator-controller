@@ -139,6 +139,7 @@ Useful individual checks:
 .\.venv\Scripts\python.exe -m ai_operator_controller --help
 .\.venv\Scripts\python.exe -m ai_operator_controller doctor
 .\.venv\Scripts\python.exe -m ai_operator_controller doctor --profile config\examples\profile.codex.windows.json
+.\.venv\Scripts\python.exe -m ai_operator_controller init-local-config
 .\.venv\Scripts\python.exe -m ai_operator_controller plan-action cursor_left
 .\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --axis right_stick_x 0.8
 .\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --button y down
@@ -161,6 +162,10 @@ CTranslate2 availability, CUDA and compute-type status, and physical gamepad
 visibility. Add `--profile` to validate public app profiles, including hotkeys,
 controller bindings, action names, Codex focus targets, and obvious
 private/local markers.
+
+The `init-local-config` command copies safe public examples into `config/local/`
+for local editing. It creates missing files only and never overwrites existing
+local config. The `config/local/` directory is ignored by git.
 
 The `plan-action` command runs the output layer in dry-run mode. It shows which
 keyboard, mouse, or scroll operation would run without sending real desktop

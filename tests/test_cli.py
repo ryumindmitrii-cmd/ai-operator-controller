@@ -97,6 +97,20 @@ def test_doctor_profile_command_reports_validation_errors(tmp_path, capsys):
     assert "Unknown action" in captured.err
 
 
+def test_init_local_config_command_creates_local_files(tmp_path, capsys):
+    target_dir = tmp_path / "local-config"
+
+    assert main(["init-local-config", "--local-config-dir", str(target_dir)]) == 0
+
+    assert (target_dir / "speech.local-quality.json").exists()
+    assert (target_dir / "profile.codex.windows.json").exists()
+    assert (target_dir / "replacements.json").exists()
+    output = capsys.readouterr().out
+    assert "Local config bootstrap" in output
+    assert "[created] Speech profile:" in output
+    assert "Existing files were not overwritten." in output
+
+
 def test_plan_action_command_prints_dry_run_event(capsys):
     assert main(["plan-action", "cursor_left"]) == 0
 
