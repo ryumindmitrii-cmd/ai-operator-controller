@@ -7,7 +7,8 @@ param(
     [switch]$WithDictateRun,
     [switch]$AllowModelDownload,
     [switch]$SkipBandit,
-    [switch]$SkipPipAudit
+    [switch]$SkipPipAudit,
+    [switch]$BypassProxyForPipAudit
 )
 
 $ErrorActionPreference = "Stop"
@@ -26,6 +27,47 @@ function Invoke-Step {
     & $Command
     if ($LASTEXITCODE -ne 0) {
         throw "$Name failed with exit code $LASTEXITCODE"
+    }
+}
+
+function Invoke-WithProxyBypass {
+    param(
+        [scriptblock]$Command
+    )
+
+    $proxyVariables = @(
+        "HTTP_PROXY",
+        "HTTPS_PROXY",
+        "ALL_PROXY",
+        "http_proxy",
+        "https_proxy",
+        "all_proxy",
+        "NO_PROXY",
+        "no_proxy"
+    )
+    $previousValues = @{}
+    foreach ($name in $proxyVariables) {
+        $previousValues[$name] = [Environment]::GetEnvironmentVariable($name, "Process")
+    }
+
+    try {
+        foreach ($name in @("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy")) {
+            Remove-Item -LiteralPath "Env:$name" -ErrorAction SilentlyContinue
+        }
+        $env:NO_PROXY = "*"
+        $env:no_proxy = "*"
+        & $Command
+    }
+    finally {
+        foreach ($name in $proxyVariables) {
+            $value = $previousValues[$name]
+            if ($null -eq $value) {
+                Remove-Item -LiteralPath "Env:$name" -ErrorAction SilentlyContinue
+            }
+            else {
+                Set-Item -LiteralPath "Env:$name" -Value $value
+            }
+        }
     }
 }
 
@@ -241,7 +283,14 @@ try {
 
     if (-not $SkipPipAudit) {
         Invoke-Step "pip-audit" {
-            & $VenvPython -m pip_audit
+            if ($BypassProxyForPipAudit) {
+                Invoke-WithProxyBypass {
+                    & $VenvPython -m pip_audit
+                }
+            }
+            else {
+                & $VenvPython -m pip_audit
+            }
         }
     }
     else {

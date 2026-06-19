@@ -27,6 +27,13 @@ The setup script checks Python, creates or reuses `.venv`, installs the package
 with development dependencies, creates missing local config files in
 `config/local/`, and runs the read-only doctor check.
 
+If Windows resolves `python` to the Microsoft Store / WindowsApps stub instead
+of a real Python install, rerun setup with an explicit Python executable:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-dev.ps1 -Python "<PATH_TO_PYTHON_3_12_EXE>"
+```
+
 ## Smoke Test
 
 ```powershell
@@ -36,6 +43,13 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -WithMic
 
 The first command skips microphone access. The second command includes the
 metadata-only microphone check.
+
+If `pip-audit` fails with a proxy-related TLS reset, rerun smoke with a
+process-local proxy bypass for the `pip-audit` step:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -BypassProxyForPipAudit
+```
 
 Expected result:
 

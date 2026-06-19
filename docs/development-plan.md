@@ -42,6 +42,8 @@ use cases.
   microphone metadata smoke tests.
 - [x] PowerShell setup script checks Python, creates/reuses `.venv`, installs
   dev dependencies, bootstraps ignored local config, and runs read-only doctor.
+- [x] Smoke script supports a process-local proxy bypass for `pip-audit` on
+  networks where proxy environment variables reset TLS connections.
 - [x] Read-only `doctor` reports package, Python/platform, audio inputs,
   selected microphone, speech profile, speech runtime, CUDA/compute-type status,
   gamepad visibility, and profile validation without recording audio or sending
@@ -119,6 +121,12 @@ public package without copying private data.
     technical state, but not dictated text or clipboard contents.
   - Verification: execute-output CLI output hides dictated text and reports only
     length, quality, metadata, and output event names.
+- [ ] Add no-speech and prompt-leak guard for very short or quiet microphone
+  samples.
+  - Acceptance: empty audio, near-silence, or text copied from the speech
+    initial prompt does not plan `write_text` output.
+  - Verification: synthetic and mocked transcription tests plus one local
+    `dictate-run --dry-run` smoke.
 
 Checkpoint:
 
