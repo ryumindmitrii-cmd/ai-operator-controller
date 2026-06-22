@@ -4,16 +4,20 @@ import argparse
 import json
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 from . import __version__
 from .audio_recorder import AudioRecorderError, record_microphone_once, record_microphone_to_wav
 from .calibration import (
     CalibrationError,
+    CapturedWindowPoint,
     FocusRatios,
     WindowGeometry,
     calibrate_profile_file,
+    capture_current_mouse_position,
     format_profile_calibration,
+    ratios_from_captured_window_point,
     ratios_from_window_point,
 )
 from .config import ProfileValidationError, load_profile, validate_profile
@@ -199,6 +203,20 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--window-height", type=float, help="Height of the app window.")
     parser.add_argument("--point-x", type=float, help="Screen X coordinate for calibration.")
     parser.add_argument("--point-y", type=float, help="Screen Y coordinate for calibration.")
+    parser.add_argument(
+        "--capture-current-mouse",
+        action="store_true",
+        help=(
+            "Capture the window under the current mouse position for "
+            "calibrate-profile. Does not move or click the mouse."
+        ),
+    )
+    parser.add_argument(
+        "--capture-delay-seconds",
+        type=float,
+        default=0.0,
+        help="Delay before --capture-current-mouse so you can move the cursor.",
+    )
     parser.add_argument(
         "--write",
         action="store_true",
@@ -505,17 +523,21 @@ def _calibrate_profile(args: argparse.Namespace):
     if args.profile is None:
         raise CalibrationError("--profile is required for calibrate-profile")
 
-    ratios = _calibration_ratios_from_args(args)
+    ratios, source, capture = _calibration_input_from_args(args)
     return calibrate_profile_file(
         args.profile,
         target=args.focus_target,
         ratios=ratios,
         write=args.write,
         allow_nonlocal_profile=args.allow_nonlocal_profile,
+        source=source,
+        capture=capture,
     )
 
 
-def _calibration_ratios_from_args(args: argparse.Namespace) -> FocusRatios:
+def _calibration_input_from_args(
+    args: argparse.Namespace,
+) -> tuple[FocusRatios, str, CapturedWindowPoint | None]:
     ratio_values = (args.x_ratio, args.y_ratio)
     has_ratio_mode = any(value is not None for value in ratio_values)
     if has_ratio_mode:
@@ -537,24 +559,43 @@ def _calibration_ratios_from_args(args: argparse.Namespace) -> FocusRatios:
                 "window geometry and point coordinates must be provided together"
             )
 
-    if has_ratio_mode and has_point_mode:
-        raise CalibrationError("choose ratio mode or window point mode, not both")
-    if not has_ratio_mode and not has_point_mode:
-        raise CalibrationError("provide ratios or window geometry plus point coordinates")
+    mode_count = sum((has_ratio_mode, has_point_mode, args.capture_current_mouse))
+    if mode_count != 1:
+        raise CalibrationError(
+            "choose exactly one calibration input mode: ratios, window point, "
+            "or --capture-current-mouse"
+        )
 
     if has_ratio_mode:
-        return FocusRatios(x_ratio=float(args.x_ratio), y_ratio=float(args.y_ratio))
+        return (
+            FocusRatios(x_ratio=float(args.x_ratio), y_ratio=float(args.y_ratio)),
+            "ratio",
+            None,
+        )
 
-    return ratios_from_window_point(
-        WindowGeometry(
-            left=float(args.window_left),
-            top=float(args.window_top),
-            width=float(args.window_width),
-            height=float(args.window_height),
-        ),
-        point_x=float(args.point_x),
-        point_y=float(args.point_y),
-    )
+    if has_point_mode:
+        return (
+            ratios_from_window_point(
+                WindowGeometry(
+                    left=float(args.window_left),
+                    top=float(args.window_top),
+                    width=float(args.window_width),
+                    height=float(args.window_height),
+                ),
+                point_x=float(args.point_x),
+                point_y=float(args.point_y),
+            ),
+            "window_point",
+            None,
+        )
+
+    if args.capture_delay_seconds < 0:
+        raise CalibrationError("--capture-delay-seconds must be non-negative")
+    if args.capture_delay_seconds:
+        time.sleep(args.capture_delay_seconds)
+
+    capture = capture_current_mouse_position()
+    return ratios_from_captured_window_point(capture), "current_mouse", capture
 
 
 def _dictate_once(args: argparse.Namespace):

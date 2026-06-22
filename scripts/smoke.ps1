@@ -8,7 +8,8 @@ param(
     [switch]$AllowModelDownload,
     [switch]$SkipBandit,
     [switch]$SkipPipAudit,
-    [switch]$BypassProxyForPipAudit
+    [switch]$BypassProxyForPipAudit,
+    [int]$PipAuditAttempts = 3
 )
 
 $ErrorActionPreference = "Stop"
@@ -67,6 +68,27 @@ function Invoke-WithProxyBypass {
             else {
                 Set-Item -LiteralPath "Env:$name" -Value $value
             }
+        }
+    }
+}
+
+function Invoke-PipAudit {
+    param(
+        [int]$Attempts
+    )
+
+    if ($Attempts -le 0) {
+        throw "PipAuditAttempts must be positive"
+    }
+
+    for ($attempt = 1; $attempt -le $Attempts; $attempt++) {
+        & $VenvPython -m pip_audit --skip-editable
+        if ($LASTEXITCODE -eq 0) {
+            return
+        }
+        if ($attempt -lt $Attempts) {
+            Write-Host "pip-audit failed; retrying ($attempt/$Attempts)..."
+            Start-Sleep -Seconds (2 * $attempt)
         }
     }
 }
@@ -296,11 +318,11 @@ try {
         Invoke-Step "pip-audit" {
             if ($BypassProxyForPipAudit) {
                 Invoke-WithProxyBypass {
-                    & $VenvPython -m pip_audit --skip-editable
+                    Invoke-PipAudit -Attempts $PipAuditAttempts
                 }
             }
             else {
-                & $VenvPython -m pip_audit --skip-editable
+                Invoke-PipAudit -Attempts $PipAuditAttempts
             }
         }
     }

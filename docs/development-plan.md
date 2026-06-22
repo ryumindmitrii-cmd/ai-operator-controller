@@ -276,10 +276,11 @@ public posting.
 - [x] Keep public examples separate from machine-specific calibration.
   - Acceptance: `--write` refuses non-local profile paths by default.
   - Verification: CLI guard test.
-- [ ] Add interactive mouse-position capture for calibration.
+- [x] Add interactive mouse-position capture for calibration.
   - Acceptance: user can place the cursor on the desired target and capture it
     without manually reading coordinates.
-  - Verification: dry-run first; no live click or keyboard output.
+  - Verification: CLI tests for delayed capture, dry-run output, local write,
+    and mixed-mode rejection; no live click or keyboard output.
 - [ ] Run a second-machine setup/calibration pass.
   - Acceptance: a non-maintainer Windows setup reaches doctor success and a
     calibrated Codex profile without editing source code.

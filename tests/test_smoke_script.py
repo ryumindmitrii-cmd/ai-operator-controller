@@ -13,6 +13,9 @@ def test_smoke_script_supports_process_local_proxy_bypass_for_pip_audit():
     assert "HTTPS_PROXY" in script
     assert "ALL_PROXY" in script
     assert "NO_PROXY" in script
+    assert "[int]$PipAuditAttempts = 3" in script
+    assert "Invoke-PipAudit" in script
+    assert "pip-audit failed; retrying" in script
     assert "pip_audit" in script
     assert "--skip-editable" in script
     assert 'New-RepoTempPath "pytest"' in script

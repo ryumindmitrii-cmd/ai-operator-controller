@@ -281,7 +281,17 @@ coordinates, the command can calculate ratios for you:
 .\.venv\Scripts\python.exe -m ai_operator_controller calibrate-profile --profile config\local\profile.codex.windows.json --focus-target message_input --window-left 0 --window-top 0 --window-width 1920 --window-height 1080 --point-x 960 --point-y 930 --write
 ```
 
-This command only edits JSON. It does not move the mouse, click, record audio,
+For the normal interactive flow, use delayed mouse capture: run the command,
+move the cursor to the desired point inside the Codex window before the delay
+expires, and let the command calculate the ratios from the window under the
+cursor:
+
+```powershell
+.\.venv\Scripts\python.exe -m ai_operator_controller calibrate-profile --profile config\local\profile.codex.windows.json --focus-target message_input --capture-current-mouse --capture-delay-seconds 3 --write
+```
+
+This command only edits JSON. Mouse capture reads the window under the cursor
+and the current mouse position. It does not move the mouse, click, record audio,
 touch the clipboard, or send keyboard input.
 
 ## Simulate Gamepad Inputs

@@ -3,6 +3,7 @@ import io
 from pathlib import Path
 
 from ai_operator_controller.audio_recorder import AudioSampleSummary
+from ai_operator_controller.calibration import CapturedWindowPoint, WindowGeometry
 from ai_operator_controller.cli import main
 from ai_operator_controller.doctor import CheckResult, DoctorReport
 from ai_operator_controller.speech import TranscriptionResult
@@ -214,6 +215,183 @@ def test_calibrate_profile_command_refuses_nonlocal_write(tmp_path, capsys):
     )
 
     assert "refusing to write non-local profile" in capsys.readouterr().err
+
+
+def test_calibrate_profile_command_captures_current_mouse_without_writing(
+    tmp_path,
+    capsys,
+    monkeypatch,
+):
+    profile = tmp_path / "config" / "local" / "profile.codex.windows.json"
+    profile.parent.mkdir(parents=True)
+    profile.write_text(
+        Path("config/examples/profile.codex.windows.json").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    before = profile.read_text(encoding="utf-8")
+
+    monkeypatch.setattr(
+        "ai_operator_controller.cli.capture_current_mouse_position",
+        lambda: CapturedWindowPoint(
+            window=WindowGeometry(left=100, top=50, width=1200, height=800),
+            point_x=700,
+            point_y=650,
+            window_title="Codex",
+        ),
+    )
+
+    assert (
+        main(
+            [
+                "calibrate-profile",
+                "--profile",
+                str(profile),
+                "--focus-target",
+                "message_input",
+                "--capture-current-mouse",
+            ]
+        )
+        == 0
+    )
+
+    assert profile.read_text(encoding="utf-8") == before
+    output = capsys.readouterr().out
+    assert "Mode: dry-run" in output
+    assert "Source: current_mouse" in output
+    assert "Window: left=100 top=50 width=1200 height=800" in output
+    assert "Point: x=700 y=650" in output
+    assert "Window title: <hidden>" in output
+    assert "Codex" not in output
+    assert "x_ratio: 0.5000" in output
+    assert "y_ratio: 0.7500" in output
+
+
+def test_calibrate_profile_command_delays_before_current_mouse_capture(
+    tmp_path,
+    capsys,
+    monkeypatch,
+):
+    profile = tmp_path / "config" / "local" / "profile.codex.windows.json"
+    profile.parent.mkdir(parents=True)
+    profile.write_text(
+        Path("config/examples/profile.codex.windows.json").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    sleeps = []
+
+    monkeypatch.setattr("ai_operator_controller.cli.time.sleep", sleeps.append)
+    monkeypatch.setattr(
+        "ai_operator_controller.cli.capture_current_mouse_position",
+        lambda: CapturedWindowPoint(
+            window=WindowGeometry(left=100, top=50, width=1200, height=800),
+            point_x=700,
+            point_y=650,
+        ),
+    )
+
+    assert (
+        main(
+            [
+                "calibrate-profile",
+                "--profile",
+                str(profile),
+                "--focus-target",
+                "message_input",
+                "--capture-current-mouse",
+                "--capture-delay-seconds",
+                "0.25",
+            ]
+        )
+        == 0
+    )
+
+    assert sleeps == [0.25]
+    assert "Source: current_mouse" in capsys.readouterr().out
+
+
+def test_calibrate_profile_command_captures_current_mouse_and_writes_local_profile(
+    tmp_path,
+    capsys,
+    monkeypatch,
+):
+    profile = tmp_path / "config" / "local" / "profile.codex.windows.json"
+    profile.parent.mkdir(parents=True)
+    profile.write_text(
+        Path("config/examples/profile.codex.windows.json").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(
+        "ai_operator_controller.cli.capture_current_mouse_position",
+        lambda: CapturedWindowPoint(
+            window=WindowGeometry(left=100, top=50, width=1200, height=800),
+            point_x=640,
+            point_y=738,
+            window_title=None,
+        ),
+    )
+
+    assert (
+        main(
+            [
+                "calibrate-profile",
+                "--profile",
+                str(profile),
+                "--focus-target",
+                "message_input",
+                "--capture-current-mouse",
+                "--write",
+            ]
+        )
+        == 0
+    )
+
+    updated = json.loads(profile.read_text(encoding="utf-8"))
+    assert updated["focus_targets"]["message_input"]["x_ratio"] == 0.45
+    assert updated["focus_targets"]["message_input"]["y_ratio"] == 0.86
+    assert "Saved: yes" in capsys.readouterr().out
+
+
+def test_calibrate_profile_command_rejects_negative_capture_delay(capsys):
+    assert (
+        main(
+            [
+                "calibrate-profile",
+                "--profile",
+                "config/examples/profile.codex.windows.json",
+                "--focus-target",
+                "message_input",
+                "--capture-current-mouse",
+                "--capture-delay-seconds",
+                "-1",
+            ]
+        )
+        == 2
+    )
+
+    assert "--capture-delay-seconds must be non-negative" in capsys.readouterr().err
+
+
+def test_calibrate_profile_command_rejects_mixed_capture_and_ratio(capsys):
+    assert (
+        main(
+            [
+                "calibrate-profile",
+                "--profile",
+                "config/examples/profile.codex.windows.json",
+                "--focus-target",
+                "message_input",
+                "--capture-current-mouse",
+                "--x-ratio",
+                "0.5",
+                "--y-ratio",
+                "0.86",
+            ]
+        )
+        == 2
+    )
+
+    assert "choose exactly one calibration input mode" in capsys.readouterr().err
 
 
 def test_plan_action_command_prints_dry_run_event(capsys):

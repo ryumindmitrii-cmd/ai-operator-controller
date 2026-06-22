@@ -63,6 +63,13 @@ The command above is a dry run. Add `--write` only after the printed ratios are
 the ones you want. `calibrate-profile --write` refuses to write outside
 `config/local/` unless you explicitly pass `--allow-nonlocal-profile`.
 
+For the easiest local calibration, run delayed mouse capture, then move the
+cursor to the intended point inside the Codex window before the delay expires:
+
+```powershell
+.\.venv\Scripts\python.exe -m ai_operator_controller calibrate-profile --profile config\local\profile.codex.windows.json --focus-target message_input --capture-current-mouse --capture-delay-seconds 3 --write
+```
+
 For point-based calibration, provide the Codex window rectangle and the desired
 point:
 
@@ -70,9 +77,9 @@ point:
 .\.venv\Scripts\python.exe -m ai_operator_controller calibrate-profile --profile config\local\profile.codex.windows.json --focus-target message_input --window-left 0 --window-top 0 --window-width 1920 --window-height 1080 --point-x 960 --point-y 930 --write
 ```
 
-`calibrate-profile` only edits the local JSON profile. It does not inspect the
-screen, click, move the mouse, record audio, touch the clipboard, or send
-keyboard input.
+`calibrate-profile` only edits the local JSON profile. Mouse capture reads the
+window under the cursor and the current mouse position. It does not click, move
+the mouse, record audio, touch the clipboard, or send keyboard input.
 
 ## Mapping Contract
 

@@ -166,6 +166,7 @@ Useful individual checks:
 .\.venv\Scripts\python.exe -m ai_operator_controller doctor --profile config\examples\profile.codex.windows.json
 .\.venv\Scripts\python.exe -m ai_operator_controller init-local-config
 .\.venv\Scripts\python.exe -m ai_operator_controller calibrate-profile --profile config\local\profile.codex.windows.json --focus-target message_input --x-ratio 0.50 --y-ratio 0.86
+.\.venv\Scripts\python.exe -m ai_operator_controller calibrate-profile --profile config\local\profile.codex.windows.json --focus-target message_input --capture-current-mouse --capture-delay-seconds 3 --write
 .\.venv\Scripts\python.exe -m ai_operator_controller plan-action cursor_left
 .\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --axis right_stick_x 0.8
 .\.venv\Scripts\python.exe -m ai_operator_controller simulate-gamepad --profile config\examples\profile.codex.windows.json --button y down
@@ -201,8 +202,11 @@ local config. The `config/local/` directory is ignored by git.
 
 The `calibrate-profile` command updates window-relative Codex focus targets in
 an ignored local profile. It defaults to dry-run; add `--write` only when you
-want to save the local JSON change. It does not move the mouse, click, record
-audio, touch the clipboard, or send keyboard input.
+want to save the local JSON change. You can provide ratios manually or use
+`--capture-current-mouse --capture-delay-seconds 3` to place the cursor over the
+target point before capture. The command reads the window under the cursor and
+current mouse position; it does not move the mouse, click, record audio, touch
+the clipboard, or send keyboard input.
 
 The `plan-action` command runs the output layer in dry-run mode. It shows which
 keyboard, mouse, or scroll operation would run without sending real desktop
