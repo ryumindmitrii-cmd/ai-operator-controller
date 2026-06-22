@@ -169,10 +169,11 @@ Checkpoint:
 
 Goal: make controller behavior reliable in real AI workspaces.
 
-- [ ] Harden Codex profile as the first supported profile.
+- [x] Harden Codex profile as the first supported profile.
   - Acceptance: `A`, `X`, `B`, `LB`, `RB`, `LT`, `RT`, sticks, D-pad, `Y`, and
-    Menu/Start work as documented.
-  - Verification: manual Codex checklist and dry-run tests.
+    Menu/Start resolve to the documented dry-run actions.
+  - Verification: public Codex checklist and dry-run tests; live Codex session
+    verification remains part of the profile checkpoint below.
 - [ ] Add ChatGPT browser profile.
   - Acceptance: core dictate/edit/scroll/send flow works in Chrome or Edge.
   - Verification: manual browser checklist.

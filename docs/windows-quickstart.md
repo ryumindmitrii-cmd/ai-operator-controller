@@ -231,6 +231,9 @@ The default Codex example profile uses these high-frequency controls:
   stick intensity.
 - Menu/Start: toggle the bottom panel with `Ctrl+J`.
 
+For a complete dry-run and manual validation flow, use
+[`codex-profile-checklist.md`](codex-profile-checklist.md).
+
 The `A` focus target is intentionally configurable:
 
 ```json

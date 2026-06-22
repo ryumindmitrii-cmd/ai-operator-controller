@@ -77,6 +77,8 @@ https://github.com/ryumindmitrii-cmd/ai-operator-controller/issues
   - Right stick up/down: scroll the selected chat area, with repeat speed scaled
     by stick intensity.
   - Menu/Start: toggle the bottom panel with `Ctrl+J`.
+  - Full Codex profile checklist:
+    `docs/codex-profile-checklist.md`.
 - Local text cleanup:
   - replacement dictionary;
   - filler phrase filter;
