@@ -1,6 +1,6 @@
 # Development Plan
 
-Last updated: 2026-06-15.
+Last updated: 2026-06-22.
 
 This is the working product and implementation plan for AI Operator Controller.
 It is intentionally more operational than `docs/roadmap.md`: future maintainers
@@ -16,9 +16,10 @@ controller, while keeping audio, transcripts, logs, and personal dictionaries
 local by default.
 
 The near-term product is not a general gamepad mapper, not a cloud dictation
-service, and not a broad agent framework. The first useful version should make
-Codex and ChatGPT sessions less keyboard-bound for power users and accessibility
-use cases.
+service, and not a broad agent framework. The `v0.1.0` release is scoped to a
+Codex Desktop local preview for power users and accessibility use cases.
+ChatGPT browser, Cursor, editor, and generic browser profiles are intentionally
+post-`v0.1.0`.
 
 ## Current Status
 
@@ -73,7 +74,7 @@ A new Windows user should be able to:
 3. Connect an Xbox-compatible controller.
 4. Run a doctor command that validates audio, speech backend, controller, and
    app profile.
-5. Open Codex or ChatGPT.
+5. Open Codex Desktop.
 6. Press `A`, dictate text locally, and paste it into the message box.
 7. Use the controller to edit, scroll, switch chat targets, and send.
 8. Keep private logs, recordings, transcripts, and dictionaries outside git.
@@ -165,7 +166,7 @@ Checkpoint:
 - [ ] A second Windows machine can reach `doctor` success in 10-15 minutes.
 - [ ] Setup docs match actual command output.
 
-## Milestone 3: Codex and ChatGPT App Profiles
+## Milestone 3: Codex Desktop App Profile
 
 Goal: make controller behavior reliable in real AI workspaces.
 
@@ -174,12 +175,9 @@ Goal: make controller behavior reliable in real AI workspaces.
     Menu/Start resolve to the documented dry-run actions.
   - Verification: public Codex checklist and dry-run tests; live Codex session
     verification remains part of the profile checkpoint below.
-- [ ] Add ChatGPT browser profile.
-  - Acceptance: core dictate/edit/scroll/send flow works in Chrome or Edge.
-  - Verification: manual browser checklist.
 - [ ] Add profile selection docs.
-  - Acceptance: user understands which profile to use and how to override local
-    coordinates safely.
+  - Acceptance: user understands that `v0.1.0` ships the Codex Desktop profile
+    first and how to override local coordinates safely.
   - Verification: README/quickstart review.
 - [ ] Add profile validation for any new profile fields.
   - Acceptance: invalid actions, unsafe paths, and malformed focus targets fail
@@ -188,8 +186,8 @@ Goal: make controller behavior reliable in real AI workspaces.
 
 Checkpoint:
 
-- [ ] One Codex session and one ChatGPT browser session can be controlled from a
-  controller without editing source code.
+- [ ] One Codex Desktop session can be controlled from a controller without
+  editing source code.
 
 ## Milestone 4: Private Learning Pipeline
 
@@ -222,19 +220,24 @@ Checkpoint:
 
 Goal: ship something a technically curious Windows user can actually try.
 
-- [ ] Complete public runtime slice.
-- [ ] Complete Windows setup and doctor.
-- [ ] Complete Codex profile checklist.
-- [ ] Add release notes.
-- [ ] Add clean demo assets that do not show personal desktop content.
-- [ ] Confirm public repository scan is clean.
+- [x] Define `v0.1.0` as a Windows Codex Desktop local preview.
+- [x] Complete public runtime slice for explicit command-driven dry-run and
+  execute-output paths.
+- [x] Complete Windows setup and doctor.
+- [ ] Complete Codex profile checklist against a live Codex Desktop session.
+- [x] Add draft release notes.
+- [x] Add clean demo assets that do not show personal desktop content.
+- [x] Confirm public repository scan is clean.
+  - Verification: `scripts\smoke.ps1 -BypassProxyForPipAudit` passed on
+    2026-06-22, including privacy marker scan, detect-secrets, Bandit, and
+    pip-audit.
 - [ ] Tag `v0.1.0` only after CI is green.
 
 Release criteria:
 
 - [ ] Fresh install documented.
-- [ ] First dictated paste works.
-- [ ] Controller basics work.
+- [ ] First dictated paste works in a safe test window.
+- [ ] Controller basics work in Codex Desktop.
 - [ ] Safety defaults are documented and tested.
 - [ ] No private logs, transcripts, recordings, paths, or dictionaries are
   tracked.
@@ -259,6 +262,7 @@ These are intentionally not next:
 - [ ] Native GUI/tray application.
 - [ ] Packaged Windows installer.
 - [ ] Cursor-specific profile.
+- [ ] ChatGPT browser profile.
 - [ ] Per-app auto-detection.
 - [ ] Voice command grammar beyond basic text cleanup.
 - [ ] Cloud transcription provider as an explicit opt-in.

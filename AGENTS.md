@@ -208,6 +208,54 @@ for tools such as Codex, ChatGPT, Cursor, browsers, and editors.
   - `Blocked actions`;
   - `Rollback/correction path`.
 
+## Operator Mandate Control
+
+Use the AI Ops Operator Mandate Control workflow card for non-trivial work in
+this project when it is available in the local operator environment. Do not add
+local absolute paths to private workflow cards in public repository files.
+
+When Dmitrii gives a bounded operator mandate, act inside that mandate without
+asking for every tactical command. The mandate must name the goal, owning
+project, target object/surface, allowed action class, allowed tactical actions,
+blocked actions, stop signals, required evidence, rollback/correction path, and
+expiration.
+
+Allowed tactical autonomy applies only to read-only, draft, local reversible, or
+explicitly named single-operation work inside this project's rules. It does not
+override confirmation gates.
+
+Exact Dmitrii confirmation remains required for sending, publishing, posting,
+signing, paying, approving, deleting, deploying, restarting, changing
+permissions/accounts, changing production/server/cloud/payment state, changing
+live Saby/SBIS or external systems, handling secrets/personal data, or changing
+connectors/MCP/plugins/hooks/automations/runtime config.
+
+Stop and escalate if the target, account, host, branch, contract, counterparty,
+recipient, audience, status, visibility, safety boundary, or final-state
+evidence is unclear.
+
+For medium/high risk work, finish with the outcome block and mandate assessment
+fields: `confirmation_level`, `confirmation_fatigue_signal`,
+`autonomy_used_within_mandate`, `stop_signal_correct`, `over_escalation`,
+`under_escalation`, `operator_time_saved`, and `risk_boundary_preserved`.
+
+
+### Project Mandate Packs
+
+- `Local development`: inspect code/docs, edit local code/tests/README, and run
+  dry-run/unit/smoke checks that do not inject live input.
+- `Live scratch smoke test`: only after exact confirmation, test in a named safe
+  scratch surface, with Send/Enter blocked unless separately confirmed.
+
+Blocked without exact confirmation: Enter/Send, live keyboard/mouse/gamepad
+injection into real apps, microphone/controller live capture, clipboard write to
+real target apps, GitHub push/release/package publish, private prototype
+payload/log/dictionary review or publication.
+
+Stop signals: target app/window/focus uncertain; physical device state
+unverified; dry-run success is being treated as live runtime proof;
+public/private artifact boundary unclear.
+
 ## Verification
 
 For non-trivial changes, finish with at least one concrete check:

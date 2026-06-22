@@ -4,10 +4,10 @@
 
 Local-first voice and gamepad control layer for AI workspaces.
 
-AI Operator Controller is a Windows-first utility for controlling Codex, ChatGPT,
-Cursor, browsers, editors, and other AI-heavy tools without staying glued to the
-keyboard. It combines push-to-talk dictation, local speech recognition, Xbox
-controller mappings, text cleanup, and application-specific command profiles.
+AI Operator Controller is a Windows-first utility for controlling AI workspaces
+without staying glued to the keyboard. It combines push-to-talk dictation, local
+speech recognition, Xbox controller mappings, text cleanup, and
+application-specific command profiles.
 
 ## Status
 
@@ -17,10 +17,10 @@ The working private prototype currently lives outside this repository. This repo
 is the clean public home where the prototype will be migrated after privacy,
 configuration, packaging, and licensing cleanup.
 
-The current public build is useful for inspecting the project direction, running
-the CLI scaffold, validating text cleanup and controller mapping logic, and
-reviewing the safe Codex profile. It is not yet a one-command end-user app or a
-Windows installer.
+The current public build is a Codex Desktop local preview candidate. It is
+useful for running the CLI, validating local speech/text cleanup paths, checking
+controller dry-run behavior, and reviewing the safe Codex profile. It is not yet
+a one-command end-user app, a Windows installer, or a general browser profile.
 
 Questions, bug reports, and feature ideas should go through GitHub issues.
 
@@ -52,6 +52,9 @@ https://github.com/ryumindmitrii-cmd/ai-operator-controller/issues
 - A small, inspectable open-source project, not an enterprise agent platform.
 
 ## Target MVP
+
+The `v0.1.0` target is a Windows Codex Desktop local preview. ChatGPT browser,
+Cursor, editor, and generic browser profiles are later targets.
 
 - Windows-first desktop runtime.
 - Push-to-talk dictation using local `faster-whisper`.
@@ -92,8 +95,9 @@ https://github.com/ryumindmitrii-cmd/ai-operator-controller/issues
   - collect reviewed hotword, replacement, punctuation, and assistant-guard
     candidates without storing raw chats in git;
   - keep sensitive contexts separated by project profile.
-- System tray status indicator.
-- App profiles for Codex, ChatGPT, Cursor, browsers, and editors.
+- Public Codex Desktop profile and checklist.
+- Future app profiles for ChatGPT, Cursor, browsers, and editors after the
+  Codex preview is tagged.
 
 ## Non-Goals
 
@@ -267,11 +271,12 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -BypassP
 
 ## Public Release Rule
 
-Before the first public GitHub push, run through:
+Before tagging or publishing a release, run through:
 
 - `docs/public-release-checklist.md`
 - `docs/privacy-and-safety.md`
 - `docs/migration-from-local-dictation.md`
+- `docs/release-notes-v0.1.0.md`
 
 Do not publish private replacements, local logs, transcripts, `.env` files,
 recordings, personal paths, or machine-specific startup shortcuts.

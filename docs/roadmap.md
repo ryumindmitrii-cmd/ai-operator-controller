@@ -29,12 +29,12 @@ For the active implementation checklist and milestone acceptance criteria, use
 - [ ] Global hotkeys: paste and clipboard modes.
 - [x] Xbox controller mapping with semantic chat and cursor actions.
 - [x] Physical controller dry-run listener.
-- [ ] SendInput output backend.
+- [x] SendInput output backend behind explicit execute mode.
 - [ ] Tray indicator.
-- [ ] Validated model/device config using `large-v3` as the local quality
+- [x] Validated model/device config using `large-v3` as the local quality
   default and requiring faster models to be explicit user overrides.
-- [ ] Installer/startup docs.
-- [ ] Manual test checklist for Codex Desktop.
+- [x] Setup/startup docs for PowerShell preview usage.
+- [x] Manual test checklist for Codex Desktop.
 
 ## Phase 3: Public GitHub Release
 
@@ -43,12 +43,14 @@ For the active implementation checklist and milestone acceptance criteria, use
 - [x] Add GitHub Actions for lint/test.
 - [x] Create public GitHub repo.
 - [x] Push first public commits.
-- [ ] Add release notes for `v0.1.0`.
+- [x] Add draft release notes for `v0.1.0`.
+- [ ] Tag `v0.1.0` after final checks and explicit confirmation.
 
 ## Later
 
 - Toggle mode for long dictation.
 - Per-app profile auto-detection.
+- ChatGPT browser profile.
 - Voice command grammar.
 - Local private learning extractor and review CLI.
 - Cloud transcription as opt-in provider.
