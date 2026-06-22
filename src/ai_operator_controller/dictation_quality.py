@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from difflib import SequenceMatcher
 import re
@@ -22,6 +23,7 @@ class DictationQualityReport:
     postprocess_change_ratio: float
     confidence: DictationConfidence
     review_required: bool
+    output_allowed: bool
     send_allowed: bool
     reasons: tuple[str, ...]
 
@@ -38,6 +40,8 @@ def assess_dictation_quality(
     max_postprocess_change_ratio: float = 0.25,
     min_transcription_confidence: float = 0.55,
     medium_transcription_confidence: float = 0.75,
+    blocked_output_phrases: Sequence[str] = (),
+    low_input_signal: bool = False,
 ) -> DictationQualityReport:
     """Assess whether dictation output is safe to auto-send.
 
@@ -52,6 +56,8 @@ def assess_dictation_quality(
         max_postprocess_change_ratio=max_postprocess_change_ratio,
         min_transcription_confidence=min_transcription_confidence,
         medium_transcription_confidence=medium_transcription_confidence,
+        blocked_output_phrases=blocked_output_phrases,
+        low_input_signal=low_input_signal,
     )
 
     change_ratio = _text_change_ratio(clean_text, final_text)
@@ -59,10 +65,22 @@ def assess_dictation_quality(
     reasons: list[str] = []
     has_low_signal = False
     has_medium_signal = False
+    output_blocked = False
 
     if not final_text.strip():
         reasons.append("empty_text")
         has_low_signal = True
+        output_blocked = True
+
+    if low_input_signal:
+        reasons.append("low_input_signal")
+        has_low_signal = True
+        output_blocked = True
+
+    if _matches_blocked_phrase(final_text, blocked_output_phrases):
+        reasons.append("blocked_transcript_phrase")
+        has_low_signal = True
+        output_blocked = True
 
     if transcription_confidence is not None:
         if transcription_confidence < min_transcription_confidence:
@@ -88,8 +106,9 @@ def assess_dictation_quality(
         confidence = "high"
 
     auto_send_requested = requested_send and output_target == "paste"
-    review_required = auto_send_requested and confidence != "high"
-    send_allowed = auto_send_requested and not review_required
+    output_allowed = bool(final_text.strip()) and not output_blocked
+    review_required = auto_send_requested and (confidence != "high" or not output_allowed)
+    send_allowed = auto_send_requested and output_allowed and not review_required
 
     return DictationQualityReport(
         raw_text=raw_text,
@@ -102,6 +121,7 @@ def assess_dictation_quality(
         postprocess_change_ratio=change_ratio,
         confidence=confidence,
         review_required=review_required,
+        output_allowed=output_allowed,
         send_allowed=send_allowed,
         reasons=tuple(reasons),
     )
@@ -115,6 +135,8 @@ def _validate_quality_options(
     max_postprocess_change_ratio: float,
     min_transcription_confidence: float,
     medium_transcription_confidence: float,
+    blocked_output_phrases: Sequence[str],
+    low_input_signal: bool,
 ) -> None:
     if output_target not in {"paste", "clipboard"}:
         raise ValueError(f"unknown dictation output target: {output_target}")
@@ -130,6 +152,12 @@ def _validate_quality_options(
         raise ValueError("medium_transcription_confidence must be between 0 and 1")
     if min_transcription_confidence > medium_transcription_confidence:
         raise ValueError("min_transcription_confidence cannot exceed medium_transcription_confidence")
+    if isinstance(blocked_output_phrases, str) or not all(
+        isinstance(phrase, str) for phrase in blocked_output_phrases
+    ):
+        raise ValueError("blocked_output_phrases must be a sequence of strings")
+    if not isinstance(low_input_signal, bool):
+        raise ValueError("low_input_signal must be a boolean")
 
 
 def _text_change_ratio(before: str, after: str) -> float:
@@ -146,3 +174,27 @@ def _text_change_ratio(before: str, after: str) -> float:
 
 def _normalize_text(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
+
+
+def _matches_blocked_phrase(text: str, blocked_phrases: Sequence[str]) -> bool:
+    normalized_text = _normalize_blocked_phrase(text)
+    if len(normalized_text) < 8:
+        return False
+
+    for phrase in blocked_phrases:
+        normalized_phrase = _normalize_blocked_phrase(phrase)
+        if len(normalized_phrase) < 8:
+            continue
+        if normalized_text == normalized_phrase:
+            return True
+        if normalized_text in normalized_phrase:
+            return True
+        if normalized_phrase in normalized_text:
+            return True
+        if SequenceMatcher(None, normalized_text, normalized_phrase).ratio() >= 0.92:
+            return True
+    return False
+
+
+def _normalize_blocked_phrase(text: str) -> str:
+    return _normalize_text(re.sub(r"[^\w]+", " ", text.casefold()))

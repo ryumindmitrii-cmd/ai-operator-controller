@@ -488,6 +488,76 @@ def test_dictate_run_records_transcribes_and_prints_dry_run_events(
     assert "press_keys: enter" in output
 
 
+def test_dictate_run_blocks_prompt_leak_without_planning_output(
+    tmp_path,
+    capsys,
+    monkeypatch,
+):
+    captured_audio_paths = []
+
+    def fake_record_microphone_to_wav(
+        output_path,
+        *,
+        seconds,
+        sample_rate,
+        channels,
+        device,
+    ):
+        assert seconds == 0.2
+        assert sample_rate == 16000
+        assert channels == 1
+        assert device is None
+        captured_audio_paths.append(output_path)
+        output_path.write_bytes(b"fake quiet wav")
+        return AudioSampleSummary(
+            sample_rate=16000,
+            frame_count=3200,
+            channel_count=1,
+            dtype="float32",
+            duration_seconds=0.2,
+            rms=0.0002,
+            peak_abs=0.001,
+        )
+
+    def fake_transcribe_audio_file(audio_path_arg, config, *, local_files_only, model_factory=None):
+        assert audio_path_arg == captured_audio_paths[0]
+        assert "Use natural Russian punctuation." in (config.initial_prompt or "")
+        assert local_files_only is True
+        assert model_factory is None
+        return TranscriptionResult(
+            text="Use natural Russian punctuation.",
+            language="en",
+            language_probability=0.95,
+            duration_seconds=0.2,
+            segment_count=1,
+            model="large-v3",
+            device="cuda",
+            compute_type="float16",
+            vad_filter=True,
+            used_fallback=False,
+        )
+
+    monkeypatch.setattr(
+        "ai_operator_controller.cli.record_microphone_to_wav",
+        fake_record_microphone_to_wav,
+    )
+    monkeypatch.setattr(
+        "ai_operator_controller.cli.transcribe_audio_file",
+        fake_transcribe_audio_file,
+    )
+
+    assert main(["dictate-run", "--seconds", "0.2", "--dry-run"]) == 0
+
+    output = capsys.readouterr().out
+    assert captured_audio_paths
+    assert not captured_audio_paths[0].exists()
+    assert "Quality confidence: low" in output
+    assert "low_input_signal" in output
+    assert "blocked_transcript_phrase" in output
+    assert "write_text:" not in output
+    assert "press_keys:" not in output
+
+
 def test_dictate_run_execute_output_writes_to_backend_without_printing_text(
     tmp_path,
     capsys,

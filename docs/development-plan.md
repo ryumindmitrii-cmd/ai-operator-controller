@@ -121,7 +121,7 @@ public package without copying private data.
     technical state, but not dictated text or clipboard contents.
   - Verification: execute-output CLI output hides dictated text and reports only
     length, quality, metadata, and output event names.
-- [ ] Add no-speech and prompt-leak guard for very short or quiet microphone
+- [x] Add no-speech and prompt-leak guard for very short or quiet microphone
   samples.
   - Acceptance: empty audio, near-silence, or text copied from the speech
     initial prompt does not plan `write_text` output.
@@ -132,9 +132,9 @@ Checkpoint:
 
 - [x] Public runtime can perform one local dictated paste on the maintainer's
   Windows machine.
-- [ ] Tests pass: `python -m pytest`.
-- [ ] Lint passes: `python -m ruff check src tests`.
-- [ ] Public scan finds no private paths, email, tokens, logs, transcripts, or
+- [x] Tests pass: `python -m pytest`.
+- [x] Lint passes: `python -m ruff check src tests`.
+- [x] Public scan finds no private paths, email, tokens, logs, transcripts, or
   recordings.
 
 ## Milestone 2: Windows Setup and Doctor

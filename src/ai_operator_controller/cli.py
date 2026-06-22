@@ -30,6 +30,11 @@ from .text_rules import CleanedDictation, TextRules, clean_dictation, load_text_
 from .windows_output import WindowsOutputError, create_windows_output_backend
 
 
+_MIN_RELIABLE_DICTATION_SECONDS = 0.35
+_QUIET_AUDIO_RMS_THRESHOLD = 0.001
+_QUIET_AUDIO_PEAK_THRESHOLD = 0.005
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="ai-operator-controller",
@@ -512,10 +517,27 @@ def _dictate_run(args: argparse.Namespace):
             transcription_confidence=transcription.language_probability,
             review_long_text_chars=args.review_long_text_chars,
             max_postprocess_change_ratio=args.max_postprocess_change_ratio,
+            blocked_output_phrases=_blocked_output_phrases_for_speech(speech_config),
+            low_input_signal=_is_low_input_signal(audio_summary),
         )
         return result, audio_summary, transcription
     finally:
         temp_path.unlink(missing_ok=True)
+
+
+def _blocked_output_phrases_for_speech(speech_config) -> tuple[str, ...]:
+    if speech_config.initial_prompt is None:
+        return ()
+    return (speech_config.initial_prompt,)
+
+
+def _is_low_input_signal(audio_summary) -> bool:
+    if audio_summary.duration_seconds < _MIN_RELIABLE_DICTATION_SECONDS:
+        return True
+    return (
+        audio_summary.rms < _QUIET_AUDIO_RMS_THRESHOLD
+        and audio_summary.peak_abs < _QUIET_AUDIO_PEAK_THRESHOLD
+    )
 
 
 def _transcribe_file(args: argparse.Namespace):

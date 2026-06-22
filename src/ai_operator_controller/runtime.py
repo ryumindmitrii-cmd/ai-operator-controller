@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Protocol
 
@@ -48,6 +49,8 @@ def run_dictation_once(
     transcription_confidence: float | None = None,
     review_long_text_chars: int = 240,
     max_postprocess_change_ratio: float = 0.25,
+    blocked_output_phrases: Sequence[str] = (),
+    low_input_signal: bool = False,
 ) -> DictationRunResult:
     try:
         output_target = DICTATION_ACTION_TARGETS[action_name]
@@ -66,9 +69,11 @@ def run_dictation_once(
         transcription_confidence=transcription_confidence,
         review_long_text_chars=review_long_text_chars,
         max_postprocess_change_ratio=max_postprocess_change_ratio,
+        blocked_output_phrases=blocked_output_phrases,
+        low_input_signal=low_input_signal,
     )
     backend = output_backend or DryRunOutputBackend()
-    if output_text:
+    if output_text and quality.output_allowed:
         backend.write_text(output_text, target=output_target)
 
     if quality.send_allowed:

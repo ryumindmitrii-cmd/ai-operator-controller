@@ -12,6 +12,7 @@ def test_quality_report_allows_short_high_confidence_send():
     )
 
     assert report.confidence == "high"
+    assert report.output_allowed is True
     assert report.review_required is False
     assert report.send_allowed is True
     assert report.reasons == ()
@@ -28,6 +29,7 @@ def test_quality_report_blocks_low_confidence_auto_send():
     )
 
     assert report.confidence == "low"
+    assert report.output_allowed is True
     assert report.review_required is True
     assert report.send_allowed is False
     assert "low_transcription_confidence" in report.reasons
@@ -46,6 +48,7 @@ def test_quality_report_blocks_long_auto_send():
     )
 
     assert report.confidence == "medium"
+    assert report.output_allowed is True
     assert report.review_required is True
     assert report.send_allowed is False
     assert "long_text" in report.reasons
@@ -62,6 +65,46 @@ def test_quality_report_blocks_large_postprocess_change():
     )
 
     assert report.confidence == "medium"
+    assert report.output_allowed is True
     assert report.review_required is True
     assert report.send_allowed is False
     assert "large_postprocess_change" in report.reasons
+
+
+def test_quality_report_blocks_prompt_leak_output():
+    prompt = (
+        "Russian technical dictation for AI workspaces. Preserve terms. "
+        "Use natural Russian punctuation."
+    )
+
+    report = assess_dictation_quality(
+        raw_text="Use natural Russian punctuation.",
+        clean_text="Use natural Russian punctuation.",
+        final_text="Use natural Russian punctuation.",
+        requested_send=False,
+        output_target="paste",
+        transcription_confidence=0.95,
+        blocked_output_phrases=(prompt,),
+    )
+
+    assert report.confidence == "low"
+    assert report.output_allowed is False
+    assert report.send_allowed is False
+    assert "blocked_transcript_phrase" in report.reasons
+
+
+def test_quality_report_blocks_low_input_signal_output():
+    report = assess_dictation_quality(
+        raw_text="hello from silence",
+        clean_text="hello from silence",
+        final_text="hello from silence",
+        requested_send=False,
+        output_target="paste",
+        transcription_confidence=0.92,
+        low_input_signal=True,
+    )
+
+    assert report.confidence == "low"
+    assert report.output_allowed is False
+    assert report.send_allowed is False
+    assert "low_input_signal" in report.reasons

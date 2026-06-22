@@ -106,6 +106,37 @@ def test_run_dictation_once_does_not_plan_empty_text_output():
 
     assert result.text == ""
     assert result.quality.confidence == "low"
+    assert result.quality.output_allowed is False
+    assert result.output_events == ()
+
+
+def test_run_dictation_once_does_not_plan_blocked_prompt_output():
+    result = run_dictation_once(
+        "dictate_paste",
+        StaticTranscriptProvider("Use natural Russian punctuation."),
+        blocked_output_phrases=(
+            "Russian technical dictation for AI workspaces. Use natural Russian punctuation.",
+        ),
+    )
+
+    assert result.text == "Use natural Russian punctuation."
+    assert result.quality.confidence == "low"
+    assert result.quality.output_allowed is False
+    assert "blocked_transcript_phrase" in result.quality.reasons
+    assert result.output_events == ()
+
+
+def test_run_dictation_once_does_not_plan_low_input_signal_output():
+    result = run_dictation_once(
+        "dictate_paste",
+        StaticTranscriptProvider("hello from silence"),
+        low_input_signal=True,
+    )
+
+    assert result.text == "hello from silence"
+    assert result.quality.confidence == "low"
+    assert result.quality.output_allowed is False
+    assert "low_input_signal" in result.quality.reasons
     assert result.output_events == ()
 
 
