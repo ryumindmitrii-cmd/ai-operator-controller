@@ -1,8 +1,9 @@
 # AI Operator Controller v0.1.0 Release Notes
 
-Status: release candidate draft.
+Status: released.
 
-Target release: `v0.1.0` Windows Codex Desktop local preview.
+Release: `v0.1.0` Windows Codex Desktop local preview.
+Release date: 2026-06-22.
 
 This release is the first public preview for technically curious Windows users
 who want to test a local voice and Xbox-controller control layer for Codex
@@ -70,9 +71,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-runtime.ps1 
 
 Use real output only after focusing a safe scratch window.
 
-## Verification Before Tagging
+## Verification Used Before Tagging
 
-Do not tag `v0.1.0` until these are true:
+`v0.1.0` was tagged only after these checks were true:
 
 - CI is green on `main`.
 - `scripts\smoke.ps1 -BypassProxyForPipAudit` passes.
@@ -82,14 +83,14 @@ Do not tag `v0.1.0` until these are true:
 - No private logs, transcripts, recordings, local configs, secrets, or personal
   paths are tracked.
 
-Current release-candidate evidence from 2026-06-22:
+Release evidence from 2026-06-22:
 
 - `scripts\smoke.ps1 -BypassProxyForPipAudit` passed locally.
 - The physical controller dry-run listener covered the public Codex mapping
   contract.
 - Dmitrii manually confirmed live Codex Desktop controller behavior on the
   maintainer Windows setup.
-- GitHub Actions must still be checked on the final commit before tagging.
+- GitHub Actions CI passed on the final release commit before tagging.
 
 ## Known Limitations
 

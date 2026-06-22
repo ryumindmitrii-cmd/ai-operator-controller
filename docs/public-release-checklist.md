@@ -2,7 +2,8 @@
 
 Use this before tagging or publishing `v0.1.0`.
 
-Last readiness update: 2026-06-22.
+Last readiness update: 2026-06-22. Dmitrii confirmed publishing `v0.1.0` in
+this Codex session before the tag and GitHub Release were created.
 
 Scope: `v0.1.0` is a Windows Codex Desktop local preview. It does not include a
 ChatGPT browser profile, Cursor profile, generic browser profile, installer,
@@ -46,7 +47,8 @@ from private chat history.
 
 ## GitHub Release
 
-- [ ] Dmitrii confirms the exact tag: `v0.1.0`.
-- [ ] Dmitrii confirms the GitHub release title and notes.
-- [ ] No tag is pushed before explicit confirmation.
-- [ ] No GitHub release is created before explicit confirmation.
+- [x] Dmitrii confirms the exact tag: `v0.1.0`.
+- [x] Dmitrii confirms the GitHub release title and notes:
+  `AI Operator Controller v0.1.0` using `docs/release-notes-v0.1.0.md`.
+- [x] No tag is pushed before explicit confirmation.
+- [x] No GitHub release is created before explicit confirmation.
