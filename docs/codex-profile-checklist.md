@@ -8,6 +8,17 @@ Dry-run checks prove the public profile resolves controller inputs into the
 documented actions. Manual live checks are still required before claiming that a
 physical Codex session works end to end.
 
+## Maintainer Validation Status
+
+On 2026-06-22, the maintainer ran a physical controller dry-run against the
+public Codex mapping contract and then manually confirmed live Codex Desktop
+controller behavior on the maintainer Windows setup.
+
+This is release-candidate evidence for the first maintainer setup, not a
+guarantee for every monitor, Windows scaling setting, controller driver, or
+Codex Desktop layout. New machines should still run this checklist locally
+before enabling live output.
+
 ## Safety Boundaries
 
 - Use `--dry-run` first. Dry-run mode must not send keyboard, mouse, clipboard,

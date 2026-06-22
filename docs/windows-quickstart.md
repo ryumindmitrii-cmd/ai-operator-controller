@@ -84,6 +84,10 @@ process-local proxy bypass for the `pip-audit` step:
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -BypassProxyForPipAudit
 ```
 
+The smoke script audits third-party dependencies with `pip-audit
+--skip-editable`, so the editable local checkout itself is not treated as a
+published PyPI package.
+
 Expected result:
 
 - `doctor` prints a read-only runtime report for Python, package import, audio

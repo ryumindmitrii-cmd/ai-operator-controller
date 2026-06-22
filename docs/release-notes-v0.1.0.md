@@ -1,6 +1,6 @@
 # AI Operator Controller v0.1.0 Release Notes
 
-Status: draft.
+Status: release candidate draft.
 
 Target release: `v0.1.0` Windows Codex Desktop local preview.
 
@@ -82,11 +82,24 @@ Do not tag `v0.1.0` until these are true:
 - No private logs, transcripts, recordings, local configs, secrets, or personal
   paths are tracked.
 
+Current release-candidate evidence from 2026-06-22:
+
+- `scripts\smoke.ps1 -BypassProxyForPipAudit` passed locally.
+- The physical controller dry-run listener covered the public Codex mapping
+  contract.
+- Dmitrii manually confirmed live Codex Desktop controller behavior on the
+  maintainer Windows setup.
+- GitHub Actions must still be checked on the final commit before tagging.
+
 ## Known Limitations
 
-- The public controller runtime is currently safest in dry-run mode.
-- Live gamepad-driven dictation still needs explicit manual validation in Codex
-  Desktop before it should be described as generally ready.
+- The public controller runtime is still safest to validate in dry-run mode on
+  a new machine before enabling live output.
+- Maintainer live Codex Desktop behavior has been manually confirmed, but other
+  monitors and Windows scaling settings need their own local checklist run.
+- `A` and `X` are documented in the Codex profile, but the public
+  `listen-gamepad --dry-run` command still reports `dictate_paste` as a future
+  runtime action rather than starting recording.
 - Coordinate-based focus behavior can require local tuning under
   `config/local/` on different monitors or Windows scaling settings.
 - The current setup expects PowerShell and Python familiarity.

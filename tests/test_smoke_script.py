@@ -14,3 +14,4 @@ def test_smoke_script_supports_process_local_proxy_bypass_for_pip_audit():
     assert "ALL_PROXY" in script
     assert "NO_PROXY" in script
     assert "pip_audit" in script
+    assert "--skip-editable" in script

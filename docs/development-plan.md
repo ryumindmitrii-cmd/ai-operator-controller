@@ -34,6 +34,8 @@ post-`v0.1.0`.
 - [x] Xbox-compatible public Codex profile covers dictation, cursor movement,
   scrolling, mouse clicks, panel toggles, and chat navigation actions.
 - [x] Physical controller dry-run listener exists.
+- [x] Maintainer Codex Desktop live controller check was completed on
+  2026-06-22.
 - [x] Private learning candidate format and validator exist.
 - [x] GitHub Discussions are enabled and seeded.
 - [x] Public package can record a short microphone sample for metadata-only
@@ -173,8 +175,9 @@ Goal: make controller behavior reliable in real AI workspaces.
 - [x] Harden Codex profile as the first supported profile.
   - Acceptance: `A`, `X`, `B`, `LB`, `RB`, `LT`, `RT`, sticks, D-pad, `Y`, and
     Menu/Start resolve to the documented dry-run actions.
-  - Verification: public Codex checklist and dry-run tests; live Codex session
-    verification remains part of the profile checkpoint below.
+  - Verification: public Codex checklist, dry-run tests, physical controller
+    dry-run listener coverage, and maintainer live Codex Desktop confirmation
+    on 2026-06-22.
 - [ ] Add profile selection docs.
   - Acceptance: user understands that `v0.1.0` ships the Codex Desktop profile
     first and how to override local coordinates safely.
@@ -186,8 +189,11 @@ Goal: make controller behavior reliable in real AI workspaces.
 
 Checkpoint:
 
-- [ ] One Codex Desktop session can be controlled from a controller without
-  editing source code.
+- [x] One maintainer Codex Desktop session can be controlled from a controller
+  without editing source code.
+  - Verification: physical dry-run listener covered `A`, `X`, `B`, `LB`, `RB`,
+    `LT`, `RT`, sticks, D-pad, `Y`, and Menu/Start on 2026-06-22; Dmitrii
+    manually confirmed live Codex Desktop behavior on the same date.
 
 ## Milestone 4: Private Learning Pipeline
 
@@ -224,7 +230,10 @@ Goal: ship something a technically curious Windows user can actually try.
 - [x] Complete public runtime slice for explicit command-driven dry-run and
   execute-output paths.
 - [x] Complete Windows setup and doctor.
-- [ ] Complete Codex profile checklist against a live Codex Desktop session.
+- [x] Complete Codex profile checklist against a live Codex Desktop session.
+  - Verification: maintainer live Codex Desktop check confirmed on
+    2026-06-22. Other Windows machines still need their own local checklist run
+    because focus coordinates can vary by monitor and scaling.
 - [x] Add draft release notes.
 - [x] Add clean demo assets that do not show personal desktop content.
 - [x] Confirm public repository scan is clean.
@@ -235,11 +244,12 @@ Goal: ship something a technically curious Windows user can actually try.
 
 Release criteria:
 
-- [ ] Fresh install documented.
-- [ ] First dictated paste works in a safe test window.
-- [ ] Controller basics work in Codex Desktop.
-- [ ] Safety defaults are documented and tested.
-- [ ] No private logs, transcripts, recordings, paths, or dictionaries are
+- [x] Fresh install documented.
+- [x] First dictated paste works in a safe test window.
+- [x] Controller navigation/editing basics work in a maintainer Codex Desktop
+  session.
+- [x] Safety defaults are documented and tested.
+- [x] No private logs, transcripts, recordings, paths, or dictionaries are
   tracked.
 
 ## Milestone 6: Public Feedback Loop

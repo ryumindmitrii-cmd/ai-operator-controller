@@ -22,7 +22,7 @@ For the active implementation checklist and milestone acceptance criteria, use
 - [x] Add tests for text cleanup and action mapping.
 - [x] Add preview dictation runtime command with transcript input.
 - [x] Add private learning candidate format and safety boundary.
-- [ ] Add a local Windows run command.
+- [x] Add a local Windows run command.
 
 ## Phase 2: Usable Windows MVP
 
@@ -38,8 +38,8 @@ For the active implementation checklist and milestone acceptance criteria, use
 
 ## Phase 3: Public GitHub Release
 
-- [ ] Confirm no secrets or private logs are tracked.
-- [ ] Add screenshots or a short demo GIF without personal data.
+- [x] Confirm no secrets or private logs are tracked.
+- [x] Add screenshots or a short demo GIF without personal data.
 - [x] Add GitHub Actions for lint/test.
 - [x] Create public GitHub repo.
 - [x] Push first public commits.

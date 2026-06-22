@@ -285,11 +285,11 @@ try {
         Invoke-Step "pip-audit" {
             if ($BypassProxyForPipAudit) {
                 Invoke-WithProxyBypass {
-                    & $VenvPython -m pip_audit
+                    & $VenvPython -m pip_audit --skip-editable
                 }
             }
             else {
-                & $VenvPython -m pip_audit
+                & $VenvPython -m pip_audit --skip-editable
             }
         }
     }

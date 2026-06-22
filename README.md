@@ -265,7 +265,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -WithDic
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -BypassProxyForPipAudit
 .\.venv\Scripts\python.exe -m ruff check src tests
 .\.venv\Scripts\python.exe -m bandit -r src
-.\.venv\Scripts\python.exe -m pip_audit
+.\.venv\Scripts\python.exe -m pip_audit --skip-editable
 .\.venv\Scripts\python.exe -m detect_secrets scan
 ```
 
