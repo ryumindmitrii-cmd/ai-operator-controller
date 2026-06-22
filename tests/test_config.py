@@ -25,6 +25,7 @@ def test_public_codex_profile_loads_and_validates():
     assert result.button_count == 7
     assert result.axis_count == 5
     assert result.hat_count == 1
+    assert result.focus_target_count == 3
 
 
 def test_profile_validation_rejects_unknown_actions():
@@ -37,9 +38,17 @@ def test_profile_validation_rejects_unknown_actions():
 
 def test_profile_validation_rejects_invalid_focus_target():
     profile = json.loads(PROFILE_PATH.read_text())
-    profile["gamepad"]["buttons"]["a"]["focus_before_action"]["x_ratio"] = 1.5
+    profile["focus_targets"]["message_input"]["x_ratio"] = 1.5
 
     with pytest.raises(ProfileValidationError, match="x_ratio"):
+        validate_profile(profile, source=PROFILE_PATH)
+
+
+def test_profile_validation_rejects_missing_focus_target_reference():
+    profile = json.loads(PROFILE_PATH.read_text())
+    profile["gamepad"]["buttons"]["a"]["focus_before_action"]["target"] = "missing_target"
+
+    with pytest.raises(ProfileValidationError, match="missing_target"):
         validate_profile(profile, source=PROFILE_PATH)
 
 

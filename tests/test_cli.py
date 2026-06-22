@@ -1,3 +1,4 @@
+import json
 import io
 from pathlib import Path
 
@@ -109,6 +110,110 @@ def test_init_local_config_command_creates_local_files(tmp_path, capsys):
     assert "Local config bootstrap" in output
     assert "[created] Speech profile:" in output
     assert "Existing files were not overwritten." in output
+
+
+def test_calibrate_profile_command_prints_dry_run_without_writing(tmp_path, capsys):
+    profile = tmp_path / "config" / "local" / "profile.codex.windows.json"
+    profile.parent.mkdir(parents=True)
+    profile.write_text(
+        Path("config/examples/profile.codex.windows.json").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    before = profile.read_text(encoding="utf-8")
+
+    assert (
+        main(
+            [
+                "calibrate-profile",
+                "--profile",
+                str(profile),
+                "--focus-target",
+                "message_input",
+                "--window-left",
+                "100",
+                "--window-top",
+                "50",
+                "--window-width",
+                "1200",
+                "--window-height",
+                "800",
+                "--point-x",
+                "700",
+                "--point-y",
+                "650",
+            ]
+        )
+        == 0
+    )
+
+    assert profile.read_text(encoding="utf-8") == before
+    output = capsys.readouterr().out
+    assert "Profile calibration" in output
+    assert "Mode: dry-run" in output
+    assert "Target: message_input" in output
+    assert "x_ratio: 0.5000" in output
+    assert "y_ratio: 0.7500" in output
+    assert "Saved: no" in output
+
+
+def test_calibrate_profile_command_writes_only_local_profile(tmp_path, capsys):
+    profile = tmp_path / "config" / "local" / "profile.codex.windows.json"
+    profile.parent.mkdir(parents=True)
+    profile.write_text(
+        Path("config/examples/profile.codex.windows.json").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+
+    assert (
+        main(
+            [
+                "calibrate-profile",
+                "--profile",
+                str(profile),
+                "--focus-target",
+                "message_input",
+                "--x-ratio",
+                "0.45",
+                "--y-ratio",
+                "0.86",
+                "--write",
+            ]
+        )
+        == 0
+    )
+
+    updated = json.loads(profile.read_text(encoding="utf-8"))
+    assert updated["focus_targets"]["message_input"]["x_ratio"] == 0.45
+    assert updated["focus_targets"]["message_input"]["y_ratio"] == 0.86
+    assert "Saved: yes" in capsys.readouterr().out
+
+
+def test_calibrate_profile_command_refuses_nonlocal_write(tmp_path, capsys):
+    profile = tmp_path / "profile.codex.windows.json"
+    profile.write_text(
+        Path("config/examples/profile.codex.windows.json").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+
+    assert (
+        main(
+            [
+                "calibrate-profile",
+                "--profile",
+                str(profile),
+                "--focus-target",
+                "message_input",
+                "--x-ratio",
+                "0.45",
+                "--y-ratio",
+                "0.86",
+                "--write",
+            ]
+        )
+        == 2
+    )
+
+    assert "refusing to write non-local profile" in capsys.readouterr().err
 
 
 def test_plan_action_command_prints_dry_run_event(capsys):

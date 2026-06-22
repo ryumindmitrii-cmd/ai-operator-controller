@@ -8,6 +8,14 @@ from pathlib import Path
 
 from . import __version__
 from .audio_recorder import AudioRecorderError, record_microphone_once, record_microphone_to_wav
+from .calibration import (
+    CalibrationError,
+    FocusRatios,
+    WindowGeometry,
+    calibrate_profile_file,
+    format_profile_calibration,
+    ratios_from_window_point,
+)
 from .config import ProfileValidationError, load_profile, validate_profile
 from .doctor import build_doctor_report, format_doctor_report
 from .executor import RecordingOutputBackend, dry_run_action
@@ -179,9 +187,33 @@ def build_parser() -> argparse.ArgumentParser:
         help="Target directory for the 'init-local-config' command.",
     )
     parser.add_argument(
+        "--focus-target",
+        default="message_input",
+        help="Focus target to update for the 'calibrate-profile' command.",
+    )
+    parser.add_argument("--x-ratio", type=float, help="Window-relative X ratio.")
+    parser.add_argument("--y-ratio", type=float, help="Window-relative Y ratio.")
+    parser.add_argument("--window-left", type=float, help="Left edge of the app window.")
+    parser.add_argument("--window-top", type=float, help="Top edge of the app window.")
+    parser.add_argument("--window-width", type=float, help="Width of the app window.")
+    parser.add_argument("--window-height", type=float, help="Height of the app window.")
+    parser.add_argument("--point-x", type=float, help="Screen X coordinate for calibration.")
+    parser.add_argument("--point-y", type=float, help="Screen Y coordinate for calibration.")
+    parser.add_argument(
+        "--write",
+        action="store_true",
+        help="Write profile changes for commands that default to dry-run.",
+    )
+    parser.add_argument(
+        "--allow-nonlocal-profile",
+        action="store_true",
+        help="Allow calibrate-profile to write outside config/local.",
+    )
+    parser.add_argument(
         "command",
         nargs="?",
         choices=[
+            "calibrate-profile",
             "doctor",
             "init-local-config",
             "plan-action",
@@ -195,9 +227,10 @@ def build_parser() -> argparse.ArgumentParser:
             "listen-gamepad",
         ],
         help=(
-            "Optional command. Use 'doctor', 'init-local-config', 'plan-action', "
-            "'simulate-gamepad', 'clean-text', 'polish-text', 'dictate-once', "
-            "'dictate-run', 'record-once', 'transcribe-file', or 'listen-gamepad'."
+            "Optional command. Use 'calibrate-profile', 'doctor', "
+            "'init-local-config', 'plan-action', 'simulate-gamepad', 'clean-text', "
+            "'polish-text', 'dictate-once', 'dictate-run', 'record-once', "
+            "'transcribe-file', or 'listen-gamepad'."
         ),
     )
     parser.add_argument(
@@ -247,6 +280,17 @@ def main(argv: list[str] | None = None) -> int:
             return 2
 
         for line in format_local_config_bootstrap(result):
+            print(line)
+        return 0
+
+    if args.command == "calibrate-profile":
+        try:
+            result = _calibrate_profile(args)
+        except (OSError, ValueError, json.JSONDecodeError, ProfileValidationError) as exc:
+            print(f"Profile calibration failed: {exc}", file=sys.stderr)
+            return 2
+
+        for line in format_profile_calibration(result):
             print(line)
         return 0
 
@@ -455,6 +499,62 @@ def _clean_text(args: argparse.Namespace) -> CleanedDictation:
     if not args.polish:
         return cleaned
     return CleanedDictation(text=polish_text(cleaned.text), should_send=cleaned.should_send)
+
+
+def _calibrate_profile(args: argparse.Namespace):
+    if args.profile is None:
+        raise CalibrationError("--profile is required for calibrate-profile")
+
+    ratios = _calibration_ratios_from_args(args)
+    return calibrate_profile_file(
+        args.profile,
+        target=args.focus_target,
+        ratios=ratios,
+        write=args.write,
+        allow_nonlocal_profile=args.allow_nonlocal_profile,
+    )
+
+
+def _calibration_ratios_from_args(args: argparse.Namespace) -> FocusRatios:
+    ratio_values = (args.x_ratio, args.y_ratio)
+    has_ratio_mode = any(value is not None for value in ratio_values)
+    if has_ratio_mode:
+        if any(value is None for value in ratio_values):
+            raise CalibrationError("--x-ratio and --y-ratio must be provided together")
+
+    point_values = (
+        args.window_left,
+        args.window_top,
+        args.window_width,
+        args.window_height,
+        args.point_x,
+        args.point_y,
+    )
+    has_point_mode = any(value is not None for value in point_values)
+    if has_point_mode:
+        if any(value is None for value in point_values):
+            raise CalibrationError(
+                "window geometry and point coordinates must be provided together"
+            )
+
+    if has_ratio_mode and has_point_mode:
+        raise CalibrationError("choose ratio mode or window point mode, not both")
+    if not has_ratio_mode and not has_point_mode:
+        raise CalibrationError("provide ratios or window geometry plus point coordinates")
+
+    if has_ratio_mode:
+        return FocusRatios(x_ratio=float(args.x_ratio), y_ratio=float(args.y_ratio))
+
+    return ratios_from_window_point(
+        WindowGeometry(
+            left=float(args.window_left),
+            top=float(args.window_top),
+            width=float(args.window_width),
+            height=float(args.window_height),
+        ),
+        point_x=float(args.point_x),
+        point_y=float(args.point_y),
+    )
 
 
 def _dictate_once(args: argparse.Namespace):

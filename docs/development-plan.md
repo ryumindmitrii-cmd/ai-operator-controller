@@ -53,6 +53,8 @@ post-`v0.1.0`.
   desktop input.
 - [x] Local config bootstrap creates ignored editable speech/profile/rules files
   from public examples without overwriting existing local config.
+- [x] Local profile calibration CLI can update window-relative Codex focus
+  targets in ignored `config/local/` profiles.
 - [x] Public package has a test-covered `faster-whisper` config/backend wrapper
   and `transcribe-file --dry-run` command for explicit local audio files.
 - [x] Real local `faster-whisper` model smoke test runs with cached `large-v3` on
@@ -76,10 +78,12 @@ A new Windows user should be able to:
 3. Connect an Xbox-compatible controller.
 4. Run a doctor command that validates audio, speech backend, controller, and
    app profile.
-5. Open Codex Desktop.
-6. Press `A`, dictate text locally, and paste it into the message box.
-7. Use the controller to edit, scroll, switch chat targets, and send.
-8. Keep private logs, recordings, transcripts, and dictionaries outside git.
+5. Calibrate local Codex focus targets when the monitor, scaling, or window size
+   differs from the default example.
+6. Open Codex Desktop.
+7. Press `A`, dictate text locally, and paste it into the message box.
+8. Use the controller to edit, scroll, switch chat targets, and send.
+9. Keep private logs, recordings, transcripts, and dictionaries outside git.
 
 Time-to-first-use target for `v0.1.0`: 10-15 minutes on a prepared Windows
 machine.
@@ -178,14 +182,15 @@ Goal: make controller behavior reliable in real AI workspaces.
   - Verification: public Codex checklist, dry-run tests, physical controller
     dry-run listener coverage, and maintainer live Codex Desktop confirmation
     on 2026-06-22.
-- [ ] Add profile selection docs.
+- [x] Add profile selection docs.
   - Acceptance: user understands that `v0.1.0` ships the Codex Desktop profile
     first and how to override local coordinates safely.
-  - Verification: README/quickstart review.
-- [ ] Add profile validation for any new profile fields.
+  - Verification: README/quickstart review and local calibration docs.
+- [x] Add profile validation for any new profile fields.
   - Acceptance: invalid actions, unsafe paths, and malformed focus targets fail
     early.
-  - Verification: unit tests.
+  - Verification: unit tests for `focus_targets`, referenced focus targets, and
+    calibration output.
 
 Checkpoint:
 
@@ -240,7 +245,9 @@ Goal: ship something a technically curious Windows user can actually try.
   - Verification: `scripts\smoke.ps1 -BypassProxyForPipAudit` passed on
     2026-06-22, including privacy marker scan, detect-secrets, Bandit, and
     pip-audit.
-- [ ] Tag `v0.1.0` only after CI is green.
+- [x] Tag `v0.1.0` only after CI is green.
+  - Verification: GitHub Release `v0.1.0` points to commit `5ec6c4c` and CI
+    passed before tagging.
 
 Release criteria:
 
@@ -251,6 +258,32 @@ Release criteria:
 - [x] Safety defaults are documented and tested.
 - [x] No private logs, transcripts, recordings, paths, or dictionaries are
   tracked.
+
+## Milestone 5.1: v0.1.1 Calibration And Setup Polish
+
+Goal: make the first post-release patch reduce setup friction before broader
+public posting.
+
+- [x] Add window-relative Codex focus targets to the public profile schema.
+  - Acceptance: focus targets are stored as ratios within the app window, not as
+    universal monitor pixels.
+  - Verification: profile validation tests.
+- [x] Add local calibration CLI.
+  - Acceptance: `calibrate-profile` can dry-run or write a target in an ignored
+    local profile.
+  - Verification: CLI tests for dry-run, local write, and non-local write
+    refusal.
+- [x] Keep public examples separate from machine-specific calibration.
+  - Acceptance: `--write` refuses non-local profile paths by default.
+  - Verification: CLI guard test.
+- [ ] Add interactive mouse-position capture for calibration.
+  - Acceptance: user can place the cursor on the desired target and capture it
+    without manually reading coordinates.
+  - Verification: dry-run first; no live click or keyboard output.
+- [ ] Run a second-machine setup/calibration pass.
+  - Acceptance: a non-maintainer Windows setup reaches doctor success and a
+    calibrated Codex profile without editing source code.
+  - Verification: local-only report, not committed unless sanitized.
 
 ## Milestone 6: Public Feedback Loop
 

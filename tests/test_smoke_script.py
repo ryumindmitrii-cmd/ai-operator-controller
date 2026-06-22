@@ -15,3 +15,6 @@ def test_smoke_script_supports_process_local_proxy_bypass_for_pip_audit():
     assert "NO_PROXY" in script
     assert "pip_audit" in script
     assert "--skip-editable" in script
+    assert 'New-RepoTempPath "pytest"' in script
+    assert "--basetemp $pytestTempDir" in script
+    assert "-p no:cacheprovider" in script

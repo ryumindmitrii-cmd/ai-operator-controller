@@ -57,6 +57,9 @@ def validate_profile(
     profile_name = _require_non_empty_str(profile, "profile_name", label)
     _validate_hotkeys(_require_mapping(profile, "hotkeys", label), label)
 
+    focus_targets = _optional_mapping(profile, "focus_targets", label)
+    focus_target_count = _validate_focus_targets(focus_targets, label)
+
     gamepad = _require_mapping(profile, "gamepad", label)
     _validate_optional_bool(gamepad, "enabled", label)
     _validate_optional_non_negative_int(gamepad, "index", label)
@@ -65,9 +68,8 @@ def validate_profile(
     axes = _require_mapping(gamepad, "axes", label)
     hats = _require_mapping(gamepad, "hats", label)
 
-    focus_target_count = 0
     for name, binding in buttons.items():
-        focus_target_count += _validate_button_binding(str(name), binding, label)
+        focus_target_count += _validate_button_binding(str(name), binding, focus_targets, label)
     for name, binding in axes.items():
         _validate_axis_binding(str(name), binding, label)
     for name, binding in hats.items():
@@ -93,7 +95,12 @@ def _validate_hotkeys(hotkeys: Mapping[str, Any], label: str) -> None:
         _require_non_empty_str(hotkeys, key, label)
 
 
-def _validate_button_binding(name: str, value: Any, label: str) -> int:
+def _validate_button_binding(
+    name: str,
+    value: Any,
+    focus_targets: Mapping[str, Any],
+    label: str,
+) -> int:
     binding = _require_nested_mapping(value, f"gamepad.buttons.{name}", label)
     _require_non_negative_int(binding, "button", label)
     _require_action(binding, "action", label)
@@ -103,8 +110,12 @@ def _validate_button_binding(name: str, value: Any, label: str) -> int:
     focus_before_action = binding.get("focus_before_action")
     if focus_before_action is None:
         return 0
-    _validate_focus_before_action(focus_before_action, f"gamepad.buttons.{name}", label)
-    return 1
+    return _validate_focus_before_action(
+        focus_before_action,
+        f"gamepad.buttons.{name}",
+        focus_targets,
+        label,
+    )
 
 
 def _validate_axis_binding(name: str, value: Any, label: str) -> None:
@@ -143,26 +154,63 @@ def _validate_hat_binding(name: str, value: Any, label: str) -> None:
     _validate_action_fields(binding, label)
 
 
-def _validate_focus_before_action(value: Any, path: str, label: str) -> None:
+def _validate_focus_targets(focus_targets: Mapping[str, Any], label: str) -> int:
+    for name, target in focus_targets.items():
+        if not isinstance(name, str) or not name:
+            raise ProfileValidationError(f"{label}: focus target names must be non-empty strings")
+        _validate_focus_target_descriptor(target, f"focus_targets.{name}", label)
+    return len(focus_targets)
+
+
+def _validate_focus_before_action(
+    value: Any,
+    path: str,
+    focus_targets: Mapping[str, Any],
+    label: str,
+) -> int:
     focus = _require_nested_mapping(value, f"{path}.focus_before_action", label)
     target = _require_non_empty_str(focus, "target", label)
     if target != "message_input":
         raise ProfileValidationError(
-            f"{label}: {path}.focus_before_action.target must be 'message_input'"
-        )
-    strategy = _require_non_empty_str(focus, "strategy", label)
-    if strategy != "lower_center_click":
-        raise ProfileValidationError(
-            f"{label}: {path}.focus_before_action.strategy must be 'lower_center_click'"
+            f"{label}: {path}.focus_before_action.target must be 'message_input', "
+            f"got '{target}'"
         )
 
-    x_ratio = _require_number(focus, "x_ratio", label)
-    if not 0 <= x_ratio <= 1:
+    has_inline_descriptor = any(key != "target" for key in focus)
+    if not has_inline_descriptor:
+        if target not in focus_targets:
+            raise ProfileValidationError(
+                f"{label}: {path}.focus_before_action.target '{target}' "
+                "must exist in focus_targets or define an inline descriptor"
+            )
+        return 0
+
+    _validate_focus_target_descriptor(focus, f"{path}.focus_before_action", label)
+    return 1
+
+
+def _validate_focus_target_descriptor(value: Any, path: str, label: str) -> None:
+    focus = _require_nested_mapping(value, path, label)
+    strategy = _require_non_empty_str(focus, "strategy", label)
+    if strategy == "window_relative_click":
+        x_ratio = _require_number(focus, "x_ratio", label)
+        if not 0 <= x_ratio <= 1:
+            raise ProfileValidationError(f"{label}: {path}.x_ratio must be between 0 and 1")
+        y_ratio = _require_number(focus, "y_ratio", label)
+        if not 0 <= y_ratio <= 1:
+            raise ProfileValidationError(f"{label}: {path}.y_ratio must be between 0 and 1")
+    elif strategy == "lower_center_click":
+        x_ratio = _require_number(focus, "x_ratio", label)
+        if not 0 <= x_ratio <= 1:
+            raise ProfileValidationError(f"{label}: {path}.x_ratio must be between 0 and 1")
+        _require_non_negative_int(focus, "bottom_offset_pixels", label)
+    else:
         raise ProfileValidationError(
-            f"{label}: {path}.focus_before_action.x_ratio must be between 0 and 1"
+            f"{label}: {path}.strategy must be 'window_relative_click' or 'lower_center_click'"
         )
-    _require_non_negative_int(focus, "bottom_offset_pixels", label)
-    _require_bool(focus, "move_caret_to_end", label)
+
+    if "move_caret_to_end" in focus:
+        _require_bool(focus, "move_caret_to_end", label)
 
 
 def _validate_action_fields(mapping: Mapping[str, Any], label: str) -> None:
@@ -230,6 +278,12 @@ def _require_mapping(mapping: Mapping[str, Any], key: str, label: str) -> Mappin
     except KeyError as exc:
         raise ProfileValidationError(f"{label}: missing required object '{key}'") from exc
     return _require_nested_mapping(value, key, label)
+
+
+def _optional_mapping(mapping: Mapping[str, Any], key: str, label: str) -> Mapping[str, Any]:
+    if key not in mapping:
+        return {}
+    return _require_nested_mapping(mapping[key], key, label)
 
 
 def _require_nested_mapping(value: Any, path: str, label: str) -> Mapping[str, Any]:

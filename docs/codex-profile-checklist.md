@@ -28,6 +28,8 @@ before enabling live output.
 - `A` and `X` map to `dictate_paste`, but the gamepad dry-run listener currently
   reports them as future runtime actions. It does not start recording from
   `listen-gamepad --dry-run`.
+- `focus_mouse_target` dry-run events validate profile intent only. The current
+  public gamepad listener does not move the mouse or click.
 - Keep local overrides in `config/local/`; do not edit
   `config/examples/profile.codex.windows.json` for one machine.
 
@@ -46,6 +48,31 @@ GPU.
 
 The gamepad dry-run command should print the controller name and mapped actions
 when you press or move the controls below.
+
+## Local Calibration Check
+
+Different monitors and Windows scaling settings can require different focus
+coordinates. Keep those values in ignored local config:
+
+```powershell
+.\.venv\Scripts\python.exe -m ai_operator_controller init-local-config
+.\.venv\Scripts\python.exe -m ai_operator_controller calibrate-profile --profile config\local\profile.codex.windows.json --focus-target message_input --x-ratio 0.50 --y-ratio 0.86
+```
+
+The command above is a dry run. Add `--write` only after the printed ratios are
+the ones you want. `calibrate-profile --write` refuses to write outside
+`config/local/` unless you explicitly pass `--allow-nonlocal-profile`.
+
+For point-based calibration, provide the Codex window rectangle and the desired
+point:
+
+```powershell
+.\.venv\Scripts\python.exe -m ai_operator_controller calibrate-profile --profile config\local\profile.codex.windows.json --focus-target message_input --window-left 0 --window-top 0 --window-width 1920 --window-height 1080 --point-x 960 --point-y 930 --write
+```
+
+`calibrate-profile` only edits the local JSON profile. It does not inspect the
+screen, click, move the mouse, record audio, touch the clipboard, or send
+keyboard input.
 
 ## Mapping Contract
 
@@ -105,8 +132,9 @@ Run these only after the dry-run checks match the mapping contract.
 - Start Codex Desktop and focus a normal chat draft.
 - Keep any send/Enter action disabled or under direct manual control until you
   intentionally test it.
-- Press `A`: the cursor should land near the lower-center message input and move
-  to the end of existing text before dictation/paste mode is used.
+- In a live runtime that supports controller dictation, press `A`: the cursor
+  should use the local `message_input` focus target and move to the end of
+  existing text before dictation/paste mode is used.
 - Press `X`: dictation/paste mode should use the current text cursor position
   without moving focus first.
 - Hold `B`: text should delete repeatedly at the configured repeat pace.

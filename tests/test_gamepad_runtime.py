@@ -79,11 +79,11 @@ def test_runtime_dictation_buttons_are_declared_without_dry_run_output_effect():
         assert result.unsupported_reason == "Action has no keyboard plan: dictate_paste"
 
     buttons = profile["gamepad"]["buttons"]
-    assert buttons["a"]["focus_before_action"] == {
-        "target": "message_input",
-        "strategy": "lower_center_click",
+    assert buttons["a"]["focus_before_action"] == {"target": "message_input"}
+    assert profile["focus_targets"]["message_input"] == {
+        "strategy": "window_relative_click",
         "x_ratio": 0.5,
-        "bottom_offset_pixels": 100,
+        "y_ratio": 0.86,
         "move_caret_to_end": True,
     }
     assert "focus_before_action" not in buttons["x"]

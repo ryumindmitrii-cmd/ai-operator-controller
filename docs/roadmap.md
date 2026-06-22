@@ -35,6 +35,7 @@ For the active implementation checklist and milestone acceptance criteria, use
   default and requiring faster models to be explicit user overrides.
 - [x] Setup/startup docs for PowerShell preview usage.
 - [x] Manual test checklist for Codex Desktop.
+- [x] Window-relative local profile calibration for Codex focus targets.
 
 ## Phase 3: Public GitHub Release
 
@@ -44,7 +45,7 @@ For the active implementation checklist and milestone acceptance criteria, use
 - [x] Create public GitHub repo.
 - [x] Push first public commits.
 - [x] Add draft release notes for `v0.1.0`.
-- [ ] Tag `v0.1.0` after final checks and explicit confirmation.
+- [x] Tag `v0.1.0` after final checks and explicit confirmation.
 
 ## Later
 

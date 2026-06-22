@@ -71,6 +71,16 @@ function Invoke-WithProxyBypass {
     }
 }
 
+function New-RepoTempPath {
+    param(
+        [string]$Prefix
+    )
+
+    $tempRoot = Join-Path $RepoRoot ".tmp"
+    New-Item -ItemType Directory -Path $tempRoot -Force | Out-Null
+    Join-Path $tempRoot ($Prefix + "-" + [guid]::NewGuid().ToString("N"))
+}
+
 function Get-PublicScanFiles {
     $paths = & git ls-files --cached --others --exclude-standard `
         AGENTS.md CHANGELOG.md CONTRIBUTING.md LICENSE README.md SECURITY.md `
@@ -253,7 +263,8 @@ try {
     }
 
     Invoke-Step "Tests" {
-        & $VenvPython -m pytest
+        $pytestTempDir = New-RepoTempPath "pytest"
+        & $VenvPython -m pytest --basetemp $pytestTempDir -p no:cacheprovider
     }
     Invoke-Step "Ruff" {
         & $VenvPython -m ruff check src tests

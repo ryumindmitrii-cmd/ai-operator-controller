@@ -217,10 +217,10 @@ is safe: existing local files are reported as `[exists]` and left untouched.
 
 ## Controller Profile Notes
 
-The default Codex example profile uses these high-frequency controls:
+The default Codex example profile declares these high-frequency controls for
+dry-run mapping and future full-runtime validation:
 
-- `A`: focus near the lower-center message input, move the caret to the end, and
-  start paste-mode dictation.
+- `A`: paste-mode dictation with `message_input` focus metadata.
 - `X`: paste-mode dictation at the current text cursor without moving focus.
 - `Y`: toggle the Codex side bar with `Ctrl+Alt+B`.
 - `B`: Backspace with hold-to-repeat.
@@ -230,7 +230,7 @@ The default Codex example profile uses these high-frequency controls:
 - `RT`: Enter.
 - Left stick up/down: previous or next chat.
 - D-pad: text cursor movement.
-- Right stick left/right: choose chat-list or message-pane scroll target.
+- Right stick left/right: plan chat-list or message-pane focus targets.
 - Right stick up/down: scroll the selected target, with repeat speed scaled by
   stick intensity.
 - Menu/Start: toggle the bottom panel with `Ctrl+J`.
@@ -238,17 +238,51 @@ The default Codex example profile uses these high-frequency controls:
 For a complete dry-run and manual validation flow, use
 [`codex-profile-checklist.md`](codex-profile-checklist.md).
 
-The `A` focus target is intentionally configurable:
+The public profile defines window-relative focus targets. They are ratios inside
+the app window, not fixed monitor pixels:
 
 ```json
-"focus_before_action": {
-  "target": "message_input",
-  "strategy": "lower_center_click",
-  "x_ratio": 0.5,
-  "bottom_offset_pixels": 100,
-  "move_caret_to_end": true
+"focus_targets": {
+  "message_input": {
+    "strategy": "window_relative_click",
+    "x_ratio": 0.5,
+    "y_ratio": 0.86,
+    "move_caret_to_end": true
+  }
+},
+"gamepad": {
+  "buttons": {
+    "a": {
+      "focus_before_action": {
+        "target": "message_input"
+      }
+    }
+  }
 }
 ```
+
+For a different monitor, Windows scaling setting, or Codex window size, copy the
+example profile into ignored local config and calibrate that local copy:
+
+```powershell
+.\.venv\Scripts\python.exe -m ai_operator_controller init-local-config
+.\.venv\Scripts\python.exe -m ai_operator_controller calibrate-profile --profile config\local\profile.codex.windows.json --focus-target message_input --x-ratio 0.50 --y-ratio 0.86
+.\.venv\Scripts\python.exe -m ai_operator_controller calibrate-profile --profile config\local\profile.codex.windows.json --focus-target message_input --x-ratio 0.50 --y-ratio 0.86 --write
+```
+
+The first `calibrate-profile` command is a dry run and prints the calculated
+target without changing files. The second command writes the local profile. By
+default, `calibrate-profile --write` refuses to write outside `config/local/`.
+
+If you know the app window rectangle and the desired point in screen
+coordinates, the command can calculate ratios for you:
+
+```powershell
+.\.venv\Scripts\python.exe -m ai_operator_controller calibrate-profile --profile config\local\profile.codex.windows.json --focus-target message_input --window-left 0 --window-top 0 --window-width 1920 --window-height 1080 --point-x 960 --point-y 930 --write
+```
+
+This command only edits JSON. It does not move the mouse, click, record audio,
+touch the clipboard, or send keyboard input.
 
 ## Simulate Gamepad Inputs
 
