@@ -60,7 +60,9 @@ use cases.
 - [ ] Public package does not yet run push-to-talk hotkey/controller dictation.
 - [x] Public package can send explicit Windows paste output through
   `dictate-run --execute-output`.
-- [ ] There is no one-command installer or startup setup.
+- [x] Public package has a one-command safe runtime launcher for doctor,
+  controller dry-run, dictation dry-run, and explicit execute-output modes.
+- [ ] There is no Windows installer, tray app, or background autostart yet.
 
 ## North-Star User Journey
 
@@ -153,9 +155,10 @@ Goal: make the first install less dependent on Python knowledge.
     overwriting existing private files.
   - Verification: tests for idempotent file creation plus smoke command with a
     temporary target directory.
-- [ ] Add Windows startup/tray guidance.
+- [x] Add Windows startup/tray guidance.
   - Acceptance: user can start the runtime without editing source code.
-  - Verification: manual checklist.
+  - Verification: launcher script contract tests plus `start-runtime.ps1`
+    doctor mode.
 
 Checkpoint:
 

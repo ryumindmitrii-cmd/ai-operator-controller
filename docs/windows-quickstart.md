@@ -34,6 +34,39 @@ of a real Python install, rerun setup with an explicit Python executable:
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-dev.ps1 -Python "<PATH_TO_PYTHON_3_12_EXE>"
 ```
 
+## Start The Public Runtime
+
+After setup, use the safe launcher for everyday checks. It uses ignored local
+config files under `config/local/` by default.
+
+Read-only doctor mode:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-runtime.ps1
+```
+
+Controller dry-run mode:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-runtime.ps1 -Mode gamepad-dry-run -GamepadMaxEvents 10
+```
+
+Microphone-to-output planning without touching the clipboard or keyboard:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-runtime.ps1 -Mode dictation-dry-run -Seconds 2
+```
+
+The only mode that writes to the active desktop window is explicit and guarded:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-runtime.ps1 -Mode dictation-execute -Seconds 2 -ConfirmExecute
+```
+
+Use `dictation-execute` only after focusing a safe scratch window such as an
+empty Notepad document. The project still has no tray application, Windows
+installer, or background autostart.
+
 ## Smoke Test
 
 ```powershell

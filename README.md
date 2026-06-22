@@ -121,6 +121,7 @@ https://github.com/ryumindmitrii-cmd/ai-operator-controller/issues
 git clone https://github.com/ryumindmitrii-cmd/ai-operator-controller.git
 cd ai-operator-controller
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup-dev.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-runtime.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -WithMicrophone
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -WithSpeechModel -SpeechAudioPath <PATH_TO_WAV>
@@ -130,6 +131,20 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\smoke.ps1 -WithDic
 The setup script checks Python, creates or reuses `.venv`, installs development
 dependencies, creates missing ignored local config files under `config/local/`,
 and runs the read-only doctor command.
+
+The runtime launcher starts safe public modes from ignored local config files:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-runtime.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-runtime.ps1 -Mode gamepad-dry-run -GamepadMaxEvents 10
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-runtime.ps1 -Mode dictation-dry-run -Seconds 2
+```
+
+Real desktop output remains explicit:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\start-runtime.ps1 -Mode dictation-execute -Seconds 2 -ConfirmExecute
+```
 
 The first smoke command skips microphone access. The second command includes a
 metadata-only microphone dry-run and still does not save audio, transcribe
@@ -158,6 +173,12 @@ Useful individual checks:
 
 For a more detailed Windows setup and current capability notes, see
 `docs/windows-quickstart.md`.
+
+The `scripts\start-runtime.ps1` launcher is the current public startup path. It
+does not install a tray app or background service. By default it runs the
+read-only doctor. `gamepad-dry-run` and `dictation-dry-run` do not send desktop
+input. `dictation-execute` requires `-ConfirmExecute` and should only be used
+after focusing a safe scratch window.
 
 The `doctor` command reports local runtime readiness before any desktop
 automation runs. It checks the package import, Python/platform, audio input
