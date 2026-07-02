@@ -40,7 +40,7 @@ dependencies = [
   "pynput==1.8.2",
   "pyperclip==1.11.0",
   "numpy==2.4.6",
-  "Pillow==12.2.0",
+  "Pillow==12.3.0",
   "pystray==0.19.5",
   "pygame==2.6.1"
 ]
